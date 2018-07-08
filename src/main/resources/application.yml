@@ -12,8 +12,10 @@ spring:
             path: '/h2'
             settings:
               web-allow-others: true
-
-
+    logging:
+        file: logs/dev_app.log
+        level:
+            org.springframework.web: DEBUG
 server:
   port: 9443
   http-port: 9000
