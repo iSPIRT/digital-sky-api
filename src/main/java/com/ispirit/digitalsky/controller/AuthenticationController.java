@@ -1,5 +1,6 @@
 package com.ispirit.digitalsky.controller;
 
+import com.ispirit.digitalsky.domain.UserPrincipal;
 import com.ispirit.digitalsky.dto.TokenRequest;
 import com.ispirit.digitalsky.dto.TokenResponse;
 import com.ispirit.digitalsky.service.api.SecurityTokenService;
@@ -36,9 +37,9 @@ public class AuthenticationController {
                         loginRequest.getPassword()
                 )
         );
-
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String accessToken = securityTokenService.generateToken(authentication);
-        return ResponseEntity.ok(new TokenResponse(accessToken));
+        return ResponseEntity.ok(new TokenResponse(accessToken, userPrincipal.getId(), userPrincipal.getUsername()));
     }
 }

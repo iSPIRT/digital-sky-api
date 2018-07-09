@@ -1,6 +1,8 @@
 package com.ispirit.digitalsky.configuration;
 
+import com.ispirit.digitalsky.domain.UserPrincipal;
 import com.ispirit.digitalsky.service.api.SecurityTokenService;
+import com.ispirit.digitalsky.service.api.UserService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,12 +19,12 @@ import java.io.IOException;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    UserDetailsService userDetailsService;
+    private UserService userService;
 
     private SecurityTokenService securityTokenService;
 
-    public JwtAuthenticationFilter(UserDetailsService userDetailsService, SecurityTokenService securityTokenService) {
-        this.userDetailsService = userDetailsService;
+    public JwtAuthenticationFilter(UserService userService, SecurityTokenService securityTokenService) {
+        this.userService = userService;
         this.securityTokenService = securityTokenService;
     }
 
@@ -34,7 +36,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (StringUtils.hasText(jwt) && securityTokenService.validateToken(jwt)) {
                 String userId = securityTokenService.getUserIdFromJWT(jwt);
 
-                UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
+                UserDetails userDetails = new UserPrincipal(userService.findUserById(Long.parseLong(userId)));
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
 

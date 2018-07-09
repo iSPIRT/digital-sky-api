@@ -42,7 +42,7 @@ public class JwtTokenService implements SecurityTokenService {
 
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
         return Jwts.builder()
-                .setSubject(userPrincipal.getUsername())
+                .setSubject(String.valueOf(userPrincipal.getId()))
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.RS256, key)

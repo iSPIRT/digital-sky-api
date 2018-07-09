@@ -7,26 +7,30 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.unmodifiableList;
 
 public class UserPrincipal implements UserDetails {
-    private String userName;
+    private String name;
+    private long id;
+    private String email;
     private String password;
     private List<GrantedAuthority> authorityList;
 
-    public UserPrincipal(String email, String password, String... roles) {
-
-        this.userName = email;
-        this.password = password;
-        this.authorityList = unmodifiableList(toAuthorityGrantList(roles));
+    public UserPrincipal(User user) {
+        this.id = user.getId();
+        this.name = user.getFullName();
+        this.email = user.getEmail();
+        this.password = user.getPassword();
+        this.authorityList = unmodifiableList(toAuthorityGrantList(user.getRoleNames()));
 
 
     }
 
-    private List toAuthorityGrantList(String[] roles) {
+    private List toAuthorityGrantList(List<String> roles) {
         List authorityGrantList = new ArrayList<>();
-        if (roles != null && roles.length > 1) {
+        if (roles != null && roles.size() > 1) {
             for (String role : roles) {
                 authorityList.add(new SimpleGrantedAuthority(role));
             }
@@ -46,7 +50,15 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public String getUsername() {
-        return userName;
+        return name;
+    }
+
+    public long getId(){
+        return id;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     @Override
