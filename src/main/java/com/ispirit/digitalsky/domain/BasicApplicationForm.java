@@ -9,11 +9,11 @@ public class BasicApplicationForm {
 
     @Id
     private String id;
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private Date submittedDate;
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private Date lastModifiedDate;
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private Date approvedDate;
     private String approverComments;
     private String applicationNumber;
@@ -38,28 +38,28 @@ public class BasicApplicationForm {
         this.approverComments = approverComments;
     }
 
-    public String getEmail() {
+    public String getApplicantEmail() {
         return applicantEmail;
     }
 
-    public void setEmail(String email) {
-        this.applicantEmail = email;
+    public void setApplicantEmail(String applicantEmail) {
+        this.applicantEmail = applicantEmail;
     }
 
-    public String getPhone() {
+    public String getApplicantPhone() {
         return applicantPhone;
     }
 
-    public void setPhone(String phone) {
-        this.applicantPhone = phone;
+    public void setApplicantPhone(String applicantPhone) {
+        this.applicantPhone = applicantPhone;
     }
 
-    public String getNationality() {
+    public String getApplicantNationality() {
         return applicantNationality;
     }
 
-    public void setNationality(String nationality) {
-        this.applicantNationality = nationality;
+    public void setApplicantNationality(String applicantNationality) {
+        this.applicantNationality = applicantNationality;
     }
 
     public String getApprovedById() {
@@ -70,12 +70,12 @@ public class BasicApplicationForm {
         this.approvedById = approvedById;
     }
 
-    public Address getAddress() {
+    public Address getApplicantAddress() {
         return applicantAddress;
     }
 
-    public void setAddress(Address address) {
-        this.applicantAddress = address;
+    public void setApplicantAddress(Address applicantAddress) {
+        this.applicantAddress = applicantAddress;
     }
 
     public String getApplicationNumber() {

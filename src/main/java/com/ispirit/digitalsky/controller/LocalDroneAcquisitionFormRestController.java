@@ -17,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.*;
 
 @RestController
-@RequestMapping("/applicationForm/localDroneAcquisition")
+@RequestMapping("/api/applicationForm/localDroneAcquisition")
 public class LocalDroneAcquisitionFormRestController {
 
     private final LocalDroneAcquisitionFormRepository localDroneAcquisitionFormRepository;
@@ -31,7 +31,7 @@ public class LocalDroneAcquisitionFormRestController {
         this.entityRepository = entityRepository;
     }
 
-    @PostMapping(value = "/create")
+    @PostMapping
     public LocalDroneAcquisitionApplicationForm saveAcquisitionForm(@RequestPart LocalDroneAcquisitionApplicationForm acquisitionForm, @RequestPart(value="securityClearanceDoc", required=false) MultipartFile securityClearanceDoc, @RequestPart(value="etaClearanceDoc", required=false) MultipartFile etaClearanceDoc) {
 
         List<MultipartFile> filesToBeUploaded = new ArrayList<MultipartFile>(Arrays.asList(securityClearanceDoc, etaClearanceDoc));
@@ -43,7 +43,7 @@ public class LocalDroneAcquisitionFormRestController {
         return insertedForm;
     }
 
-    @PatchMapping("/edit/{applicationFormId}")
+    @PatchMapping("/{applicationFormId}")
     public LocalDroneAcquisitionApplicationForm editAcquisitionForm(@PathVariable String applicationFormId, @RequestBody LocalDroneAcquisitionApplicationForm acquisitionForm) {
         LocalDroneAcquisitionApplicationForm actualForm = localDroneAcquisitionFormRepository.findById(applicationFormId);
         BeanUtils.copyProperties(acquisitionForm,actualForm);
@@ -77,6 +77,11 @@ public class LocalDroneAcquisitionFormRestController {
     @GetMapping("/getAll")
     public Collection<LocalDroneAcquisitionApplicationForm> getAcquisitionForms(){
         return localDroneAcquisitionFormRepository.findAll();
+    }
+
+    @GetMapping("/{applicationId}")
+    public LocalDroneAcquisitionApplicationForm getAcquisitionForm(@PathVariable String applicationId){
+        return localDroneAcquisitionFormRepository.findById(applicationId);
     }
 
     @GetMapping(value = "/files/{applicationFormId}/{fileName}", produces = "multipart/form-data")

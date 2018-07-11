@@ -1,13 +1,16 @@
 package com.ispirit.digitalsky.domain;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.util.Date;
 
 public class ApproveRequestBody {
 
-    private String _id;
+    private String id;
     private ApplicationStatus status;
     private String approvedById;
     private String comments;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private static final Date approvedDate = new Date();
 
     public String getComments() {
@@ -18,12 +21,12 @@ public class ApproveRequestBody {
         this.comments = comments;
     }
 
-    public String get_id() {
-        return _id;
+    public String getId() {
+        return id;
     }
 
-    public void set_id(String _id) {
-        this._id = _id;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public ApplicationStatus getStatus() {

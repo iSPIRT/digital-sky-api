@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface LocalDroneAcquisitionFormRepository extends MongoRepository<LocalDroneAcquisitionApplicationForm, String> {
 
-    LocalDroneAcquisitionApplicationForm findById(@Param("id") String name);
+    LocalDroneAcquisitionApplicationForm findById(@Param("id") String id);
     List<LocalDroneAcquisitionApplicationForm> findByApplicant(@Param("applicantName") String name);
 
 }

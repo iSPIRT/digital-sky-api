@@ -14,7 +14,7 @@ public class LocalDroneAcquisitionApplicationForm extends BasicApplicationForm {
     private String serialNo;
     private Date dateOfManufacture;
     private String yearOfManufacture;
-    private Boolean isFixedWing;
+    private Boolean fixedWing;
     private Boolean isNew;
     private float maxTakeOffWeight;
     private float maxHeightAttainable;
@@ -97,19 +97,19 @@ public class LocalDroneAcquisitionApplicationForm extends BasicApplicationForm {
     }
 
     public Boolean getFixedWing() {
-        return isFixedWing;
+        return this.fixedWing;
     }
 
     public void setFixedWing(Boolean fixedWing) {
-        isFixedWing = fixedWing;
+        this.fixedWing = fixedWing;
     }
 
     public Boolean getNew() {
-        return isNew;
+        return this.isNew;
     }
 
-    public void setNew(Boolean aNew) {
-        isNew = aNew;
+    public void setNew(Boolean isNew) {
+        this.isNew = isNew;
     }
 
     public float getMaxTakeOffWeight() {
