@@ -1,5 +1,6 @@
 package com.ispirit.digitalsky.domain;
 
+import com.ispirit.digitalsky.document.AddressDocument;
 import org.springframework.data.annotation.Id;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -20,7 +21,7 @@ public class BasicApplicationForm {
     private ApplicationStatus status;
     private String approvedById;
     private String applicant;
-    private Address applicantAddress;
+    private AddressDocument applicantAddress;
     private String applicantEmail;
     private String applicantPhone;
     private String applicantNationality;
@@ -70,11 +71,11 @@ public class BasicApplicationForm {
         this.approvedById = approvedById;
     }
 
-    public Address getApplicantAddress() {
+    public AddressDocument getApplicantAddress() {
         return applicantAddress;
     }
 
-    public void setApplicantAddress(Address applicantAddress) {
+    public void setApplicantAddress(AddressDocument applicantAddress) {
         this.applicantAddress = applicantAddress;
     }
 

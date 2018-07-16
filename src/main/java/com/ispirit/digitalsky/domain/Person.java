@@ -1,9 +1,7 @@
 package com.ispirit.digitalsky.domain;
-import org.springframework.data.annotation.Id;
 
-public class Person{
+public class Person {
 
-   @Id
     private String id;
     private String firstName;
     private String lastName;
