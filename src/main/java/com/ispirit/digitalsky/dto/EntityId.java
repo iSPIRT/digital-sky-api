@@ -2,16 +2,16 @@ package com.ispirit.digitalsky.dto;
 
 import com.ispirit.digitalsky.domain.User;
 
-public class UserId {
+public class EntityId {
 
     private long id;
 
-    private UserId() {
+    private EntityId() {
         //for serialization and de-serialization
     }
 
-    public UserId(User user) {
-        this.id = user.getId();
+    public EntityId(long id) {
+        this.id = id;
     }
 
     public long getId() {

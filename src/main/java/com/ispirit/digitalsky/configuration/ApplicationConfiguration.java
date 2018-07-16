@@ -1,12 +1,11 @@
 package com.ispirit.digitalsky.configuration;
 
-import com.ispirit.digitalsky.repository.UserRepository;
-import com.ispirit.digitalsky.service.CustomUserDetailService;
-import com.ispirit.digitalsky.service.SendGridEmailService;
-import com.ispirit.digitalsky.service.api.EmailService;
-import com.ispirit.digitalsky.service.api.SecurityTokenService;
-import com.ispirit.digitalsky.service.JwtTokenService;
-import com.ispirit.digitalsky.service.api.UserService;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ispirit.digitalsky.repository.*;
+import com.ispirit.digitalsky.service.*;
+import com.ispirit.digitalsky.service.api.*;
 import com.sendgrid.SendGrid;
 import freemarker.template.TemplateExceptionHandler;
 import org.apache.catalina.Context;
@@ -37,7 +36,7 @@ public class ApplicationConfiguration {
     @Value("${SEND_GRID_API_KEY:default}")
     private String sendGridApiKey;
 
-    @Value("${RESET_PASSWORD_PATH:http://localhost:3000/resetPassword}")
+    @Value("${RESET_PASSWORD_PATH:http://192.168.33.10:3000/resetPassword}")
     private String resetPasswordBasePath;
 
     @Bean
@@ -66,8 +65,8 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(SecurityTokenService securityTokenService, UserService userDetailsService) {
-        return new JwtAuthenticationFilter(userDetailsService, securityTokenService);
+    public JwtAuthenticationFilter jwtAuthenticationFilter(SecurityTokenService securityTokenService, UserService userService) {
+        return new JwtAuthenticationFilter(userService, securityTokenService);
     }
 
     @Bean
@@ -87,6 +86,26 @@ public class ApplicationConfiguration {
     }
 
     @Bean
+    PilotService pilotService(PilotRepository pilotRepository) {
+        return new PilotServiceImpl(pilotRepository);
+    }
+
+    @Bean
+    IndividualOperatorService individualOperatorService(IndividualOperatorRepository individualOperatorRepository, OrganizationOperatorRepository organizationOperatorRepository) {
+        return new IndividualOperatorServiceImpl(individualOperatorRepository, organizationOperatorRepository);
+    }
+
+    @Bean
+    OrganizationOperatorService organizationOperatorService(OrganizationOperatorRepository organizationOperatorRepository, IndividualOperatorRepository individualOperatorRepository) {
+        return new OrganizationOperatorServiceImpl(organizationOperatorRepository, individualOperatorRepository);
+    }
+
+    @Bean
+    DirectorService directorService(DirectorRepository directorRepository){
+        return new DirectorServiceImpl(directorRepository);
+    }
+
+    @Bean
     public EmbeddedServletContainerFactory servletContainer() {
         TomcatEmbeddedServletContainerFactory tomcat = new TomcatEmbeddedServletContainerFactory() {
             @Override
@@ -101,6 +120,14 @@ public class ApplicationConfiguration {
         };
         tomcat.addAdditionalTomcatConnectors(getHttpConnector());
         return tomcat;
+    }
+
+    @Bean
+    public ObjectMapper myObjectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
+        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+        return objectMapper;
     }
 
     private Connector getHttpConnector() {

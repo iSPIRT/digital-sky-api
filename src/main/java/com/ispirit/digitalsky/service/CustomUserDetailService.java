@@ -9,6 +9,8 @@ import com.ispirit.digitalsky.service.api.EmailService;
 import com.ispirit.digitalsky.service.api.UserService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -39,6 +41,11 @@ public class CustomUserDetailService implements UserService {
         return userRepository.findOne(id);
     }
 
+    @Override
+    public User find(long id) {
+        return userRepository.findOne(id);
+    }
+
 
     @Override
     public void generateResetPasswordLink(String email) {
@@ -61,6 +68,17 @@ public class CustomUserDetailService implements UserService {
         }
         user.setPassword(newPasswordHash);
         userRepository.save(user);
+    }
+
+    @Override
+    public User loadByEmail(String email) {
+        return userRepository.loadByEmail(email);
+    }
+
+    @Override
+    @Transactional
+    public User createNew(User user) {
+        return userRepository.save(user);
     }
 
 }
