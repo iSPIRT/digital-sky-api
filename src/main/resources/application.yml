@@ -16,6 +16,12 @@ spring:
         file: logs/dev_app.log
         level:
             org.springframework.web: DEBUG
+    data:
+      mongodb:
+        host: 192.168.33.10
+        port: 27017
+        database: digitalsky
+
 server:
   port: 9443
   http-port: 9000

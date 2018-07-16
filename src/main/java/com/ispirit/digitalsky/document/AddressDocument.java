@@ -1,6 +1,6 @@
-package com.ispirit.digitalsky.domain;
+package com.ispirit.digitalsky.document;
 
-public class Address {
+public class AddressDocument {
 
     private String lineOne;
     private String lineTwo;
