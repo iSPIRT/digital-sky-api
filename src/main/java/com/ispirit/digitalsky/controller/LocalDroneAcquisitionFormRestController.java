@@ -2,6 +2,7 @@ package com.ispirit.digitalsky.controller;
 
 import com.ispirit.digitalsky.domain.ApproveRequestBody;
 import com.ispirit.digitalsky.domain.LocalDroneAcquisitionApplicationForm;
+import com.ispirit.digitalsky.domain.LocalDroneAcquisitionApplicationFormWithUploadFiles;
 import com.ispirit.digitalsky.repository.EntityRepository;
 import com.ispirit.digitalsky.repository.LocalDroneAcquisitionFormRepository;
 import com.ispirit.digitalsky.repository.storage.StorageFileNotFoundException;
@@ -13,6 +14,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -20,6 +23,7 @@ import java.util.*;
 @RequestMapping("/api/applicationForm/localDroneAcquisition")
 public class LocalDroneAcquisitionFormRestController {
 
+    private static final Logger logger = LoggerFactory.getLogger(LocalDroneAcquisitionFormRestController.class);
     private final LocalDroneAcquisitionFormRepository localDroneAcquisitionFormRepository;
     private final StorageService documentRepository;
     private final EntityRepository entityRepository;
@@ -31,16 +35,33 @@ public class LocalDroneAcquisitionFormRestController {
         this.entityRepository = entityRepository;
     }
 
-    @PostMapping
-    public LocalDroneAcquisitionApplicationForm saveAcquisitionForm(@RequestPart LocalDroneAcquisitionApplicationForm acquisitionForm, @RequestPart(value="securityClearanceDoc", required=false) MultipartFile securityClearanceDoc, @RequestPart(value="etaClearanceDoc", required=false) MultipartFile etaClearanceDoc) {
+//    @PostMapping
+//    public LocalDroneAcquisitionApplicationForm saveAcquisitionForm(@RequestPart LocalDroneAcquisitionApplicationForm acquisitionForm, @RequestPart(value="securityClearanceDoc", required=false) MultipartFile securityClearanceDoc, @RequestPart(value="etaClearanceDoc", required=false) MultipartFile etaClearanceDoc) {
+//        try {
+//            List<MultipartFile> filesToBeUploaded = new ArrayList<MultipartFile>(Arrays.asList(securityClearanceDoc, etaClearanceDoc));
+//            acquisitionForm.setLastModifiedDate(new Date());
+//            acquisitionForm.setSubmittedDate(new Date());
+//            LocalDroneAcquisitionApplicationForm insertedForm = localDroneAcquisitionFormRepository.insert(acquisitionForm);
+//            documentRepository.store(filesToBeUploaded, insertedForm.getId());
+//            entityRepository.createAcquisitionForm();
+//            return insertedForm;
+//        } catch(Exception ex){
+//            logger.error(ex.getMessage());
+//        }
+//        return null;
+//    }
 
-        List<MultipartFile> filesToBeUploaded = new ArrayList<MultipartFile>(Arrays.asList(securityClearanceDoc, etaClearanceDoc));
-        acquisitionForm.setLastModifiedDate(new Date());
-        acquisitionForm.setSubmittedDate(new Date());
-        LocalDroneAcquisitionApplicationForm insertedForm = localDroneAcquisitionFormRepository.insert(acquisitionForm);
-        documentRepository.store(filesToBeUploaded, insertedForm.getId());
-        entityRepository.createAcquisitionForm();
-        return insertedForm;
+    @PostMapping
+    public LocalDroneAcquisitionApplicationForm saveAcquisitionForm(@RequestBody LocalDroneAcquisitionApplicationForm acquisitionForm) {
+        try {
+            acquisitionForm.setLastModifiedDate(new Date());
+            acquisitionForm.setSubmittedDate(new Date());
+            LocalDroneAcquisitionApplicationForm insertedForm = localDroneAcquisitionFormRepository.insert(acquisitionForm);
+            return insertedForm;
+        } catch(Exception ex){
+            logger.error(ex.getMessage());
+        }
+        return null;
     }
 
     @PatchMapping("/{applicationFormId}")
