@@ -27,7 +27,7 @@ public class LocalDroneAcquisitionApplicationForm extends BasicApplicationForm {
     @Transient
     private MultipartFile securityClearanceDoc;
     @Transient
-    private MultipartFile etaclearancedoc;
+    private MultipartFile etaClearancedoc;
 
     public ModeOfAcquisition getAcquisitionMode() {
         return acquisitionMode;
@@ -159,12 +159,12 @@ public class LocalDroneAcquisitionApplicationForm extends BasicApplicationForm {
         this.securityClearanceDoc = securityClearanceDoc;
     }
 
-    public MultipartFile getEtaclearancedoc() {
-        return etaclearancedoc;
+    public MultipartFile getEtaClearancedoc() {
+        return etaClearancedoc;
     }
 
-    public void setEtaclearancedoc(MultipartFile etaclearancedoc) {
-        this.etaclearancedoc = etaclearancedoc;
+    public void setEtaClearancedoc(MultipartFile etaClearancedoc) {
+        this.etaClearancedoc = etaClearancedoc;
     }
 
     public List<DroneType> getDronesToBeAcquired() {
