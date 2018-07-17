@@ -2,7 +2,6 @@ package com.ispirit.digitalsky.controller;
 
 import com.ispirit.digitalsky.domain.ApproveRequestBody;
 import com.ispirit.digitalsky.domain.LocalDroneAcquisitionApplicationForm;
-import com.ispirit.digitalsky.domain.LocalDroneAcquisitionApplicationFormWithUploadFiles;
 import com.ispirit.digitalsky.repository.EntityRepository;
 import com.ispirit.digitalsky.repository.LocalDroneAcquisitionFormRepository;
 import com.ispirit.digitalsky.repository.storage.StorageFileNotFoundException;
