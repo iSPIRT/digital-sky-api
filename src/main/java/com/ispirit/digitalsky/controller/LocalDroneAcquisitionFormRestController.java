@@ -13,8 +13,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -22,7 +20,6 @@ import java.util.*;
 @RequestMapping("/api/applicationForm/localDroneAcquisition")
 public class LocalDroneAcquisitionFormRestController {
 
-    private static final Logger logger = LoggerFactory.getLogger(LocalDroneAcquisitionFormRestController.class);
     private final LocalDroneAcquisitionFormRepository localDroneAcquisitionFormRepository;
     private final StorageService documentRepository;
     private final EntityRepository entityRepository;
@@ -58,7 +55,7 @@ public class LocalDroneAcquisitionFormRestController {
             LocalDroneAcquisitionApplicationForm insertedForm = localDroneAcquisitionFormRepository.insert(acquisitionForm);
             return insertedForm;
         } catch(Exception ex){
-            logger.error(ex.getMessage());
+            
         }
         return null;
     }
