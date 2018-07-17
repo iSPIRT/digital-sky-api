@@ -1,6 +1,7 @@
 package com.ispirit.digitalsky.domain;
 
 import org.springframework.data.annotation.Transient;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.util.Date;
@@ -21,6 +22,12 @@ public class LocalDroneAcquisitionApplicationForm extends BasicApplicationForm {
     private String payloadDetails;
     private String purposeOfOperation;
     private String proposedBaseOfOperation;
+    private ModeOfAcquisition acquisitionMode;
+    private List<DroneType> dronesToBeAcquired;
+    @Transient
+    private MultipartFile securityClearanceDoc;
+    @Transient
+    private MultipartFile etaclearancedoc;
 
     public ModeOfAcquisition getAcquisitionMode() {
         return acquisitionMode;
@@ -29,14 +36,6 @@ public class LocalDroneAcquisitionApplicationForm extends BasicApplicationForm {
     public void setAcquisitionMode(ModeOfAcquisition acquisitionMode) {
         this.acquisitionMode = acquisitionMode;
     }
-
-    private ModeOfAcquisition acquisitionMode;
-    private List<DroneType> dronesToBeAcquired;
-    @Transient
-    private File securityClearanceDoc;
-    @Transient
-    private File ETAClearanceDoc;
-
 
     public ApplicantCategory getApplicantCategory() {
         return applicantCategory;
@@ -152,20 +151,20 @@ public class LocalDroneAcquisitionApplicationForm extends BasicApplicationForm {
         this.proposedBaseOfOperation = proposedBaseOfOperation;
     }
 
-    public File getSecurityClearanceDoc() {
+    public MultipartFile getSecurityClearanceDoc() {
         return securityClearanceDoc;
     }
 
-    public void setSecurityClearanceDoc(File securityClearanceDoc) {
+    public void setSecurityClearanceDoc(MultipartFile securityClearanceDoc) {
         this.securityClearanceDoc = securityClearanceDoc;
     }
 
-    public File getETAClearanceDoc() {
-        return ETAClearanceDoc;
+    public MultipartFile getEtaclearancedoc() {
+        return etaclearancedoc;
     }
 
-    public void setETAClearanceDoc(File ETAClearanceDoc) {
-        this.ETAClearanceDoc = ETAClearanceDoc;
+    public void setEtaclearancedoc(MultipartFile etaclearancedoc) {
+        this.etaclearancedoc = etaclearancedoc;
     }
 
     public List<DroneType> getDronesToBeAcquired() {
