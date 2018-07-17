@@ -31,16 +31,33 @@ public class LocalDroneAcquisitionFormRestController {
         this.entityRepository = entityRepository;
     }
 
-    @PostMapping
-    public LocalDroneAcquisitionApplicationForm saveAcquisitionForm(@RequestPart LocalDroneAcquisitionApplicationForm acquisitionForm, @RequestPart(value="securityClearanceDoc", required=false) MultipartFile securityClearanceDoc, @RequestPart(value="etaClearanceDoc", required=false) MultipartFile etaClearanceDoc) {
+//    @PostMapping
+//    public LocalDroneAcquisitionApplicationForm saveAcquisitionForm(@RequestPart LocalDroneAcquisitionApplicationForm acquisitionForm, @RequestPart(value="securityClearanceDoc", required=false) MultipartFile securityClearanceDoc, @RequestPart(value="etaClearanceDoc", required=false) MultipartFile etaClearanceDoc) {
+//        try {
+//            List<MultipartFile> filesToBeUploaded = new ArrayList<MultipartFile>(Arrays.asList(securityClearanceDoc, etaClearanceDoc));
+//            acquisitionForm.setLastModifiedDate(new Date());
+//            acquisitionForm.setSubmittedDate(new Date());
+//            LocalDroneAcquisitionApplicationForm insertedForm = localDroneAcquisitionFormRepository.insert(acquisitionForm);
+//            documentRepository.store(filesToBeUploaded, insertedForm.getId());
+//            entityRepository.createAcquisitionForm();
+//            return insertedForm;
+//        } catch(Exception ex){
+//            logger.error(ex.getMessage());
+//        }
+//        return null;
+//    }
 
-        List<MultipartFile> filesToBeUploaded = new ArrayList<MultipartFile>(Arrays.asList(securityClearanceDoc, etaClearanceDoc));
-        acquisitionForm.setLastModifiedDate(new Date());
-        acquisitionForm.setSubmittedDate(new Date());
-        LocalDroneAcquisitionApplicationForm insertedForm = localDroneAcquisitionFormRepository.insert(acquisitionForm);
-        documentRepository.store(filesToBeUploaded, insertedForm.getId());
-        entityRepository.createAcquisitionForm();
-        return insertedForm;
+    @PostMapping
+    public LocalDroneAcquisitionApplicationForm saveAcquisitionForm(@RequestBody LocalDroneAcquisitionApplicationForm acquisitionForm) {
+        try {
+            acquisitionForm.setLastModifiedDate(new Date());
+            acquisitionForm.setSubmittedDate(new Date());
+            LocalDroneAcquisitionApplicationForm insertedForm = localDroneAcquisitionFormRepository.insert(acquisitionForm);
+            return insertedForm;
+        } catch(Exception ex){
+            logger.error(ex.getMessage());
+        }
+        return null;
     }
 
     @PatchMapping("/{applicationFormId}")
