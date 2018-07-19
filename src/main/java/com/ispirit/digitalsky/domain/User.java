@@ -10,7 +10,7 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 @Entity
-@Table(name = "DS_USER")
+@Table(name = "ds_user")
 public class User {
 
     @Id
