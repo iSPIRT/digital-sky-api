@@ -1,26 +1,38 @@
 spring:
     application:
-        name: cacms
+        name: digitalsky
     datasource:
-        url: jdbc:h2:file:/tmp/digital-sky-h2-db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-        username: sa
-        password:
-        driver-class-name: org.h2.Driver
-    h2:
-        console:
-            enabled: true
-            path: '/h2'
-            settings:
-              web-allow-others: true
+        url: jdbc:mysql://192.168.33.10:3306/digitalsky?useSSL=false
+        username: digitalsky
+        password: digitalsky
+        driverClassName: com.mysql.jdbc.Driver
+    jpa:
+      hibernate:
+        naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+        ddl-auto: none
+      properties:
+        hibernate:
+          show_sql: true
+          use_sql_comments: true
+          format_sql: true
+          type: trace
+          dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+
     logging:
         file: logs/dev_app.log
         level:
-            org.springframework.web: DEBUG
+            org: DEBUG
     data:
       mongodb:
         host: 192.168.33.10
         port: 27017
         database: digitalsky
+flyway:
+  enabled: true
+  url: jdbc:mysql://192.168.33.10:3306/digitalsky?useSSL=false
+  user: digitalsky
+  password: digitalsky
+  locations: classpath:/db/migration
 
 server:
   port: 9443

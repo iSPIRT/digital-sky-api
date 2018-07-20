@@ -3,7 +3,7 @@ package com.ispirit.digitalsky.domain;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "DS_USER_ROLE")
+@Table(name = "ds_user_role")
 public class UserRole {
 
     @Id
