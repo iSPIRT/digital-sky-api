@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.repository.*;
+import com.ispirit.digitalsky.repository.storage.StorageService;
 import com.ispirit.digitalsky.service.*;
 import com.ispirit.digitalsky.service.api.*;
 import com.sendgrid.SendGrid;
@@ -103,6 +104,11 @@ public class ApplicationConfiguration {
     @Bean
     DirectorService directorService(DirectorRepository directorRepository){
         return new DirectorServiceImpl(directorRepository);
+    }
+
+    @Bean
+    LocalDroneAcquisitionApplicationFormService localDroneAcquisitionFormService(LocalDroneAcquisitionFormRepository localDroneAcquisitionFormRepository, StorageService documentRepository, EntityRepository entityRepository){
+        return new LocalDroneAcquisitionApplicationFormServiceImpl(localDroneAcquisitionFormRepository, documentRepository, entityRepository);
     }
 
     @Bean

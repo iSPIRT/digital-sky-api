@@ -40,7 +40,7 @@ public class JwtTokenService implements SecurityTokenService {
 
         Date now = new Date();
 
-        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
+        Date expiryDate = new Date(now.getTime() + 21000000);
         return Jwts.builder()
                 .setSubject(String.valueOf(userPrincipal.getId()))
                 .setIssuedAt(new Date())

@@ -1,6 +1,6 @@
-package com.ispirit.digitalsky.repository.storage;
+package com.ispirit.digitalsky.exception;
 
-public class StorageFileNotFoundException extends StorageException {
+public class StorageFileNotFoundException extends RuntimeException {
 
     public StorageFileNotFoundException(String message) {
         super(message);

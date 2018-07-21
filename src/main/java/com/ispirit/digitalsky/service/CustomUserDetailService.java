@@ -18,7 +18,6 @@ import static java.lang.String.format;
 
 public class CustomUserDetailService implements UserService {
 
-
     private UserRepository userRepository;
     private EmailService emailService;
     private String resetPasswordBasePath;

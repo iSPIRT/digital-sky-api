@@ -1,34 +1,77 @@
 package com.ispirit.digitalsky.document;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ispirit.digitalsky.domain.*;
-import org.springframework.data.annotation.Transient;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.annotation.TypeAlias;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.io.File;
 import java.util.Date;
-import java.util.List;
 
+@Document(collection="localDroneAcquisitionApplicationForms")
+@TypeAlias("localDroneAcquisitionApplicationForm")
 public class LocalDroneAcquisitionApplicationForm extends BasicApplicationForm {
 
+    @Field("manufacturer")
     private String manufacturer;
+
+    @Field("manufacturerId")
+    private long manufacturerId;
+
+    @Field("manufacturerAddress")
     private AddressDocument manufacturerAddress;
+
+    @Field("owner")
+    private String owner;
+
+    @Field("ownerId")
+    private long ownerId;
+
+    @Field("ownerAddress")
+    private AddressDocument ownerAddress;
+
+    @Field("modelNo")
     private String modelNo;
+
+    @Field("serialNo")
     private String serialNo;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-mm-dd")
+    @Field("dateOfManufacture")
     private Date dateOfManufacture;
+
+    @Field("yearOfManufacture")
     private String yearOfManufacture;
+
+    @Field("fixedWing")
     private Boolean fixedWing;
+
+    @Field("noOfDrones")
+    private int noOfDrones;
+
+    @Field("isNew")
     private Boolean isNew;
+
+    @Field("maxTakeOffWeight")
     private float maxTakeOffWeight;
+
+    @Field("maxHeightAttainable")
     private float maxHeightAttainable;
+
+    @Field("payloadDetails")
     private String payloadDetails;
+
+    @Field("purposeOfOperation")
     private String purposeOfOperation;
+
+    @Field("proposedBaseOfOperation")
     private String proposedBaseOfOperation;
+
+    @Field("acquisitionMode")
     private ModeOfAcquisition acquisitionMode;
-    private List<DroneType> dronesToBeAcquired;
-    @Transient
-    private MultipartFile securityClearanceDoc;
-    @Transient
-    private MultipartFile etaclearancedoc;
+
+    @Field("securityClearanceDocument")
+    private String securityClearanceDoc;
 
     public ModeOfAcquisition getAcquisitionMode() {
         return acquisitionMode;
@@ -42,9 +85,7 @@ public class LocalDroneAcquisitionApplicationForm extends BasicApplicationForm {
         return applicantCategory;
     }
 
-    public void setApplicantCategory(ApplicantCategory applicantCategory) {
-        this.applicantCategory = applicantCategory;
-    }
+    public void setApplicantCategory(ApplicantCategory applicantCategory) { this.applicantCategory = applicantCategory; }
 
     private ApplicantCategory applicantCategory;
 
@@ -60,9 +101,7 @@ public class LocalDroneAcquisitionApplicationForm extends BasicApplicationForm {
         return manufacturerAddress;
     }
 
-    public void setManufacturerAddress(AddressDocument manufacturerAddress) {
-        this.manufacturerAddress = manufacturerAddress;
-    }
+    public void setManufacturerAddress(AddressDocument manufacturerAddress) { this.manufacturerAddress = manufacturerAddress; }
 
     public String getModelNo() {
         return modelNo;
@@ -104,11 +143,11 @@ public class LocalDroneAcquisitionApplicationForm extends BasicApplicationForm {
         this.fixedWing = fixedWing;
     }
 
-    public Boolean getNew() {
+    public Boolean getIsNew() {
         return this.isNew;
     }
 
-    public void setNew(Boolean isNew) {
+    public void setIsNew(Boolean isNew) {
         this.isNew = isNew;
     }
 
@@ -148,52 +187,42 @@ public class LocalDroneAcquisitionApplicationForm extends BasicApplicationForm {
         return proposedBaseOfOperation;
     }
 
-    public void setProposedBaseOfOperation(String proposedBaseOfOperation) {
-        this.proposedBaseOfOperation = proposedBaseOfOperation;
+    public void setProposedBaseOfOperation(String proposedBaseOfOperation) { this.proposedBaseOfOperation = proposedBaseOfOperation; }
+
+    public String getSecurityClearanceDoc() { return securityClearanceDoc; }
+
+    public void setSecurityClearanceDoc(String securityClearanceDoc) { this.securityClearanceDoc = securityClearanceDoc; }
+
+    public int getNoOfDrones() {
+        return noOfDrones;
     }
 
-    public MultipartFile getSecurityClearanceDoc() {
-        return securityClearanceDoc;
+    public void setNoOfDrones(int noOfDrones) {
+        this.noOfDrones = noOfDrones;
     }
 
-    public void setSecurityClearanceDoc(MultipartFile securityClearanceDoc) {
-        this.securityClearanceDoc = securityClearanceDoc;
+    public AddressDocument getOwnerAddress() {
+        return ownerAddress;
     }
 
-    public MultipartFile getEtaclearancedoc() {
-        return etaclearancedoc;
+    public void setOwnerAddress(AddressDocument ownerAddress) {
+        this.ownerAddress = ownerAddress;
     }
 
-    public void setEtaclearancedoc(MultipartFile etaclearancedoc) {
-        this.etaclearancedoc = etaclearancedoc;
+    public String getOwner() {
+        return owner;
     }
 
-    public List<DroneType> getDronesToBeAcquired() {
-        return dronesToBeAcquired;
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 
-    public void setDronesToBeAcquired(List<DroneType> dronesToBeAcquired) {
-        this.dronesToBeAcquired = dronesToBeAcquired;
-    }
+    public long getManufacturerId() { return manufacturerId; }
 
+    public void setManufacturerId(long manufacturerId) { this.manufacturerId = manufacturerId; }
 
+    public long getOwnerId() { return ownerId; }
 
-//    public void merge(LocalDroneAcquisitionForm acquisitionForm) {
-//        System.out.println("Inside Merge");
-//        Field[] fields = this.getClass().getFields();
-//        for( Field field : fields){
-//            Object newValue = null;
-//            try {
-//                System.out.println("Inside Merge try catch");
-//                newValue = field.get(acquisitionForm);
-//                if(newValue != null) {
-//                    System.out.println(String.format("field - %s; newvalue - %s",field.getName(),newValue ));
-//                    field.set(this,newValue);
-//                }
-//            } catch (IllegalAccessException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
+    public void setOwnerId(long ownerId) { this.ownerId = ownerId; }
 
 }
