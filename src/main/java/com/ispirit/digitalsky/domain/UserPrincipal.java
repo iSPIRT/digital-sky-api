@@ -2,7 +2,9 @@ package com.ispirit.digitalsky.domain;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import sun.plugin.liveconnect.SecurityContextHelper;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,6 +20,9 @@ public class UserPrincipal implements UserDetails {
     private String password;
     private List<GrantedAuthority> authorityList;
 
+    public static UserPrincipal securityContext(){
+        return (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
     public UserPrincipal(User user) {
         this.id = user.getId();
         this.name = user.getFullName();

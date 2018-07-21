@@ -1,6 +1,6 @@
 package com.ispirit.digitalsky.repository;
 
-import com.ispirit.digitalsky.domain.LocalDroneAcquisitionApplicationForm;
+import com.ispirit.digitalsky.document.LocalDroneAcquisitionApplicationForm;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.repository.query.Param;
 

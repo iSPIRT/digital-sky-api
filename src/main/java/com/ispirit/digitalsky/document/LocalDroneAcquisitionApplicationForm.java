@@ -1,5 +1,6 @@
-package com.ispirit.digitalsky.domain;
+package com.ispirit.digitalsky.document;
 
+import com.ispirit.digitalsky.domain.*;
 import org.springframework.data.annotation.Transient;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -10,7 +11,7 @@ import java.util.List;
 public class LocalDroneAcquisitionApplicationForm extends BasicApplicationForm {
 
     private String manufacturer;
-    private Address manufacturerAddress;
+    private AddressDocument manufacturerAddress;
     private String modelNo;
     private String serialNo;
     private Date dateOfManufacture;
@@ -55,11 +56,11 @@ public class LocalDroneAcquisitionApplicationForm extends BasicApplicationForm {
         this.manufacturer = manufacturer;
     }
 
-    public Address getManufacturerAddress() {
+    public AddressDocument getManufacturerAddress() {
         return manufacturerAddress;
     }
 
-    public void setManufacturerAddress(Address manufacturerAddress) {
+    public void setManufacturerAddress(AddressDocument manufacturerAddress) {
         this.manufacturerAddress = manufacturerAddress;
     }
 

@@ -1,12 +1,11 @@
 package com.ispirit.digitalsky.controller;
 
 import com.ispirit.digitalsky.domain.User;
+import com.ispirit.digitalsky.dto.EntityId;
 import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.dto.ResetPasswordLinkRequest;
 import com.ispirit.digitalsky.dto.ResetPasswordRequest;
-import com.ispirit.digitalsky.dto.UserId;
 import com.ispirit.digitalsky.exception.EntityNotFoundException;
-import com.ispirit.digitalsky.repository.UserRepository;
 import com.ispirit.digitalsky.service.api.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,17 +26,15 @@ public class UserController {
 
     public static final String USER_RESOURCE_BASE_PATH = "/api/user";
 
-    public static final String RESET_PASSWORD_PATH = USER_RESOURCE_BASE_PATH + "/resetPassword";
-
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
     private UserService userService;
 
-    @Autowired
     PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public UserController(UserService userService, PasswordEncoder passwordEncoder) {
+        this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> addUser(@RequestBody User userPayload) {
@@ -48,17 +45,17 @@ public class UserController {
 
         User user = new User(userPayload.getFullName(), userPayload.getEmail(), passwordEncoder.encode(userPayload.getPassword()));
 
-        User existingUser = userRepository.loadByEmail(user.getEmail());
+        User existingUser = userService.loadByEmail(user.getEmail());
         if (existingUser != null) {
             return new ResponseEntity<>(new Errors("Email id already exist"), HttpStatus.CONFLICT);
         }
-        User newUser = userRepository.save(user);
-        return new ResponseEntity<>(new UserId(newUser), HttpStatus.OK);
+        User newUser = userService.createNew(user);
+        return new ResponseEntity<>(new EntityId(newUser.getId()), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<?> get(@PathVariable("id") long id) {
-        User user = userRepository.findOne(id);
+        User user = userService.find(id);
         if (user != null) {
             return new ResponseEntity<>(user, HttpStatus.OK);
         } else {

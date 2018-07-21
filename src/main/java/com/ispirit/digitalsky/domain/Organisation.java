@@ -1,28 +1,70 @@
 package com.ispirit.digitalsky.domain;
 
-import org.springframework.data.annotation.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class Organisation {
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
-    @Id
-    private String id;
-    private String name;
-    private String businessEmail;
+@Entity
+@Table(name = "ds_organization")
+@Inheritance(strategy = InheritanceType.JOINED)
+public abstract class Organisation {
+
+    @javax.persistence.Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @JsonIgnore
+    protected long id;
+
+    @Column(name = "NAME")
+    protected String name;
+
+    @Column(name = "EMAIL")
+    protected String email;
+
+    @Column(name = "MOBILE_NUMBER")
+    protected String mobileNumber;
+
+    @Column(name = "CONTACT_NUMBER")
+    protected String contactNumber;
+
+    @Column(name = "COUNTRY")
+    protected String country;
+
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinTable(
+            name = "ds_organization_address",
+            joinColumns = @JoinColumn(name = "ORGANIZATION_ID"),
+            inverseJoinColumns = @JoinColumn(name = "ADDRESS_ID")
+    )
+    protected List<Address> addressList = new ArrayList<>();
+
+    public long getId() {
+        return id;
+    }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getEmail() {
+        return email;
     }
 
-    public String getBusinessEmail() {
-        return businessEmail;
+    public String getMobileNumber() {
+        return mobileNumber;
     }
 
-    public void setBusinessEmail(String businessEmail) {
-        this.businessEmail = businessEmail;
+    public String getContactNumber() {
+        return contactNumber;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public List<Address> getAddressList() {
+        return addressList;
     }
 
 }
