@@ -1,33 +1,19 @@
 package com.ispirit.digitalsky.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
 public class ApproveRequestBody {
 
-    private String id;
+    private String applicationFormId;
     private ApplicationStatus status;
-    private String approvedById;
     private String comments;
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private static final Date approvedDate = new Date();
 
-    public String getComments() {
-        return comments;
-    }
+    public String getApplicationFormId() { return applicationFormId; }
 
-    public void setComments(String comments) {
-        this.comments = comments;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
+    public void setApplicationFormId(String applicationFormId) { this.applicationFormId = applicationFormId; }
 
     public ApplicationStatus getStatus() {
         return status;
@@ -37,15 +23,12 @@ public class ApproveRequestBody {
         this.status = status;
     }
 
-    public String getApprovedById() {
-        return approvedById;
+    public String getComments() {
+        return comments;
     }
 
-    public void setApprovedById(String approvedById) {
-        this.approvedById = approvedById;
+    public void setComments(String comments) {
+        this.comments = comments;
     }
 
-    public static Date getApprovedDate() {
-        return approvedDate;
-    }
 }

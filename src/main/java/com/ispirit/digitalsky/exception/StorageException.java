@@ -1,4 +1,4 @@
-package com.ispirit.digitalsky.repository.storage;
+package com.ispirit.digitalsky.exception;
 
 public class StorageException extends RuntimeException {
 

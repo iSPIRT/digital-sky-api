@@ -2,7 +2,7 @@ spring:
     application:
         name: digitalsky
     datasource:
-        url: jdbc:mysql://192.168.33.10:3306/digitalsky?useSSL=false
+        url: jdbc:mysql://localhost/digitalsky?useSSL=false
         username: digitalsky
         password: digitalsky
         driverClassName: com.mysql.jdbc.Driver
@@ -17,6 +17,9 @@ spring:
           format_sql: true
           type: trace
           dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+    servlet:
+      multipart:
+        max-file-size: 50MB
 
     logging:
         file: logs/dev_app.log
@@ -24,12 +27,12 @@ spring:
             org: DEBUG
     data:
       mongodb:
-        host: 192.168.33.10
+        host: localhost
         port: 27017
         database: digitalsky
 flyway:
   enabled: true
-  url: jdbc:mysql://192.168.33.10:3306/digitalsky?useSSL=false
+  url: jdbc:mysql://localhost/digitalsky?useSSL=false
   user: digitalsky
   password: digitalsky
   locations: classpath:/db/migration

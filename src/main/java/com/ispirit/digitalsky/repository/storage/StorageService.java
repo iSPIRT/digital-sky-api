@@ -1,5 +1,7 @@
 package com.ispirit.digitalsky.repository.storage;
 
+import com.ispirit.digitalsky.exception.StorageException;
+import com.ispirit.digitalsky.exception.StorageFileNotFoundException;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -9,15 +11,15 @@ import java.util.stream.Stream;
 
 public interface StorageService {
 
-    void init();
+    void init() throws StorageException;
 
-    void store(List<MultipartFile> files, String newDirectory);
+    void store(List<MultipartFile> files, String newDirectory) throws StorageException;
 
-    Stream<Path> loadAll();
+    Stream<Path> loadAll() throws StorageException;
 
     Path load(String filename);
 
-    Resource loadAsResource(String directory, String filename);
+    Resource loadAsResource(String directory, String filename) throws StorageFileNotFoundException;
 
     void deleteAll();
 
