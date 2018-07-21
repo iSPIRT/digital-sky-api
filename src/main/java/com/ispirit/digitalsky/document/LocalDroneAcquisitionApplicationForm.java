@@ -205,17 +205,11 @@ public class LocalDroneAcquisitionApplicationForm extends BasicApplicationForm {
         return ownerAddress;
     }
 
-    public void setOwnerAddress(AddressDocument ownerAddress) {
-        this.ownerAddress = ownerAddress;
-    }
+    public void setOwnerAddress(AddressDocument ownerAddress) { this.ownerAddress = ownerAddress; }
 
-    public String getOwner() {
-        return owner;
-    }
+    public String getOwner() { return owner; }
 
-    public void setOwner(String owner) {
-        this.owner = owner;
-    }
+    public void setOwner(String owner) { this.owner = owner; }
 
     public long getManufacturerId() { return manufacturerId; }
 
