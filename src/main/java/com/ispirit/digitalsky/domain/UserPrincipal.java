@@ -20,9 +20,10 @@ public class UserPrincipal implements UserDetails {
     private String password;
     private List<GrantedAuthority> authorityList;
 
-    public static UserPrincipal securityContext(){
+    public static UserPrincipal securityContext() {
         return (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
+
     public UserPrincipal(User user) {
         this.id = user.getId();
         this.name = user.getFullName();
@@ -33,13 +34,10 @@ public class UserPrincipal implements UserDetails {
 
     }
 
-    private List toAuthorityGrantList(List<String> roles) {
-        List authorityGrantList = new ArrayList<>();
-        if (roles != null && roles.size() > 1) {
-            for (String role : roles) {
-                authorityList.add(new SimpleGrantedAuthority(role));
-            }
-        }
+    private List<GrantedAuthority> toAuthorityGrantList(List<String> roles) {
+        List<GrantedAuthority> authorityGrantList = new ArrayList<>();
+        if (roles == null) return authorityGrantList;
+        roles.forEach(role -> authorityGrantList.add(new SimpleGrantedAuthority(role)));
         return authorityGrantList;
     }
 
@@ -58,7 +56,7 @@ public class UserPrincipal implements UserDetails {
         return name;
     }
 
-    public long getId(){
+    public long getId() {
         return id;
     }
 
