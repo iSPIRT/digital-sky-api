@@ -79,7 +79,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .antMatchers(HttpMethod.POST, "/api/user/resetPassword")
                 .permitAll()
-                .antMatchers(HttpMethod.GET,"/api/pilot/*")
+                .antMatchers(HttpMethod.GET,"/api/admin/*")
                 .hasRole("ADMIN")
                 .anyRequest()
                 .authenticated();

@@ -83,4 +83,11 @@ public class UserPrincipal implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    public boolean isAdmin() {
+        for (GrantedAuthority grantedAuthority : authorityList) {
+            if (grantedAuthority.getAuthority().equals("ROLE_ADMIN")) return true;
+        }
+        return false;
+    }
 }

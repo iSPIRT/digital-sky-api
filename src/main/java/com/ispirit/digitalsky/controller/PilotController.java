@@ -2,23 +2,17 @@ package com.ispirit.digitalsky.controller;
 
 import com.ispirit.digitalsky.domain.Pilot;
 import com.ispirit.digitalsky.domain.UserPrincipal;
-import com.ispirit.digitalsky.dto.*;
-import com.ispirit.digitalsky.exception.EntityNotFoundException;
+import com.ispirit.digitalsky.dto.EntityId;
+import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.PilotProfileAlreadyExist;
 import com.ispirit.digitalsky.service.api.PilotService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-
 import static com.ispirit.digitalsky.controller.PilotController.PILOT_RESOURCE_BASE_PATH;
-import static com.ispirit.digitalsky.controller.UserController.USER_RESOURCE_BASE_PATH;
-import static java.util.Collections.emptyMap;
-import static org.springframework.util.StringUtils.containsWhitespace;
 
 @RestController
 @RequestMapping(PILOT_RESOURCE_BASE_PATH)
