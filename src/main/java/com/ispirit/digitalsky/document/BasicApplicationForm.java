@@ -53,7 +53,7 @@ public class BasicApplicationForm {
     private Date lastModifiedDate;
 
     @Field("status")
-    private ApplicationStatus status;
+    private ApplicationStatus status = ApplicationStatus.DRAFT;
 
     @Field("approver")
     private String approver;
@@ -70,6 +70,10 @@ public class BasicApplicationForm {
 
     public String getId() {
         return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getApproverComments() {
@@ -100,27 +104,45 @@ public class BasicApplicationForm {
         return applicantNationality;
     }
 
-    public void setApplicantNationality(String applicantNationality) { this.applicantNationality = applicantNationality; }
+    public void setApplicantNationality(String applicantNationality) {
+        this.applicantNationality = applicantNationality;
+    }
 
     public AddressDocument getApplicantAddress() {
         return applicantAddress;
     }
 
-    public Date getCreatedDate() { return createdDate; }
+    public Date getCreatedDate() {
+        return createdDate;
+    }
 
-    public void setCreatedDate(Date createdDate) { this.createdDate = createdDate; }
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
 
-    public long getApplicantId() { return applicantId; }
+    public long getApplicantId() {
+        return applicantId;
+    }
 
-    public void setApplicantId(long applicantId) { this.applicantId = applicantId; }
+    public void setApplicantId(long applicantId) {
+        this.applicantId = applicantId;
+    }
 
-    public String getApprover() { return approver; }
+    public String getApprover() {
+        return approver;
+    }
 
-    public void setApprover(String approver) { this.approver = approver; }
+    public void setApprover(String approver) {
+        this.approver = approver;
+    }
 
-    public long getApproverId() { return approverId; }
+    public long getApproverId() {
+        return approverId;
+    }
 
-    public void setApproverId(long approverId) {  this.approverId = approverId; }
+    public void setApproverId(long approverId) {
+        this.approverId = approverId;
+    }
 
     public void setApplicantAddress(AddressDocument applicantAddress) {
         this.applicantAddress = applicantAddress;
@@ -148,7 +170,7 @@ public class BasicApplicationForm {
 
     public void setApplicant(String applicant) {
         this.applicant = applicant;
-   }
+    }
 
     public Date getApprovedDate() {
         return approvedDate;
@@ -180,6 +202,10 @@ public class BasicApplicationForm {
 
     public void setLastModifiedDate(Date lastModifiedDate) {
         this.lastModifiedDate = lastModifiedDate;
+    }
+
+    public boolean canBeModified() {
+        return ApplicationStatus.DRAFT.equals(getStatus());
     }
 }
 

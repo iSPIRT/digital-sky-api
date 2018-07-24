@@ -102,13 +102,18 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    DirectorService directorService(DirectorRepository directorRepository){
+    DirectorService directorService(DirectorRepository directorRepository) {
         return new DirectorServiceImpl(directorRepository);
     }
 
     @Bean
-    LocalDroneAcquisitionApplicationFormService localDroneAcquisitionFormService(LocalDroneAcquisitionFormRepository localDroneAcquisitionFormRepository, StorageService documentRepository, EntityRepository entityRepository){
+    LocalDroneAcquisitionApplicationFormService localDroneAcquisitionFormService(LocalDroneAcquisitionFormRepository localDroneAcquisitionFormRepository, StorageService documentRepository, EntityRepository entityRepository) {
         return new LocalDroneAcquisitionApplicationFormServiceImpl(localDroneAcquisitionFormRepository, documentRepository, entityRepository);
+    }
+
+    @Bean
+    UAOPApplicationService uaopApplicationService(StorageService storageService, UAOPApplicationRepository uaopApplicationRepository) {
+        return new UAOPApplicationServiceImpl(uaopApplicationRepository, storageService);
     }
 
     @Bean

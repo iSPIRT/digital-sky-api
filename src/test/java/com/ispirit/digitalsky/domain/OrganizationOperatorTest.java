@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.ispirit.digitalsky.document.UAOPApplication;
 import org.junit.Test;
+import org.springframework.beans.BeanUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,6 +32,19 @@ public class OrganizationOperatorTest {
         objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         System.out.println(objectMapper.writeValueAsString(organizationOperator));
         System.out.println(objectMapper.writeValueAsString(directors));
+    }
+
+    @Test
+    public void sample() throws Exception {
+        UAOPApplication uaopApplication = new UAOPApplication();
+        uaopApplication.setName("abc");
+        uaopApplication.setDesignation("xyz");
+
+        UAOPApplication uaopApplicationNew = new UAOPApplication();
+        uaopApplicationNew.setDesignation("xyz");
+
+        BeanUtils.copyProperties(uaopApplicationNew, uaopApplication);
+        System.out.println("");
     }
 
     List<Address> toAddressList(Address... addresses){
