@@ -40,7 +40,7 @@ public class UAOPApplicationController {
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createApplication(
-            @RequestParam(value = "securityClearanceDoc", required = false) MultipartFile securityClearanceDoc,
+            @RequestParam(value = "securityProgramDoc", required = false) MultipartFile securityProgramDoc,
             @RequestParam(value = "sopDoc", required = false) MultipartFile sopDoc,
             @RequestParam(value = "insuranceDoc", required = false) MultipartFile insuranceDoc,
             @RequestParam(value = "landOwnerPermissionDoc", required = false) MultipartFile landOwnerPermissionDoc,
@@ -49,7 +49,7 @@ public class UAOPApplicationController {
         try {
             ObjectMapper mapper = new ObjectMapper();
             UAOPApplication uaopApplication = mapper.readValue(uaopApplicationFormString, UAOPApplication.class);
-            appendDocs(uaopApplication, securityClearanceDoc, sopDoc, insuranceDoc, landOwnerPermissionDoc);
+            appendDocs(uaopApplication, securityProgramDoc, sopDoc, insuranceDoc, landOwnerPermissionDoc);
             UAOPApplication createdForm = uaopApplicationService.createApplication(uaopApplication);
             return new ResponseEntity<>(createdForm, HttpStatus.OK);
         } catch (Exception e) {
@@ -61,7 +61,7 @@ public class UAOPApplicationController {
     @RequestMapping(value = "/{id}", method = RequestMethod.PATCH, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateApplication(
             @PathVariable String id,
-            @RequestParam(value = "securityClearanceDoc", required = false) MultipartFile securityClearanceDoc,
+            @RequestParam(value = "securityProgramDoc", required = false) MultipartFile securityProgramDoc,
             @RequestParam(value = "sopDoc", required = false) MultipartFile sopDoc,
             @RequestParam(value = "insuranceDoc", required = false) MultipartFile insuranceDoc,
             @RequestParam(value = "landOwnerPermissionDoc", required = false) MultipartFile landOwnerPermissionDoc,
@@ -80,7 +80,7 @@ public class UAOPApplicationController {
 
             ObjectMapper mapper = new ObjectMapper();
             UAOPApplication uaopApplication = mapper.readValue(uaopApplicationFormString, UAOPApplication.class);
-            appendDocs(uaopApplication, securityClearanceDoc, sopDoc, insuranceDoc, landOwnerPermissionDoc);
+            appendDocs(uaopApplication, securityProgramDoc, sopDoc, insuranceDoc, landOwnerPermissionDoc);
             UAOPApplication createdForm = uaopApplicationService.updateApplication(id, uaopApplication);
             return new ResponseEntity<>(createdForm, HttpStatus.OK);
         } catch (Exception e) {
@@ -147,7 +147,7 @@ public class UAOPApplicationController {
         }
     }
 
-    private void appendDocs(UAOPApplication uaopApplication, MultipartFile securityClearanceDoc, MultipartFile sopDoc, MultipartFile insuranceDoc, MultipartFile landOwnerPermissionDoc) {
+    private void appendDocs(UAOPApplication uaopApplication, MultipartFile securityProgramDoc, MultipartFile sopDoc, MultipartFile insuranceDoc, MultipartFile landOwnerPermissionDoc) {
         uaopApplication.setInsuranceDoc(insuranceDoc);
         uaopApplication.setInsuranceDocName(resolveFileName(insuranceDoc));
 
@@ -157,8 +157,8 @@ public class UAOPApplicationController {
         uaopApplication.setSopDoc(sopDoc);
         uaopApplication.setSopDocName(resolveFileName(sopDoc));
 
-        uaopApplication.setSecurityProgramDoc(securityClearanceDoc);
-        uaopApplication.setSecurityProgramDocName(resolveFileName(securityClearanceDoc));
+        uaopApplication.setSecurityProgramDoc(securityProgramDoc);
+        uaopApplication.setSecurityProgramDocName(resolveFileName(securityProgramDoc));
     }
 
 
