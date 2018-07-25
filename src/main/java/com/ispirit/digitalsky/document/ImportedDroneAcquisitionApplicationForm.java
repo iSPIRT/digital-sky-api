@@ -6,12 +6,12 @@ import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-@Document(collection="localDroneAcquisitionApplicationForms")
-@TypeAlias("localDroneAcquisitionApplicationForm")
+@Document(collection="importedDroneAcquisitionApplicationForms")
+@TypeAlias("importedDroneAcquisitionApplicationForm")
 @Persistent
-public class LocalDroneAcquisitionApplicationForm extends DroneAcquisitionApplicationForm {
+public class ImportedDroneAcquisitionApplicationForm extends DroneAcquisitionApplicationForm {
 
-    @Field("acquisitionMode")
+    @Field("importMode")
     private ModeOfAcquisition acquisitionMode;
 
     public ModeOfAcquisition getAcquisitionMode() {

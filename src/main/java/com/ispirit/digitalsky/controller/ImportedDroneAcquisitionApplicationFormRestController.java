@@ -3,15 +3,15 @@ package com.ispirit.digitalsky.controller;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ispirit.digitalsky.document.ImportedDroneAcquisitionApplicationForm;
 import com.ispirit.digitalsky.document.LocalDroneAcquisitionApplicationForm;
 import com.ispirit.digitalsky.domain.ApproveRequestBody;
 import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.ApplicationFormNotFoundException;
 import com.ispirit.digitalsky.exception.StorageException;
-import com.ispirit.digitalsky.exception.UnAuthorizedAccessException;
 import com.ispirit.digitalsky.exception.StorageFileNotFoundException;
+import com.ispirit.digitalsky.exception.UnAuthorizedAccessException;
 import com.ispirit.digitalsky.service.api.DroneAcquisitionApplicationFormService;
-
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -21,29 +21,28 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
-import java.util.*;
+import java.util.Collection;
 
-import static com.ispirit.digitalsky.controller.LocalDroneAcquisitionApplicationFormRestController.LOCALDRONEACQUISITIONFORM_RESOURCE_BASE_PATH;
+import static com.ispirit.digitalsky.controller.ImportedDroneAcquisitionApplicationFormRestController.IMPORTEDDRONEACQUISITIONFORM_RESOURCE_BASE_PATH;
 
 @RestController
-@RequestMapping(LOCALDRONEACQUISITIONFORM_RESOURCE_BASE_PATH)
-public class LocalDroneAcquisitionApplicationFormRestController {
+@RequestMapping(IMPORTEDDRONEACQUISITIONFORM_RESOURCE_BASE_PATH)
+public class ImportedDroneAcquisitionApplicationFormRestController {
 
-    public static final String LOCALDRONEACQUISITIONFORM_RESOURCE_BASE_PATH = "/api/applicationForm/localDroneAcquisition";
+    public static final String IMPORTEDDRONEACQUISITIONFORM_RESOURCE_BASE_PATH = "/api/applicationForm/importedDroneAcquisition";
 
-    private DroneAcquisitionApplicationFormService<LocalDroneAcquisitionApplicationForm> droneAcquisitionFormService;
+    private DroneAcquisitionApplicationFormService<ImportedDroneAcquisitionApplicationForm> droneAcquisitionFormService;
 
-    public LocalDroneAcquisitionApplicationFormRestController(DroneAcquisitionApplicationFormService<LocalDroneAcquisitionApplicationForm> droneAcquisitionFormService) {
+    public ImportedDroneAcquisitionApplicationFormRestController(DroneAcquisitionApplicationFormService<ImportedDroneAcquisitionApplicationForm> droneAcquisitionFormService) {
 
         this.droneAcquisitionFormService = droneAcquisitionFormService;
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> createAcquisitionForm(@RequestBody LocalDroneAcquisitionApplicationForm acquisitionForm) {
+    public ResponseEntity<?> createAcquisitionForm(@RequestBody ImportedDroneAcquisitionApplicationForm acquisitionForm) {
 
         try {
-            LocalDroneAcquisitionApplicationForm createdForm = droneAcquisitionFormService.createDroneAcquisitionApplicationForm(acquisitionForm);
+            ImportedDroneAcquisitionApplicationForm createdForm = droneAcquisitionFormService.createDroneAcquisitionApplicationForm(acquisitionForm);
             return new ResponseEntity<>(createdForm, HttpStatus.OK);
         } catch(Exception e){
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.CONFLICT);
@@ -55,8 +54,9 @@ public class LocalDroneAcquisitionApplicationFormRestController {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
-            LocalDroneAcquisitionApplicationForm droneAcquisitionForm = mapper.readValue(droneAcquisitionFormString, LocalDroneAcquisitionApplicationForm.class);
-            LocalDroneAcquisitionApplicationForm updatedForm = droneAcquisitionFormService.updateDroneAcquisitionApplicationForm(id, droneAcquisitionForm, securityClearanceDoc);
+            //Class<T> acquisitionFormtype = ((Class)((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
+            ImportedDroneAcquisitionApplicationForm droneAcquisitionForm = mapper.readValue(droneAcquisitionFormString, ImportedDroneAcquisitionApplicationForm.class);
+            ImportedDroneAcquisitionApplicationForm updatedForm = droneAcquisitionFormService.updateDroneAcquisitionApplicationForm(id, droneAcquisitionForm, securityClearanceDoc);
             return new ResponseEntity<>(updatedForm, HttpStatus.OK);
         } catch (JsonGenerationException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.UNPROCESSABLE_ENTITY);
@@ -77,7 +77,7 @@ public class LocalDroneAcquisitionApplicationFormRestController {
     public ResponseEntity<?> approveAcquisitionForm(@PathVariable String id, @RequestBody ApproveRequestBody approveRequestBody) {
 
         try {
-            LocalDroneAcquisitionApplicationForm updatedForm = droneAcquisitionFormService.approveDroneAcquisitionForm(approveRequestBody);
+            ImportedDroneAcquisitionApplicationForm updatedForm = droneAcquisitionFormService.approveDroneAcquisitionForm(approveRequestBody);
             return new ResponseEntity<>(updatedForm, HttpStatus.OK);
         } catch (ApplicationFormNotFoundException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.NOT_FOUND);
@@ -103,7 +103,7 @@ public class LocalDroneAcquisitionApplicationFormRestController {
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAcquisitionForm(@PathVariable String id){
 
-        LocalDroneAcquisitionApplicationForm applicationForm = droneAcquisitionFormService.get(id);
+        ImportedDroneAcquisitionApplicationForm applicationForm = droneAcquisitionFormService.get(id);
         return new ResponseEntity<>(applicationForm,HttpStatus.OK);
     }
 

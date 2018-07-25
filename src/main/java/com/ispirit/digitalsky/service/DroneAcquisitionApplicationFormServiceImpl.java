@@ -1,5 +1,6 @@
 package com.ispirit.digitalsky.service;
-import com.ispirit.digitalsky.document.LocalDroneAcquisitionApplicationForm;
+
+import com.ispirit.digitalsky.document.DroneAcquisitionApplicationForm;
 import com.ispirit.digitalsky.domain.ApplicationStatus;
 import com.ispirit.digitalsky.domain.ApproveRequestBody;
 import com.ispirit.digitalsky.domain.UserPrincipal;
@@ -7,10 +8,10 @@ import com.ispirit.digitalsky.exception.ApplicationFormNotFoundException;
 import com.ispirit.digitalsky.exception.StorageException;
 import com.ispirit.digitalsky.exception.StorageFileNotFoundException;
 import com.ispirit.digitalsky.exception.UnAuthorizedAccessException;
+import com.ispirit.digitalsky.repository.DroneAcquisitionFormRepository;
 import com.ispirit.digitalsky.repository.EntityRepository;
-import com.ispirit.digitalsky.repository.LocalDroneAcquisitionFormRepository;
 import com.ispirit.digitalsky.repository.storage.StorageService;
-import com.ispirit.digitalsky.service.api.LocalDroneAcquisitionApplicationFormService;
+import com.ispirit.digitalsky.service.api.DroneAcquisitionApplicationFormService;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.io.Resource;
@@ -18,34 +19,34 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
-public class LocalDroneAcquisitionApplicationFormServiceImpl implements LocalDroneAcquisitionApplicationFormService {
+public class DroneAcquisitionApplicationFormServiceImpl<T extends DroneAcquisitionApplicationForm> implements DroneAcquisitionApplicationFormService<T> {
 
-    private final LocalDroneAcquisitionFormRepository localDroneAcquisitionFormRepository;
+    private final DroneAcquisitionFormRepository<T> droneAcquisitionFormRepository;
     private final StorageService documentRepository;
     private final EntityRepository entityRepository;
 
-    public LocalDroneAcquisitionApplicationFormServiceImpl(LocalDroneAcquisitionFormRepository localDroneAcquisitionFormRepository, StorageService documentRepository, EntityRepository entityRepository) {
-        this.localDroneAcquisitionFormRepository = localDroneAcquisitionFormRepository;
+    public DroneAcquisitionApplicationFormServiceImpl(DroneAcquisitionFormRepository<T> droneAcquisitionFormRepository, StorageService documentRepository, EntityRepository entityRepository) {
+        this.droneAcquisitionFormRepository = droneAcquisitionFormRepository;
         this.documentRepository = documentRepository;
         this.entityRepository = entityRepository;
     }
 
     @Override
-    public LocalDroneAcquisitionApplicationForm createLocalDroneAcquisitionApplicationForm(LocalDroneAcquisitionApplicationForm localDroneAcquisitionApplicationForm) {
+    public T createDroneAcquisitionApplicationForm(T droneAcquisitionApplicationForm) {
 
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
-        localDroneAcquisitionApplicationForm.setApplicantId(userPrincipal.getId());
-        localDroneAcquisitionApplicationForm.setCreatedDate(new Date());
+        droneAcquisitionApplicationForm.setApplicantId(userPrincipal.getId());
+        droneAcquisitionApplicationForm.setCreatedDate(new Date());
 
-        LocalDroneAcquisitionApplicationForm insertedForm = localDroneAcquisitionFormRepository.insert(localDroneAcquisitionApplicationForm);
+        T insertedForm = droneAcquisitionFormRepository.insert(droneAcquisitionApplicationForm);
         return insertedForm;
     }
 
     @Override
-    public LocalDroneAcquisitionApplicationForm updateLocalDroneAcquisitionApplicationForm(String id, LocalDroneAcquisitionApplicationForm localDroneAcquisitionApplicationForm, MultipartFile securityClearanceDoc) throws ApplicationFormNotFoundException, UnAuthorizedAccessException, StorageException {
+    public T updateDroneAcquisitionApplicationForm(String id, T droneAcquisitionApplicationForm, MultipartFile securityClearanceDoc) throws ApplicationFormNotFoundException, UnAuthorizedAccessException, StorageException {
 
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
-        LocalDroneAcquisitionApplicationForm actualForm = localDroneAcquisitionFormRepository.findById(id);
+        T actualForm = droneAcquisitionFormRepository.findById(id);
         if (actualForm == null) {
             throw new ApplicationFormNotFoundException();
         }
@@ -57,8 +58,7 @@ public class LocalDroneAcquisitionApplicationFormServiceImpl implements LocalDro
             throw new UnAuthorizedAccessException();
         }
 
-
-        BeanUtils.copyProperties(localDroneAcquisitionApplicationForm,actualForm);
+        BeanUtils.copyProperties(droneAcquisitionApplicationForm, actualForm);
         if(actualForm.getStatus() == ApplicationStatus.SUBMITTED) {
             actualForm.setSubmittedDate(new Date());
         }
@@ -66,7 +66,7 @@ public class LocalDroneAcquisitionApplicationFormServiceImpl implements LocalDro
         actualForm.setCreatedDate(createdDate);
         actualForm.setApplicantId(applicantId);
 
-        LocalDroneAcquisitionApplicationForm savedForm = localDroneAcquisitionFormRepository.save(actualForm);
+        T savedForm = droneAcquisitionFormRepository.save(actualForm);
 
         List<MultipartFile> filesToBeUploaded = new ArrayList<MultipartFile>(Arrays.asList(securityClearanceDoc));
         documentRepository.store(filesToBeUploaded, savedForm.getId());
@@ -75,10 +75,11 @@ public class LocalDroneAcquisitionApplicationFormServiceImpl implements LocalDro
     }
 
     @Override
-    public LocalDroneAcquisitionApplicationForm approveLocalDroneAcquisitionForm(ApproveRequestBody approveRequestBody) throws ApplicationFormNotFoundException, UnAuthorizedAccessException {
+    public T approveDroneAcquisitionForm(ApproveRequestBody approveRequestBody) throws ApplicationFormNotFoundException, UnAuthorizedAccessException {
 
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
-        LocalDroneAcquisitionApplicationForm actualForm = localDroneAcquisitionFormRepository.findById(approveRequestBody.getApplicationFormId());
+        T actualForm = droneAcquisitionFormRepository.findById(approveRequestBody.getApplicationFormId());
+
         if (actualForm == null) {
             throw new ApplicationFormNotFoundException();
         }
@@ -94,26 +95,26 @@ public class LocalDroneAcquisitionApplicationFormServiceImpl implements LocalDro
         actualForm.setApproverComments(approveRequestBody.getComments());
         actualForm.setStatus(approveRequestBody.getStatus());
 
-        LocalDroneAcquisitionApplicationForm savedForm = localDroneAcquisitionFormRepository.save(actualForm);
+        T savedForm = droneAcquisitionFormRepository.save(actualForm);
         return savedForm;
     }
 
     @Override
-    public Collection<?> getAcquisitionFormsOfApplicant(long applicantId) {
+    public Collection<T> getAcquisitionFormsOfApplicant(long applicantId) {
 
-        return localDroneAcquisitionFormRepository.findByApplicant(applicantId);
+        return droneAcquisitionFormRepository.findByApplicant(applicantId);
     }
 
     @Override
-    public Collection<?> getAllAcquisitionForms() {
+    public Collection<T> getAllAcquisitionForms() {
 
-        return localDroneAcquisitionFormRepository.findAll();
+        return droneAcquisitionFormRepository.findAll();
     }
 
     @Override
-    public LocalDroneAcquisitionApplicationForm get(String id) {
+    public T get(String id) {
 
-        return localDroneAcquisitionFormRepository.findById(id);
+        return droneAcquisitionFormRepository.findById(id);
     }
 
     @Override

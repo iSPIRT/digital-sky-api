@@ -3,6 +3,8 @@ package com.ispirit.digitalsky.configuration;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ispirit.digitalsky.document.ImportedDroneAcquisitionApplicationForm;
+import com.ispirit.digitalsky.document.LocalDroneAcquisitionApplicationForm;
 import com.ispirit.digitalsky.repository.*;
 import com.ispirit.digitalsky.repository.storage.StorageService;
 import com.ispirit.digitalsky.service.*;
@@ -13,6 +15,7 @@ import org.apache.catalina.Context;
 import org.apache.catalina.connector.Connector;
 import org.apache.tomcat.util.descriptor.web.SecurityCollection;
 import org.apache.tomcat.util.descriptor.web.SecurityConstraint;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
@@ -107,10 +110,26 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    LocalDroneAcquisitionApplicationFormService localDroneAcquisitionFormService(LocalDroneAcquisitionFormRepository localDroneAcquisitionFormRepository, StorageService documentRepository, EntityRepository entityRepository){
-        return new LocalDroneAcquisitionApplicationFormServiceImpl(localDroneAcquisitionFormRepository, documentRepository, entityRepository);
+    @Qualifier("localDroneAcquisitionFormService")
+    DroneAcquisitionApplicationFormService<LocalDroneAcquisitionApplicationForm> localDroneAcquisitionFormService(DroneAcquisitionFormRepository<LocalDroneAcquisitionApplicationForm> droneAcquisitionFormRepository, StorageService documentRepository, EntityRepository entityRepository){
+        return new DroneAcquisitionApplicationFormServiceImpl<LocalDroneAcquisitionApplicationForm>(droneAcquisitionFormRepository, documentRepository, entityRepository);
     }
 
+    @Bean
+    @Qualifier("importedDroneAcquisitionFormService")
+    DroneAcquisitionApplicationFormService<ImportedDroneAcquisitionApplicationForm> importedDroneAcquisitionFormService(DroneAcquisitionFormRepository<ImportedDroneAcquisitionApplicationForm> droneAcquisitionFormRepository, StorageService documentRepository, EntityRepository entityRepository){
+        return new DroneAcquisitionApplicationFormServiceImpl<ImportedDroneAcquisitionApplicationForm>(droneAcquisitionFormRepository, documentRepository, entityRepository);
+    }
+
+//    @Bean
+//    DroneAcquisitionApplicationFormRestController<LocalDroneAcquisitionApplicationForm> localDroneAcquisitionFormRestController(DroneAcquisitionApplicationFormService<LocalDroneAcquisitionApplicationForm> localDroneAcquisitionFormService){
+//        return new DroneAcquisitionApplicationFormRestController<LocalDroneAcquisitionApplicationForm>(localDroneAcquisitionFormService);
+//    }
+//
+//    @Bean
+//    DroneAcquisitionApplicationFormRestControllerImpl<ImportedDroneAcquisitionApplicationForm> importedDroneAcquisitionFormRestController(DroneAcquisitionApplicationFormService<ImportedDroneAcquisitionApplicationForm> importedDroneAcquisitionFormService){
+//        return new DroneAcquisitionApplicationFormRestControllerImpl(importedDroneAcquisitionFormService);
+//    }
     @Bean
     public EmbeddedServletContainerFactory servletContainer() {
         TomcatEmbeddedServletContainerFactory tomcat = new TomcatEmbeddedServletContainerFactory() {
