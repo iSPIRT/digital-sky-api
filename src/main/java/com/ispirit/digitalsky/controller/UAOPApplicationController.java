@@ -5,7 +5,7 @@ import com.ispirit.digitalsky.document.UAOPApplication;
 import com.ispirit.digitalsky.domain.ApproveRequestBody;
 import com.ispirit.digitalsky.domain.UserPrincipal;
 import com.ispirit.digitalsky.dto.Errors;
-import com.ispirit.digitalsky.exception.ApplicationFormNotFoundException;
+import com.ispirit.digitalsky.exception.ApplicationNotFoundException;
 import com.ispirit.digitalsky.exception.StorageFileNotFoundException;
 import com.ispirit.digitalsky.exception.UnAuthorizedAccessException;
 import com.ispirit.digitalsky.service.api.UAOPApplicationService;
@@ -95,7 +95,7 @@ public class UAOPApplicationController {
         try {
             UAOPApplication updatedForm = uaopApplicationService.approveApplication(approveRequestBody);
             return new ResponseEntity<>(updatedForm, HttpStatus.OK);
-        } catch (ApplicationFormNotFoundException e) {
+        } catch (ApplicationNotFoundException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.NOT_FOUND);
         } catch (UnAuthorizedAccessException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.UNAUTHORIZED);

@@ -48,4 +48,3 @@ server:
     key-store-provider: SUN
     key-store-type: JKS
     key-store-password: cacms789
-

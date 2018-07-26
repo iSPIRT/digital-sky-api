@@ -2,7 +2,7 @@ package com.ispirit.digitalsky.service.api;
 
 import com.ispirit.digitalsky.document.UAOPApplication;
 import com.ispirit.digitalsky.domain.ApproveRequestBody;
-import com.ispirit.digitalsky.exception.ApplicationFormNotFoundException;
+import com.ispirit.digitalsky.exception.ApplicationNotFoundException;
 import com.ispirit.digitalsky.exception.StorageException;
 import com.ispirit.digitalsky.exception.StorageFileNotFoundException;
 import com.ispirit.digitalsky.exception.UnAuthorizedAccessException;
@@ -14,9 +14,9 @@ public interface UAOPApplicationService {
 
     UAOPApplication createApplication(UAOPApplication  uaopApplication);
 
-    UAOPApplication updateApplication(String id, UAOPApplication uaopApplication) throws ApplicationFormNotFoundException, UnAuthorizedAccessException, StorageException;
+    UAOPApplication updateApplication(String id, UAOPApplication uaopApplication) throws ApplicationNotFoundException, UnAuthorizedAccessException, StorageException;
 
-    UAOPApplication approveApplication(ApproveRequestBody approveRequestBody) throws ApplicationFormNotFoundException,UnAuthorizedAccessException;
+    UAOPApplication approveApplication(ApproveRequestBody approveRequestBody) throws ApplicationNotFoundException,UnAuthorizedAccessException;
 
     UAOPApplication get(String id);
 

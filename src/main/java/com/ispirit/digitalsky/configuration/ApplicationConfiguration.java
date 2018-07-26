@@ -3,6 +3,8 @@ package com.ispirit.digitalsky.configuration;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ispirit.digitalsky.document.ImportedDroneAcquisitionApplication;
+import com.ispirit.digitalsky.document.LocalDroneAcquisitionApplication;
 import com.ispirit.digitalsky.repository.*;
 import com.ispirit.digitalsky.repository.storage.StorageService;
 import com.ispirit.digitalsky.service.*;
@@ -107,8 +109,13 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    LocalDroneAcquisitionApplicationFormService localDroneAcquisitionFormService(LocalDroneAcquisitionFormRepository localDroneAcquisitionFormRepository, StorageService documentRepository, EntityRepository entityRepository) {
-        return new LocalDroneAcquisitionApplicationFormServiceImpl(localDroneAcquisitionFormRepository, documentRepository, entityRepository);
+    DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneAcquisitionService(DroneAcquisitionRepository<LocalDroneAcquisitionApplication> droneAcquisitionRepository, StorageService documentRepository, EntityRepository entityRepository){
+        return new DroneAcquisitionApplicationServiceImpl<LocalDroneAcquisitionApplication>(droneAcquisitionRepository, documentRepository, entityRepository);
+    }
+
+    @Bean
+    DroneAcquisitionApplicationService<ImportedDroneAcquisitionApplication> importedDroneAcquisitionService(DroneAcquisitionRepository<ImportedDroneAcquisitionApplication> droneAcquisitionRepository, StorageService documentRepository, EntityRepository entityRepository){
+        return new DroneAcquisitionApplicationServiceImpl<ImportedDroneAcquisitionApplication>(droneAcquisitionRepository, documentRepository, entityRepository);
     }
 
     @Bean

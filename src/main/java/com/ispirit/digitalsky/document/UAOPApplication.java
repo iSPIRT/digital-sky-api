@@ -1,9 +1,6 @@
 package com.ispirit.digitalsky.document;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.ispirit.digitalsky.domain.ApplicantCategory;
-import com.ispirit.digitalsky.domain.ModeOfAcquisition;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -16,7 +13,7 @@ import java.util.List;
 
 @Document(collection = "uaopApplications")
 @TypeAlias("uaopApplication")
-public class UAOPApplication extends BasicApplicationForm {
+public class UAOPApplication extends BasicApplication {
 
     @Field("name")
     private String name;

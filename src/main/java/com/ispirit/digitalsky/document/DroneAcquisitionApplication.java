@@ -1,16 +1,12 @@
 package com.ispirit.digitalsky.document;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.ispirit.digitalsky.domain.*;
-import org.springframework.data.annotation.TypeAlias;
-import org.springframework.data.mongodb.core.mapping.Document;
+import com.ispirit.digitalsky.domain.ApplicantCategory;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.Date;
 
-@Document(collection="localDroneAcquisitionApplicationForms")
-@TypeAlias("localDroneAcquisitionApplicationForm")
-public class LocalDroneAcquisitionApplicationForm extends BasicApplicationForm {
+public class DroneAcquisitionApplication extends BasicApplication {
 
     @Field("manufacturer")
     private String manufacturer;
@@ -20,6 +16,9 @@ public class LocalDroneAcquisitionApplicationForm extends BasicApplicationForm {
 
     @Field("manufacturerAddress")
     private AddressDocument manufacturerAddress;
+
+    @Field("manufacturerNationality")
+    private String manufacturerNationality;
 
     @Field("owner")
     private String owner;
@@ -43,8 +42,8 @@ public class LocalDroneAcquisitionApplicationForm extends BasicApplicationForm {
     @Field("yearOfManufacture")
     private String yearOfManufacture;
 
-    @Field("fixedWing")
-    private Boolean fixedWing;
+    @Field("wingType")
+    private String wingType;
 
     @Field("noOfDrones")
     private int noOfDrones;
@@ -67,19 +66,8 @@ public class LocalDroneAcquisitionApplicationForm extends BasicApplicationForm {
     @Field("proposedBaseOfOperation")
     private String proposedBaseOfOperation;
 
-    @Field("acquisitionMode")
-    private ModeOfAcquisition acquisitionMode;
-
     @Field("securityClearanceDocument")
     private String securityClearanceDoc;
-
-    public ModeOfAcquisition getAcquisitionMode() {
-        return acquisitionMode;
-    }
-
-    public void setAcquisitionMode(ModeOfAcquisition acquisitionMode) {
-        this.acquisitionMode = acquisitionMode;
-    }
 
     public ApplicantCategory getApplicantCategory() {
         return applicantCategory;
@@ -135,12 +123,12 @@ public class LocalDroneAcquisitionApplicationForm extends BasicApplicationForm {
         this.yearOfManufacture = yearOfManufacture;
     }
 
-    public Boolean getFixedWing() {
-        return this.fixedWing;
+    public String getWingType() {
+        return this.wingType;
     }
 
-    public void setFixedWing(Boolean fixedWing) {
-        this.fixedWing = fixedWing;
+    public void setWingType(String wingType) {
+        this.wingType = wingType;
     }
 
     public Boolean getIsNew() {
@@ -219,4 +207,7 @@ public class LocalDroneAcquisitionApplicationForm extends BasicApplicationForm {
 
     public void setOwnerId(long ownerId) { this.ownerId = ownerId; }
 
+    public String getManufacturerNationality() { return manufacturerNationality; }
+
+    public void setManufacturerNationality(String manufacturerNationality) { this.manufacturerNationality = manufacturerNationality; }
 }

@@ -4,7 +4,7 @@ import com.ispirit.digitalsky.document.UAOPApplication;
 import com.ispirit.digitalsky.domain.ApplicationStatus;
 import com.ispirit.digitalsky.domain.ApproveRequestBody;
 import com.ispirit.digitalsky.domain.UserPrincipal;
-import com.ispirit.digitalsky.exception.ApplicationFormNotFoundException;
+import com.ispirit.digitalsky.exception.ApplicationNotFoundException;
 import com.ispirit.digitalsky.exception.StorageException;
 import com.ispirit.digitalsky.exception.StorageFileNotFoundException;
 import com.ispirit.digitalsky.exception.UnAuthorizedAccessException;
@@ -42,10 +42,10 @@ public class UAOPApplicationServiceImpl implements UAOPApplicationService {
 
     @Override
     @Transactional
-    public UAOPApplication updateApplication(String id, UAOPApplication uaopApplication) throws ApplicationFormNotFoundException, UnAuthorizedAccessException, StorageException {
+    public UAOPApplication updateApplication(String id, UAOPApplication uaopApplication) throws ApplicationNotFoundException, UnAuthorizedAccessException, StorageException {
         UAOPApplication actualForm = uaopApplicationRepository.findById(id);
         if (actualForm == null) {
-            throw new ApplicationFormNotFoundException();
+            throw new ApplicationNotFoundException();
         }
 
         long applicantId = actualForm.getApplicantId();
@@ -87,11 +87,11 @@ public class UAOPApplicationServiceImpl implements UAOPApplicationService {
 
     @Override
     @Transactional
-    public UAOPApplication approveApplication(ApproveRequestBody approveRequestBody) throws ApplicationFormNotFoundException, UnAuthorizedAccessException {
+    public UAOPApplication approveApplication(ApproveRequestBody approveRequestBody) throws ApplicationNotFoundException, UnAuthorizedAccessException {
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         UAOPApplication actualForm = uaopApplicationRepository.findById(approveRequestBody.getApplicationFormId());
         if (actualForm == null) {
-            throw new ApplicationFormNotFoundException();
+            throw new ApplicationNotFoundException();
         }
 
         actualForm.setApproverId(userPrincipal.getId());
