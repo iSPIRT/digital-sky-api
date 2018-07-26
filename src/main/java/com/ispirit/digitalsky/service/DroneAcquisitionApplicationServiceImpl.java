@@ -1,37 +1,36 @@
 package com.ispirit.digitalsky.service;
 
-import com.ispirit.digitalsky.document.DroneAcquisitionApplicationForm;
+import com.ispirit.digitalsky.document.DroneAcquisitionApplication;
 import com.ispirit.digitalsky.domain.ApplicationStatus;
 import com.ispirit.digitalsky.domain.ApproveRequestBody;
 import com.ispirit.digitalsky.domain.UserPrincipal;
-import com.ispirit.digitalsky.exception.ApplicationFormNotFoundException;
-import com.ispirit.digitalsky.exception.StorageException;
-import com.ispirit.digitalsky.exception.StorageFileNotFoundException;
-import com.ispirit.digitalsky.exception.UnAuthorizedAccessException;
-import com.ispirit.digitalsky.repository.DroneAcquisitionFormRepository;
+import com.ispirit.digitalsky.exception.*;
+import com.ispirit.digitalsky.repository.DroneAcquisitionRepository;
 import com.ispirit.digitalsky.repository.EntityRepository;
 import com.ispirit.digitalsky.repository.storage.StorageService;
-import com.ispirit.digitalsky.service.api.DroneAcquisitionApplicationFormService;
+import com.ispirit.digitalsky.service.api.DroneAcquisitionApplicationService;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.io.Resource;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
-public class DroneAcquisitionApplicationFormServiceImpl<T extends DroneAcquisitionApplicationForm> implements DroneAcquisitionApplicationFormService<T> {
+public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionApplication> implements DroneAcquisitionApplicationService<T> {
 
-    private final DroneAcquisitionFormRepository<T> droneAcquisitionFormRepository;
+    private final DroneAcquisitionRepository<T> droneAcquisitionFormRepository;
     private final StorageService documentRepository;
     private final EntityRepository entityRepository;
 
-    public DroneAcquisitionApplicationFormServiceImpl(DroneAcquisitionFormRepository<T> droneAcquisitionFormRepository, StorageService documentRepository, EntityRepository entityRepository) {
+    public DroneAcquisitionApplicationServiceImpl(DroneAcquisitionRepository<T> droneAcquisitionFormRepository, StorageService documentRepository, EntityRepository entityRepository) {
         this.droneAcquisitionFormRepository = droneAcquisitionFormRepository;
         this.documentRepository = documentRepository;
         this.entityRepository = entityRepository;
     }
 
     @Override
+    @Transactional
     public T createDroneAcquisitionApplicationForm(T droneAcquisitionApplicationForm) {
 
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
@@ -43,12 +42,17 @@ public class DroneAcquisitionApplicationFormServiceImpl<T extends DroneAcquisiti
     }
 
     @Override
-    public T updateDroneAcquisitionApplicationForm(String id, T droneAcquisitionApplicationForm, MultipartFile securityClearanceDoc) throws ApplicationFormNotFoundException, UnAuthorizedAccessException, StorageException {
+    @Transactional
+    public T updateDroneAcquisitionApplicationForm(String id, T droneAcquisitionApplicationForm, MultipartFile securityClearanceDoc) throws ApplicationNotFoundException, UnAuthorizedAccessException, StorageException, ApplicationNotEditableException {
 
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         T actualForm = droneAcquisitionFormRepository.findById(id);
         if (actualForm == null) {
-            throw new ApplicationFormNotFoundException();
+            throw new ApplicationNotFoundException();
+        }
+
+        if (!actualForm.canBeModified()) {
+            throw new ApplicationNotEditableException();
         }
 
         long applicantId = actualForm.getApplicantId();
@@ -75,19 +79,15 @@ public class DroneAcquisitionApplicationFormServiceImpl<T extends DroneAcquisiti
     }
 
     @Override
-    public T approveDroneAcquisitionForm(ApproveRequestBody approveRequestBody) throws ApplicationFormNotFoundException, UnAuthorizedAccessException {
+    @Transactional
+    public T approveDroneAcquisitionForm(ApproveRequestBody approveRequestBody) throws ApplicationNotFoundException, UnAuthorizedAccessException {
 
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         T actualForm = droneAcquisitionFormRepository.findById(approveRequestBody.getApplicationFormId());
 
         if (actualForm == null) {
-            throw new ApplicationFormNotFoundException();
+            throw new ApplicationNotFoundException();
         }
-
-       //throw unauthorized if the role is not of an admin
-        //if (userPrincipal.getAuthorities().forEach( );) {
-        //        throw new UnAuthorizedAccessException();
-       // }
 
         actualForm.setApproverId(userPrincipal.getId());
         actualForm.setApprover(userPrincipal.getUsername());

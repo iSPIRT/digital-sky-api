@@ -1,16 +1,14 @@
 package com.ispirit.digitalsky.document;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.ispirit.digitalsky.document.AddressDocument;
 import com.ispirit.digitalsky.domain.ApplicantType;
 import com.ispirit.digitalsky.domain.ApplicationStatus;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Field;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
-public class BasicApplicationForm {
+public class BasicApplication {
 
     @Id
     @Field("id")
@@ -53,7 +51,7 @@ public class BasicApplicationForm {
     private Date lastModifiedDate;
 
     @Field("status")
-    private ApplicationStatus status;
+    private ApplicationStatus status = ApplicationStatus.DRAFT;
 
     @Field("approver")
     private String approver;
@@ -70,6 +68,10 @@ public class BasicApplicationForm {
 
     public String getId() {
         return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getApproverComments() {
@@ -148,7 +150,7 @@ public class BasicApplicationForm {
 
     public void setApplicant(String applicant) {
         this.applicant = applicant;
-   }
+    }
 
     public Date getApprovedDate() {
         return approvedDate;
@@ -180,6 +182,10 @@ public class BasicApplicationForm {
 
     public void setLastModifiedDate(Date lastModifiedDate) {
         this.lastModifiedDate = lastModifiedDate;
+    }
+
+    public boolean canBeModified() {
+        return ApplicationStatus.DRAFT.equals(getStatus());
     }
 }
 

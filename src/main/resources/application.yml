@@ -2,7 +2,7 @@ spring:
     application:
         name: digitalsky
     datasource:
-        url: jdbc:mysql://localhost/digitalsky?useSSL=false
+        url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/digitalsky?useSSL=false
         username: digitalsky
         password: digitalsky
         driverClassName: com.mysql.jdbc.Driver
@@ -27,12 +27,12 @@ spring:
             org: DEBUG
     data:
       mongodb:
-        host: localhost
-        port: 27017
+        host: ${MONGO_DB_HOST:localhost}
+        port: ${MONGO_DB_PORT:27017}
         database: digitalsky
 flyway:
   enabled: true
-  url: jdbc:mysql://localhost/digitalsky?useSSL=false
+  url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/digitalsky?useSSL=false
   user: digitalsky
   password: digitalsky
   locations: classpath:/db/migration
@@ -48,4 +48,3 @@ server:
     key-store-provider: SUN
     key-store-type: JKS
     key-store-password: cacms789
-

@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.Date;
 
-public class DroneAcquisitionApplicationForm extends BasicApplicationForm {
+public class DroneAcquisitionApplication extends BasicApplication {
 
     @Field("manufacturer")
     private String manufacturer;

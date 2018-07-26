@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Document(collection="importedDroneAcquisitionApplicationForms")
 @TypeAlias("importedDroneAcquisitionApplicationForm")
 @Persistent
-public class ImportedDroneAcquisitionApplicationForm extends DroneAcquisitionApplicationForm {
+public class ImportedDroneAcquisitionApplication extends DroneAcquisitionApplication {
 
     @Field("importMode")
     private ModeOfAcquisition acquisitionMode;

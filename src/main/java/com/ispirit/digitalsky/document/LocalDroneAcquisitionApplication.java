@@ -9,17 +9,12 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Document(collection="localDroneAcquisitionApplicationForms")
 @TypeAlias("localDroneAcquisitionApplicationForm")
 @Persistent
-public class LocalDroneAcquisitionApplicationForm extends DroneAcquisitionApplicationForm {
+public class LocalDroneAcquisitionApplication extends DroneAcquisitionApplication {
 
     @Field("acquisitionMode")
     private ModeOfAcquisition acquisitionMode;
 
-    public ModeOfAcquisition getAcquisitionMode() {
-        return acquisitionMode;
-    }
+    public ModeOfAcquisition getAcquisitionMode() { return acquisitionMode; }
 
-    public void setAcquisitionMode(ModeOfAcquisition acquisitionMode) {
-        this.acquisitionMode = acquisitionMode;
-    }
-
+    public void setAcquisitionMode(ModeOfAcquisition acquisitionMode) { this.acquisitionMode = acquisitionMode; }
 }
