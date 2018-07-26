@@ -67,6 +67,12 @@ public class AuthenticationController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String accessToken = securityTokenService.generateToken(authentication);
 
+        if (userPrincipal.isAdmin()) {
+            return ResponseEntity.ok(
+                TokenResponse.adminUserResponse(accessToken, userPrincipal.getId(), userPrincipal.getUsername())
+            );
+        }
+
         Pilot pilot = pilotRepository.loadByResourceOwner(userPrincipal.getId());
         IndividualOperator individualOperator = individualOperatorRepository.loadByResourceOwner(userPrincipal.getId());
         OrganizationOperator organizationOperator = organizationOperatorRepository.loadByResourceOwner(userPrincipal.getId());

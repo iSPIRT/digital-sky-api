@@ -2,10 +2,12 @@ package com.ispirit.digitalsky.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.document.UAOPApplication;
+import com.ispirit.digitalsky.domain.ApplicationStatus;
 import com.ispirit.digitalsky.domain.ApproveRequestBody;
 import com.ispirit.digitalsky.domain.UserPrincipal;
 import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.ApplicationNotFoundException;
+import com.ispirit.digitalsky.exception.ApplicationNotInSubmittedStatus;
 import com.ispirit.digitalsky.exception.StorageFileNotFoundException;
 import com.ispirit.digitalsky.exception.UnAuthorizedAccessException;
 import com.ispirit.digitalsky.service.api.UAOPApplicationService;
@@ -20,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.ispirit.digitalsky.controller.UAOPApplicationController.UAOP_APPLICATION_RESOURCE_BASE_PATH;
 import static com.ispirit.digitalsky.util.FileStoreHelper.resolveFileName;
@@ -99,6 +103,8 @@ public class UAOPApplicationController {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.NOT_FOUND);
         } catch (UnAuthorizedAccessException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.UNAUTHORIZED);
+        }catch (ApplicationNotInSubmittedStatus e) {
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -114,7 +120,12 @@ public class UAOPApplicationController {
     public ResponseEntity<?> listAll() {
 
         Collection<?> applicationForms = uaopApplicationService.getAllApplications();
-        return new ResponseEntity<>(applicationForms, HttpStatus.OK);
+        List<?> submittedApplications = applicationForms.stream().filter(applicationForm -> {
+            ApplicationStatus status = ((UAOPApplication) applicationForm).getStatus();
+            return status != null && status != ApplicationStatus.DRAFT;
+        }).collect(Collectors.toList());
+
+        return new ResponseEntity<>(submittedApplications, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -136,7 +147,7 @@ public class UAOPApplicationController {
             UAOPApplication applicationForm = uaopApplicationService.get(applicationId);
 
             UserPrincipal userPrincipal = UserPrincipal.securityContext();
-            if (userPrincipal.getId() != applicationForm.getApplicantId()) {
+            if (!userPrincipal.isAdmin() && userPrincipal.getId() != applicationForm.getApplicantId()) {
                 return new ResponseEntity<>(new Errors("UnAuthorized Access"), HttpStatus.UNAUTHORIZED);
             }
             Resource resourceFile = uaopApplicationService.getFile(applicationId, fileName);
