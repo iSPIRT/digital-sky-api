@@ -16,6 +16,8 @@ public class TokenResponse {
 
     private String tokenType = "Bearer";
 
+    private boolean isAdmin = false;
+
     private TokenResponse() {
         //for serialization and de-serialization
     }
@@ -27,6 +29,15 @@ public class TokenResponse {
         this.pilotProfileId = pilotProfileId;
         this.individualOperatorProfileId = individualOperatorProfileId;
         this.organizationOperatorProfileId = organizationOperatorProfileId;
+    }
+
+    public static TokenResponse adminUserResponse(String accessToken, long id, String username) {
+        TokenResponse tokenResponse = new TokenResponse();
+        tokenResponse.accessToken = accessToken;
+        tokenResponse.id = id;
+        tokenResponse.username = username;
+        tokenResponse.isAdmin = true;
+        return tokenResponse;
     }
 
     public String getAccessToken() {
