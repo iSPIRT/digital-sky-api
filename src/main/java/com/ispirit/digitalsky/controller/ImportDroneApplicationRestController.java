@@ -3,8 +3,11 @@ package com.ispirit.digitalsky.controller;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ispirit.digitalsky.document.ImportedDroneAcquisitionApplication;
+import com.ispirit.digitalsky.document.ImportDroneApplication;
+import com.ispirit.digitalsky.document.UINApplication;
+import com.ispirit.digitalsky.domain.ApplicationStatus;
 import com.ispirit.digitalsky.domain.ApproveRequestBody;
+import com.ispirit.digitalsky.domain.UserPrincipal;
 import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.*;
 import com.ispirit.digitalsky.service.api.DroneAcquisitionApplicationService;
@@ -13,32 +16,35 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import static com.ispirit.digitalsky.controller.ImportDroneApplicationRestController.IMPORTEDDRONEACQUISITIONFORM_RESOURCE_BASE_PATH;
+import static com.ispirit.digitalsky.controller.ImportDroneApplicationRestController.IMPORTDRONEACQUISITIONFORM_RESOURCE_BASE_PATH;
 
 @RestController
-@RequestMapping(IMPORTEDDRONEACQUISITIONFORM_RESOURCE_BASE_PATH)
+@RequestMapping(IMPORTDRONEACQUISITIONFORM_RESOURCE_BASE_PATH)
 public class ImportDroneApplicationRestController {
 
-    public static final String IMPORTEDDRONEACQUISITIONFORM_RESOURCE_BASE_PATH = "/api/applicationForm/importDroneApplication";
+    public static final String IMPORTDRONEACQUISITIONFORM_RESOURCE_BASE_PATH = "/api/applicationForm/importDroneApplication";
 
-    private DroneAcquisitionApplicationService<ImportedDroneAcquisitionApplication> droneAcquisitionFormService;
+    private DroneAcquisitionApplicationService<ImportDroneApplication> droneAcquisitionFormService;
 
-    public ImportDroneApplicationRestController(DroneAcquisitionApplicationService<ImportedDroneAcquisitionApplication> droneAcquisitionFormService) {
+    public ImportDroneApplicationRestController(DroneAcquisitionApplicationService<ImportDroneApplication> droneAcquisitionFormService) {
 
         this.droneAcquisitionFormService = droneAcquisitionFormService;
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> createAcquisitionForm(@RequestBody ImportedDroneAcquisitionApplication acquisitionForm) {
+    public ResponseEntity<?> createAcquisitionForm(@RequestBody ImportDroneApplication acquisitionForm) {
 
         try {
-            ImportedDroneAcquisitionApplication createdForm = droneAcquisitionFormService.createDroneAcquisitionApplicationForm(acquisitionForm);
+            ImportDroneApplication createdForm = droneAcquisitionFormService.createDroneAcquisitionApplication(acquisitionForm);
             return new ResponseEntity<>(createdForm, HttpStatus.OK);
         } catch(Exception e){
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.CONFLICT);
@@ -50,8 +56,8 @@ public class ImportDroneApplicationRestController {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
-            ImportedDroneAcquisitionApplication droneAcquisitionForm = mapper.readValue(droneAcquisitionFormString, ImportedDroneAcquisitionApplication.class);
-            ImportedDroneAcquisitionApplication updatedForm = droneAcquisitionFormService.updateDroneAcquisitionApplicationForm(id, droneAcquisitionForm, securityClearanceDoc);
+            ImportDroneApplication droneAcquisitionForm = mapper.readValue(droneAcquisitionFormString, ImportDroneApplication.class);
+            ImportDroneApplication updatedForm = droneAcquisitionFormService.updateDroneAcquisitionApplication(id, droneAcquisitionForm, securityClearanceDoc);
             return new ResponseEntity<>(updatedForm, HttpStatus.OK);
         } catch (JsonGenerationException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.UNPROCESSABLE_ENTITY);
@@ -74,7 +80,7 @@ public class ImportDroneApplicationRestController {
     public ResponseEntity<?> approveAcquisitionForm(@PathVariable String id, @RequestBody ApproveRequestBody approveRequestBody) {
 
         try {
-            ImportedDroneAcquisitionApplication updatedForm = droneAcquisitionFormService.approveDroneAcquisitionForm(approveRequestBody);
+            ImportDroneApplication updatedForm = droneAcquisitionFormService.approveDroneAcquisitionApplication(approveRequestBody);
             return new ResponseEntity<>(updatedForm, HttpStatus.OK);
         } catch (ApplicationNotFoundException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.NOT_FOUND);
@@ -83,28 +89,34 @@ public class ImportDroneApplicationRestController {
         }
     }
 
-    @RequestMapping(value = "/getByApplicant/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getAcquisitionFormsOfApplicant(@PathVariable long id){
+    @RequestMapping(value = "/list", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> listApplications() {
 
-        Collection<?> applicationForms = droneAcquisitionFormService.getAcquisitionFormsOfApplicant(id);
+        Collection<?> applicationForms = droneAcquisitionFormService.getApplicationsOfApplicant();
         return new ResponseEntity<>(applicationForms,HttpStatus.OK);
     }
 
     @RequestMapping(value = "/getAll", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getAcquisitionForms(){
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> listAll() {
 
-        Collection<?> applicationForms = droneAcquisitionFormService.getAllAcquisitionForms();
-        return new ResponseEntity<>(applicationForms,HttpStatus.OK);
+        Collection<?> applicationForms = droneAcquisitionFormService.getAllApplications();
+        List<?> submittedApplications = applicationForms.stream().filter(applicationForm -> {
+            ApplicationStatus status = ((ImportDroneApplication) applicationForm).getStatus();
+            return status != null && status != ApplicationStatus.DRAFT;
+        }).collect(Collectors.toList());
+
+        return new ResponseEntity<>(submittedApplications, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAcquisitionForm(@PathVariable String id){
 
-        ImportedDroneAcquisitionApplication applicationForm = droneAcquisitionFormService.get(id);
+        ImportDroneApplication applicationForm = droneAcquisitionFormService.get(id);
         return new ResponseEntity<>(applicationForm,HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{id}/document/{documentName}", method = RequestMethod.GET, produces = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RequestMapping(value = "/{id}/document/{documentName:.+}", method = RequestMethod.GET, produces = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> getFile(@PathVariable String id, @PathVariable String documentName){
 
         try {

@@ -3,7 +3,7 @@ package com.ispirit.digitalsky.configuration;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ispirit.digitalsky.document.ImportedDroneAcquisitionApplication;
+import com.ispirit.digitalsky.document.ImportDroneApplication;
 import com.ispirit.digitalsky.document.LocalDroneAcquisitionApplication;
 import com.ispirit.digitalsky.repository.*;
 import com.ispirit.digitalsky.repository.storage.StorageService;
@@ -109,18 +109,23 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneAcquisitionService(DroneAcquisitionRepository<LocalDroneAcquisitionApplication> droneAcquisitionRepository, StorageService documentRepository, EntityRepository entityRepository){
+    DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneAcquisitionService(DroneAcquisitionApplicationRepository<LocalDroneAcquisitionApplication> droneAcquisitionRepository, StorageService documentRepository, EntityRepository entityRepository){
         return new DroneAcquisitionApplicationServiceImpl<LocalDroneAcquisitionApplication>(droneAcquisitionRepository, documentRepository, entityRepository);
     }
 
     @Bean
-    DroneAcquisitionApplicationService<ImportedDroneAcquisitionApplication> importedDroneAcquisitionService(DroneAcquisitionRepository<ImportedDroneAcquisitionApplication> droneAcquisitionRepository, StorageService documentRepository, EntityRepository entityRepository){
-        return new DroneAcquisitionApplicationServiceImpl<ImportedDroneAcquisitionApplication>(droneAcquisitionRepository, documentRepository, entityRepository);
+    DroneAcquisitionApplicationService<ImportDroneApplication> importedDroneAcquisitionService(DroneAcquisitionApplicationRepository<ImportDroneApplication> droneAcquisitionRepository, StorageService documentRepository, EntityRepository entityRepository){
+        return new DroneAcquisitionApplicationServiceImpl<ImportDroneApplication>(droneAcquisitionRepository, documentRepository, entityRepository);
     }
 
     @Bean
     UAOPApplicationService uaopApplicationService(StorageService storageService, UAOPApplicationRepository uaopApplicationRepository) {
         return new UAOPApplicationServiceImpl(uaopApplicationRepository, storageService);
+    }
+
+    @Bean
+    UINApplicationService uinApplicationService(StorageService storageService, UINApplicationRepository uinApplicationRepository) {
+        return new UINApplicationServiceImpl(uinApplicationRepository, storageService);
     }
 
     @Bean

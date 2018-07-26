@@ -5,7 +5,7 @@ import com.ispirit.digitalsky.domain.ApplicationStatus;
 import com.ispirit.digitalsky.domain.ApproveRequestBody;
 import com.ispirit.digitalsky.domain.UserPrincipal;
 import com.ispirit.digitalsky.exception.*;
-import com.ispirit.digitalsky.repository.DroneAcquisitionRepository;
+import com.ispirit.digitalsky.repository.DroneAcquisitionApplicationRepository;
 import com.ispirit.digitalsky.repository.EntityRepository;
 import com.ispirit.digitalsky.repository.storage.StorageService;
 import com.ispirit.digitalsky.service.api.DroneAcquisitionApplicationService;
@@ -19,11 +19,11 @@ import java.util.*;
 
 public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionApplication> implements DroneAcquisitionApplicationService<T> {
 
-    private final DroneAcquisitionRepository<T> droneAcquisitionFormRepository;
+    private final DroneAcquisitionApplicationRepository<T> droneAcquisitionFormRepository;
     private final StorageService documentRepository;
     private final EntityRepository entityRepository;
 
-    public DroneAcquisitionApplicationServiceImpl(DroneAcquisitionRepository<T> droneAcquisitionFormRepository, StorageService documentRepository, EntityRepository entityRepository) {
+    public DroneAcquisitionApplicationServiceImpl(DroneAcquisitionApplicationRepository<T> droneAcquisitionFormRepository, StorageService documentRepository, EntityRepository entityRepository) {
         this.droneAcquisitionFormRepository = droneAcquisitionFormRepository;
         this.documentRepository = documentRepository;
         this.entityRepository = entityRepository;
@@ -31,7 +31,7 @@ public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionAp
 
     @Override
     @Transactional
-    public T createDroneAcquisitionApplicationForm(T droneAcquisitionApplicationForm) {
+    public T createDroneAcquisitionApplication(T droneAcquisitionApplicationForm) {
 
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         droneAcquisitionApplicationForm.setApplicantId(userPrincipal.getId());
@@ -43,7 +43,7 @@ public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionAp
 
     @Override
     @Transactional
-    public T updateDroneAcquisitionApplicationForm(String id, T droneAcquisitionApplicationForm, MultipartFile securityClearanceDoc) throws ApplicationNotFoundException, UnAuthorizedAccessException, StorageException, ApplicationNotEditableException {
+    public T updateDroneAcquisitionApplication(String id, T droneAcquisitionApplicationForm, MultipartFile securityClearanceDoc) throws ApplicationNotFoundException, UnAuthorizedAccessException, StorageException, ApplicationNotEditableException {
 
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         T actualForm = droneAcquisitionFormRepository.findById(id);
@@ -80,7 +80,7 @@ public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionAp
 
     @Override
     @Transactional
-    public T approveDroneAcquisitionForm(ApproveRequestBody approveRequestBody) throws ApplicationNotFoundException, UnAuthorizedAccessException {
+    public T approveDroneAcquisitionApplication(ApproveRequestBody approveRequestBody) throws ApplicationNotFoundException, UnAuthorizedAccessException {
 
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         T actualForm = droneAcquisitionFormRepository.findById(approveRequestBody.getApplicationFormId());
@@ -100,13 +100,14 @@ public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionAp
     }
 
     @Override
-    public Collection<T> getAcquisitionFormsOfApplicant(long applicantId) {
+    public Collection<T> getApplicationsOfApplicant() {
 
-        return droneAcquisitionFormRepository.findByApplicant(applicantId);
+        UserPrincipal userPrincipal = UserPrincipal.securityContext();
+        return droneAcquisitionFormRepository.findByApplicant(userPrincipal.getId());
     }
 
     @Override
-    public Collection<T> getAllAcquisitionForms() {
+    public Collection<T> getAllApplications() {
 
         return droneAcquisitionFormRepository.findAll();
     }
