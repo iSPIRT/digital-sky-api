@@ -8,6 +8,7 @@ import com.ispirit.digitalsky.exception.ApplicationNotFoundException;
 import com.ispirit.digitalsky.exception.StorageException;
 import com.ispirit.digitalsky.exception.StorageFileNotFoundException;
 import com.ispirit.digitalsky.exception.UnAuthorizedAccessException;
+import com.ispirit.digitalsky.exception.*;
 import com.ispirit.digitalsky.repository.UAOPApplicationRepository;
 import com.ispirit.digitalsky.repository.storage.StorageService;
 import com.ispirit.digitalsky.service.api.UAOPApplicationService;
@@ -35,6 +36,7 @@ public class UAOPApplicationServiceImpl implements UAOPApplicationService {
         uaopApplication.setId(null);
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         uaopApplication.setApplicantId(userPrincipal.getId());
+        uaopApplication.setApplicant(userPrincipal.getUsername());
         UAOPApplication document = uaopApplicationRepository.insert(uaopApplication);
         storageService.store(uaopApplication.getAllDocs(), document.getId());
         return document;
@@ -92,6 +94,10 @@ public class UAOPApplicationServiceImpl implements UAOPApplicationService {
         UAOPApplication actualForm = uaopApplicationRepository.findById(approveRequestBody.getApplicationFormId());
         if (actualForm == null) {
             throw new ApplicationNotFoundException();
+        }
+
+        if (actualForm.getStatus() != ApplicationStatus.SUBMITTED) {
+            throw new ApplicationNotInSubmittedStatus();
         }
 
         actualForm.setApproverId(userPrincipal.getId());
