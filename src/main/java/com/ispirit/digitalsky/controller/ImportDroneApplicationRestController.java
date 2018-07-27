@@ -3,11 +3,11 @@ package com.ispirit.digitalsky.controller;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ispirit.digitalsky.document.DroneAcquisitionApplication;
 import com.ispirit.digitalsky.document.ImportDroneApplication;
-import com.ispirit.digitalsky.document.UINApplication;
+import com.ispirit.digitalsky.document.LocalDroneAcquisitionApplication;
 import com.ispirit.digitalsky.domain.ApplicationStatus;
 import com.ispirit.digitalsky.domain.ApproveRequestBody;
-import com.ispirit.digitalsky.domain.UserPrincipal;
 import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.*;
 import com.ispirit.digitalsky.service.api.DroneAcquisitionApplicationService;
@@ -102,8 +102,10 @@ public class ImportDroneApplicationRestController {
 
         Collection<?> applicationForms = droneAcquisitionFormService.getAllApplications();
         List<?> submittedApplications = applicationForms.stream().filter(applicationForm -> {
-            ApplicationStatus status = ((ImportDroneApplication) applicationForm).getStatus();
-            return status != null && status != ApplicationStatus.DRAFT;
+            if(applicationForm instanceof ImportDroneApplication) {
+                ApplicationStatus status = ((ImportDroneApplication) applicationForm).getStatus();
+                return status != null && status != ApplicationStatus.DRAFT;
+            } else return false;
         }).collect(Collectors.toList());
 
         return new ResponseEntity<>(submittedApplications, HttpStatus.OK);

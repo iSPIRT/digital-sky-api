@@ -277,9 +277,9 @@ public class UINApplication extends BasicApplication {
 
     public void setWingType(String wingType) { this.wingType = wingType; }
 
-    public Boolean getNew() { return isNew; }
+    public Boolean getIsNew() { return isNew; }
 
-    public void setNew(Boolean aNew) { isNew = aNew; }
+    public void setIsNew(Boolean isNew) { isNew = isNew; }
 
     public float getMaxTakeOffWeight() { return maxTakeOffWeight; }
 
