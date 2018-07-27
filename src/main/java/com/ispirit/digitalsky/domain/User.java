@@ -27,7 +27,6 @@ public class User {
     private String email;
 
     @Column(name = "PASSWORD_HASH")
-    @JsonIgnore
     private String password;
 
     @Column(name = "RESET_PASSWORD_TOKEN")

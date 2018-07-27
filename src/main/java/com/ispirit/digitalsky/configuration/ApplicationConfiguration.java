@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.document.ImportDroneApplication;
 import com.ispirit.digitalsky.document.LocalDroneAcquisitionApplication;
 import com.ispirit.digitalsky.repository.*;
+import com.ispirit.digitalsky.repository.storage.FileSystemStorageService;
 import com.ispirit.digitalsky.repository.storage.StorageService;
 import com.ispirit.digitalsky.service.*;
 import com.ispirit.digitalsky.service.api.*;
@@ -61,6 +62,9 @@ public class ApplicationConfiguration {
     @Value("${JWT_EXPIRY_TIME_IN_DAYS:30}")
     private String jwtExpiryInDays;
 
+    @Value("${FILE_STORAGE_LOCATION:uploads}")
+    private String storageLocation;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -89,6 +93,11 @@ public class ApplicationConfiguration {
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(SecurityTokenService securityTokenService, UserService userService) {
         return new JwtAuthenticationFilter(userService, securityTokenService);
+    }
+
+    @Bean
+    StorageService storageService(){
+        return new FileSystemStorageService(storageLocation);
     }
 
     @Bean
