@@ -61,6 +61,7 @@ public class UserController {
             return new ResponseEntity<>(new Errors("UnAuthorized Access"), HttpStatus.UNAUTHORIZED);
         }
         User user = userService.find(id);
+        user.setPassword("");
         if (user != null) {
             return new ResponseEntity<>(user, HttpStatus.OK);
         } else {
