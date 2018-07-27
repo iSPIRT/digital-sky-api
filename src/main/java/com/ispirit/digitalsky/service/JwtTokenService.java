@@ -3,31 +3,33 @@ package com.ispirit.digitalsky.service;
 import com.ispirit.digitalsky.domain.UserPrincipal;
 import com.ispirit.digitalsky.service.api.SecurityTokenService;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.impl.crypto.RsaProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.core.Authentication;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.security.Key;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
+import java.util.Calendar;
 import java.util.Date;
 
 public class JwtTokenService implements SecurityTokenService {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenService.class);
 
-    private int jwtExpirationInMs;
+    private int jwtExpirationInDays;
     private final Key key;
 
-    public JwtTokenService(int jwtExpirationInMs) {
-        this.jwtExpirationInMs = jwtExpirationInMs;
+    public JwtTokenService(ResourceLoader resourceLoader, int jwtExpirationInDays, String jwtKeyStorePath, String jwtKeyStorePassword, String jwtKeyStoreType, String jwtKeyAlias, String jwtKeyPassword) {
+        this.jwtExpirationInDays = jwtExpirationInDays;
         try {
-            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            keyStore.load(new ClassPathResource("keystore.jks").getInputStream(),"cacms789".toCharArray());
-            key = keyStore.getKey("tomcat-localhost", "cacms789".toCharArray());
+            KeyStore keyStore = KeyStore.getInstance(jwtKeyStoreType);
+            keyStore.load(resourceLoader.getResource(jwtKeyStorePath).getInputStream(), jwtKeyStorePassword.toCharArray());
+            key = keyStore.getKey(jwtKeyAlias, jwtKeyPassword.toCharArray());
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -38,13 +40,14 @@ public class JwtTokenService implements SecurityTokenService {
     public String generateToken(Authentication authentication) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
-        Date now = new Date();
+        Calendar now = Calendar.getInstance();
+        now.setTime(new Date());
+        now.add(Calendar.DAY_OF_MONTH, jwtExpirationInDays);
 
-        Date expiryDate = new Date(now.getTime() + 21000000);
         return Jwts.builder()
                 .setSubject(String.valueOf(userPrincipal.getId()))
                 .setIssuedAt(new Date())
-                .setExpiration(expiryDate)
+                .setExpiration(now.getTime())
                 .signWith(SignatureAlgorithm.RS256, key)
                 .compact();
     }

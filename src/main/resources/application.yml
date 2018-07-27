@@ -12,10 +12,6 @@ spring:
         ddl-auto: none
       properties:
         hibernate:
-          show_sql: true
-          use_sql_comments: true
-          format_sql: true
-          type: trace
           dialect: org.hibernate.dialect.MySQL5InnoDBDialect
     servlet:
       multipart:
@@ -42,9 +38,7 @@ server:
   http-port: 9000
   ssl:
     enabled: true
-    key-alias: tomcat-localhost
-    key-password: cacms789
-    key-store: classpath:keystore.jks
-    key-store-provider: SUN
-    key-store-type: JKS
-    key-store-password: cacms789
+    key-alias: ${DS_KEY_ALIAS:tomcat-localhost}
+    key-password: ${DS_KEY_PASSWORD:cacms789}
+    key-store: ${DS_KEYSTORE_PATH:classpath:keystore.jks}
+    key-store-password: ${DS_KEYSTORE_PASSWORD:cacms789}
