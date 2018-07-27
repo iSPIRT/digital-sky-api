@@ -1,6 +1,7 @@
 package com.ispirit.digitalsky.controller;
 
 import com.ispirit.digitalsky.domain.User;
+import com.ispirit.digitalsky.domain.UserPrincipal;
 import com.ispirit.digitalsky.dto.EntityId;
 import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.dto.ResetPasswordLinkRequest;
@@ -55,7 +56,12 @@ public class UserController {
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<?> get(@PathVariable("id") long id) {
+        UserPrincipal userPrincipal = UserPrincipal.securityContext();
+        if (!userPrincipal.isAdmin() && userPrincipal.getId() != id) {
+            return new ResponseEntity<>(new Errors("UnAuthorized Access"), HttpStatus.UNAUTHORIZED);
+        }
         User user = userService.find(id);
+        user.setPassword("");
         if (user != null) {
             return new ResponseEntity<>(user, HttpStatus.OK);
         } else {

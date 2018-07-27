@@ -8,9 +8,7 @@ import com.ispirit.digitalsky.document.UAOPApplication;
 import org.junit.Test;
 import org.springframework.beans.BeanUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class OrganizationOperatorTest {
 
@@ -45,6 +43,14 @@ public class OrganizationOperatorTest {
 
         BeanUtils.copyProperties(uaopApplicationNew, uaopApplication);
         System.out.println("");
+    }
+
+    @Test
+    public void addDays() throws Exception {
+        Calendar instance = Calendar.getInstance();
+        instance.setTime(new Date());
+        instance.add(Calendar.DAY_OF_MONTH,10);
+        System.out.println(instance.getTime().toString());
     }
 
     List<Address> toAddressList(Address... addresses){

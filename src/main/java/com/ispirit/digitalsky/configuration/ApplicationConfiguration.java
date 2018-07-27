@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.document.ImportDroneApplication;
 import com.ispirit.digitalsky.document.LocalDroneAcquisitionApplication;
 import com.ispirit.digitalsky.repository.*;
+import com.ispirit.digitalsky.repository.storage.FileSystemStorageService;
 import com.ispirit.digitalsky.repository.storage.StorageService;
 import com.ispirit.digitalsky.service.*;
 import com.ispirit.digitalsky.service.api.*;
@@ -20,6 +21,7 @@ import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -42,6 +44,27 @@ public class ApplicationConfiguration {
     @Value("${RESET_PASSWORD_PATH:http://192.168.33.10:3000/resetPassword}")
     private String resetPasswordBasePath;
 
+    @Value("${JWT_KEYSTORE_PATH:classpath:keystore.jks}")
+    private String jwtKeyStorePath;
+
+    @Value("${JWT_KEYSTORE_PASSWORD:cacms789}")
+    private String jwtKeyStorePassword;
+
+    @Value("${JWT_KEYSTORE_TYPE:jks}")
+    private String jwtKeyStoreType;
+
+    @Value("${JWT_KEY_ALIAS:tomcat-localhost}")
+    private String jwtKeyAlias;
+
+    @Value("${JWT_KEY_PASSWORD:cacms789}")
+    private String jwtKeyPassword;
+
+    @Value("${JWT_EXPIRY_TIME_IN_DAYS:30}")
+    private String jwtExpiryInDays;
+
+    @Value("${FILE_STORAGE_LOCATION:uploads}")
+    private String storageLocation;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -63,13 +86,18 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    public SecurityTokenService securityTokenService() {
-        return new JwtTokenService(1000000);
+    public SecurityTokenService securityTokenService(ResourceLoader resourceLoader) {
+        return new JwtTokenService(resourceLoader, Integer.parseInt(jwtExpiryInDays), jwtKeyStorePath, jwtKeyStorePassword, jwtKeyStoreType, jwtKeyAlias, jwtKeyPassword);
     }
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(SecurityTokenService securityTokenService, UserService userService) {
         return new JwtAuthenticationFilter(userService, securityTokenService);
+    }
+
+    @Bean
+    StorageService storageService(){
+        return new FileSystemStorageService(storageLocation);
     }
 
     @Bean
