@@ -1,5 +1,7 @@
 package com.ispirit.digitalsky.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,17 +27,21 @@ public class User {
     private String email;
 
     @Column(name = "PASSWORD_HASH")
+    @JsonIgnore
     private String password;
 
     @Column(name = "RESET_PASSWORD_TOKEN")
+    @JsonIgnore
     private String resetPasswordToken;
 
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "USER_ID")
+    @JsonIgnore
     private List<UserRole> roles = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID")
+    @JsonIgnore
     private List<UserActiveSession> activeSessions = new ArrayList<>();
 
     private User() {
