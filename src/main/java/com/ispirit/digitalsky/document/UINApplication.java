@@ -345,7 +345,7 @@ public class UINApplication extends BasicApplication {
 
     public void setMaxHeightOfOperation(float maxHeightOfOperation) { this.maxHeightOfOperation = maxHeightOfOperation; }
 
-    public boolean isHasGNSS() { return hasGNSS; }
+    public boolean getHasGNSS() { return hasGNSS; }
 
     public void setHasGNSS(boolean hasGNSS) { this.hasGNSS = hasGNSS; }
 

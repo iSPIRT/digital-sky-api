@@ -35,6 +35,7 @@ public class UINApplicationServiceImpl implements UINApplicationService {
         uinApplication.setId(null);
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         uinApplication.setApplicantId(userPrincipal.getId());
+        uinApplication.setApplicant(userPrincipal.getUsername());
         UINApplication document = uinApplicationRepository.insert(uinApplication);
         storageService.store(uinApplication.getAllDocs(), document.getId());
         return document;
