@@ -69,6 +69,8 @@ public class DroneAcquisitionApplication extends BasicApplication {
     @Field("securityClearanceDocument")
     private String securityClearanceDoc;
 
+    public DroneAcquisitionApplication() { setCreatedDate(new Date());}
+
     public ApplicantCategory getApplicantCategory() {
         return applicantCategory;
     }

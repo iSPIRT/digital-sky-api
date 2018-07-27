@@ -10,17 +10,17 @@ import java.util.Collection;
 
 public interface DroneAcquisitionApplicationService<T> {
 
-    T createDroneAcquisitionApplicationForm(T droneAcquisitionApplicationForm);
+    T createDroneAcquisitionApplication(T droneAcquisitionApplicationForm);
 
-    T updateDroneAcquisitionApplicationForm(String id, T droneAcquisitionApplicationForm, MultipartFile securityClearanceDoc) throws ApplicationNotFoundException, UnAuthorizedAccessException, StorageException, ApplicationNotEditableException;
+    T updateDroneAcquisitionApplication(String id, T droneAcquisitionApplicationForm, MultipartFile securityClearanceDoc) throws ApplicationNotFoundException, UnAuthorizedAccessException, StorageException, ApplicationNotEditableException;
 
-    T approveDroneAcquisitionForm(ApproveRequestBody approveRequestBody) throws ApplicationNotFoundException,UnAuthorizedAccessException;
+    T approveDroneAcquisitionApplication(ApproveRequestBody approveRequestBody) throws ApplicationNotFoundException,UnAuthorizedAccessException;
 
     T get(String id);
 
-    Collection<T> getAcquisitionFormsOfApplicant(long applicantId);
+    Collection<T> getApplicationsOfApplicant();
 
-    Collection<T> getAllAcquisitionForms();
+    Collection<T> getAllApplications();
 
     Resource getFile(String id, String fileName) throws StorageFileNotFoundException;
 
