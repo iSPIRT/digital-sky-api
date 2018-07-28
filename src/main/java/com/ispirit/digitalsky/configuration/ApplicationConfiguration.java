@@ -76,8 +76,20 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    public UserService userService(UserRepository userRepository, EmailService emailService) {
-        return new CustomUserDetailService(userRepository, emailService, resetPasswordBasePath);
+    public UserService userService(
+            UserRepository userRepository,
+            EmailService emailService,
+            DroneAcquisitionApplicationService<ImportDroneApplication> importDroneService,
+            UAOPApplicationService uaopApplicationService,
+            UINApplicationService uinApplicationService,
+            DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneService) {
+        return new CustomUserDetailService(userRepository,
+                emailService,
+                localDroneService,
+                importDroneService,
+                uaopApplicationService,
+                uinApplicationService,
+                resetPasswordBasePath);
     }
 
     @Bean
@@ -96,7 +108,7 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    StorageService storageService(){
+    StorageService storageService() {
         return new FileSystemStorageService(storageLocation);
     }
 
@@ -137,12 +149,12 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneAcquisitionService(DroneAcquisitionApplicationRepository<LocalDroneAcquisitionApplication> droneAcquisitionRepository, StorageService documentRepository, EntityRepository entityRepository){
+    DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneAcquisitionService(DroneAcquisitionApplicationRepository<LocalDroneAcquisitionApplication> droneAcquisitionRepository, StorageService documentRepository, EntityRepository entityRepository) {
         return new DroneAcquisitionApplicationServiceImpl<LocalDroneAcquisitionApplication>(droneAcquisitionRepository, documentRepository, entityRepository);
     }
 
     @Bean
-    DroneAcquisitionApplicationService<ImportDroneApplication> importedDroneAcquisitionService(DroneAcquisitionApplicationRepository<ImportDroneApplication> droneAcquisitionRepository, StorageService documentRepository, EntityRepository entityRepository){
+    DroneAcquisitionApplicationService<ImportDroneApplication> importedDroneAcquisitionService(DroneAcquisitionApplicationRepository<ImportDroneApplication> droneAcquisitionRepository, StorageService documentRepository, EntityRepository entityRepository) {
         return new DroneAcquisitionApplicationServiceImpl<ImportDroneApplication>(droneAcquisitionRepository, documentRepository, entityRepository);
     }
 

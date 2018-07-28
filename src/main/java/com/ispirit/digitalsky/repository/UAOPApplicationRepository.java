@@ -9,5 +9,6 @@ import java.util.Collection;
 public interface UAOPApplicationRepository extends MongoRepository<UAOPApplication, String> {
 
     UAOPApplication findById(@Param("id") String id);
-    Collection<?> findByApplicant(@Param("applicantId") long applicantId);
+
+    Collection<UAOPApplication> findByApplicantId(long applicantId);
 }

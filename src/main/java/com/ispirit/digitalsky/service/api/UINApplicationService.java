@@ -20,9 +20,9 @@ public interface UINApplicationService {
 
     UINApplication get(String id);
 
-    Collection<?> getApplicationsOfApplicant(long applicantId);
+    Collection<UINApplication> getApplicationsOfApplicant(long applicantId);
 
-    Collection<?> getAllApplications();
+    Collection<UINApplication> getAllApplications();
 
     Resource getFile(String applicationId, String fileName) throws StorageFileNotFoundException;
 

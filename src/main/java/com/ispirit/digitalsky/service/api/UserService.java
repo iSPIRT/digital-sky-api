@@ -1,7 +1,10 @@
 package com.ispirit.digitalsky.service.api;
 
+import com.ispirit.digitalsky.document.BasicApplication;
 import com.ispirit.digitalsky.domain.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
+
+import java.util.List;
 
 public interface UserService extends UserDetailsService {
 
@@ -16,4 +19,6 @@ public interface UserService extends UserDetailsService {
     User loadByEmail(String email);
 
     User createNew(User user);
+
+    List<BasicApplication> applications(long userId);
 }
