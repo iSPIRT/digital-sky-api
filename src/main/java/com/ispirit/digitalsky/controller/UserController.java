@@ -6,7 +6,6 @@ import com.ispirit.digitalsky.domain.UserPrincipal;
 import com.ispirit.digitalsky.dto.*;
 import com.ispirit.digitalsky.exception.EntityNotFoundException;
 import com.ispirit.digitalsky.service.api.UserService;
-import com.sun.deploy.cache.BaseLocalApplicationProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
