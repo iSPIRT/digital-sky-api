@@ -187,5 +187,9 @@ public class BasicApplication {
     public boolean canBeModified() {
         return ApplicationStatus.DRAFT.equals(getStatus());
     }
+
+    public Date modifiedDate(){
+        return lastModifiedDate != null ? lastModifiedDate : createdDate;
+    }
 }
 

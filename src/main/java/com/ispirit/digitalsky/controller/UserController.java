@@ -1,13 +1,12 @@
 package com.ispirit.digitalsky.controller;
 
+import com.ispirit.digitalsky.document.BasicApplication;
 import com.ispirit.digitalsky.domain.User;
 import com.ispirit.digitalsky.domain.UserPrincipal;
-import com.ispirit.digitalsky.dto.EntityId;
-import com.ispirit.digitalsky.dto.Errors;
-import com.ispirit.digitalsky.dto.ResetPasswordLinkRequest;
-import com.ispirit.digitalsky.dto.ResetPasswordRequest;
+import com.ispirit.digitalsky.dto.*;
 import com.ispirit.digitalsky.exception.EntityNotFoundException;
 import com.ispirit.digitalsky.service.api.UserService;
+import com.sun.deploy.cache.BaseLocalApplicationProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,6 +15,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.ispirit.digitalsky.controller.UserController.USER_RESOURCE_BASE_PATH;
 import static org.springframework.util.StringUtils.containsWhitespace;
@@ -67,6 +70,13 @@ public class UserController {
         } else {
             return new ResponseEntity<>(new Errors("User not found"), HttpStatus.NOT_FOUND);
         }
+    }
+
+    @RequestMapping(value = "/applications", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<?> applications() {
+        UserPrincipal userPrincipal = UserPrincipal.securityContext();
+        List<BasicApplication> applications = userService.applications(userPrincipal.getId());
+        return new ResponseEntity<>(applications.stream().map(ApplicationAbstract::new).collect(Collectors.toList()), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/resetPasswordLink", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

@@ -9,5 +9,6 @@ import java.util.Collection;
 public interface DroneAcquisitionApplicationRepository<T extends DroneAcquisitionApplication> extends MongoRepository<T, String> {
 
     T findById(@Param("id") String id);
-    Collection<T> findByApplicant(@Param("applicantId") long applicantId);
+
+    Collection<T> findByApplicantId(long applicantId);
 }
