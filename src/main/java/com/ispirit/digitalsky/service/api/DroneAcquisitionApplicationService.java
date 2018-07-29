@@ -22,6 +22,6 @@ public interface DroneAcquisitionApplicationService<T> {
 
     Collection<T> getAllApplications();
 
-    Resource getFile(String id, String fileName) throws StorageFileNotFoundException;
+    Resource getFile(String id, String fileName) throws StorageFileNotFoundException, UnAuthorizedAccessException;
 
 }

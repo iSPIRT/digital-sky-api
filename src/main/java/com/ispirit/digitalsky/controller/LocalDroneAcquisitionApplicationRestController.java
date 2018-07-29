@@ -119,7 +119,7 @@ public class LocalDroneAcquisitionApplicationRestController {
     }
 
 
-    @RequestMapping(value = "/{id}/document/{documentName:.+}", method = RequestMethod.GET, produces = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RequestMapping(value = "/{id}/document/{documentName:.+}", method = RequestMethod.GET)
     public ResponseEntity<?> getFile(@PathVariable String id, @PathVariable String documentName){
 
         try {

@@ -1,9 +1,13 @@
 package com.ispirit.digitalsky.service;
 
 import com.ispirit.digitalsky.document.DroneAcquisitionApplication;
+import com.ispirit.digitalsky.document.LocalDroneAcquisitionApplication;
+import com.ispirit.digitalsky.document.UAOPApplication;
+import com.ispirit.digitalsky.document.UINApplication;
 import com.ispirit.digitalsky.domain.ApplicationStatus;
 import com.ispirit.digitalsky.domain.ApproveRequestBody;
 import com.ispirit.digitalsky.domain.UserPrincipal;
+import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.*;
 import com.ispirit.digitalsky.repository.DroneAcquisitionApplicationRepository;
 import com.ispirit.digitalsky.repository.EntityRepository;
@@ -12,10 +16,14 @@ import com.ispirit.digitalsky.service.api.DroneAcquisitionApplicationService;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
+
+import static com.ispirit.digitalsky.util.FileStoreHelper.resolveFileName;
 
 public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionApplication> implements DroneAcquisitionApplicationService<T> {
 
@@ -70,6 +78,11 @@ public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionAp
         actualForm.setCreatedDate(createdDate);
         actualForm.setApplicantId(applicantId);
 
+        if (securityClearanceDoc != null) {
+            String docName = resolveFileName(securityClearanceDoc);
+            actualForm.setSecurityClearanceDocName(docName);
+        }
+
         T savedForm = droneAcquisitionFormRepository.save(actualForm);
 
         List<MultipartFile> filesToBeUploaded = new ArrayList<MultipartFile>(Arrays.asList(securityClearanceDoc));
@@ -119,7 +132,12 @@ public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionAp
     }
 
     @Override
-    public Resource getFile(String id, String fileName) throws StorageFileNotFoundException {
+    public Resource getFile(String id, String fileName) throws StorageFileNotFoundException, UnAuthorizedAccessException {
+
+        UserPrincipal userPrincipal = UserPrincipal.securityContext();
+        T applicationForm = get(id);
+        if (!userPrincipal.isAdmin() && userPrincipal.getId() != applicationForm.getApplicantId())
+            throw new UnAuthorizedAccessException();
 
         return documentRepository.loadAsResource(id, fileName);
     }

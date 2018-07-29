@@ -53,21 +53,41 @@ public class UINApplicationServiceImpl implements UINApplicationService {
         long applicantId = actualForm.getApplicantId();
         Date createdDate = actualForm.getCreatedDate();
 
-//        if (uinApplication.getSecurityProgramDoc() != null) {
-//            actualForm.setSecurityProgramDocName(uinApplication.getSecurityProgramDocName());
-//        }
-//
-//        if (uinApplication.getInsuranceDoc() != null) {
-//            actualForm.setInsuranceDocName(uinApplication.getInsuranceDocName());
-//        }
-//
-//        if (uinApplication.getSopDoc() != null) {
-//            actualForm.setSopDocName(uinApplication.getSopDocName());
-//        }
-//
-//        if (uinApplication.getLandOwnerPermissionDoc() != null) {
-//            actualForm.setLandOwnerPermissionDocName(uinApplication.getLandOwnerPermissionDocName());
-//        }
+        if (uinApplication.getImportPermissionDoc() != null) {
+            actualForm.setImportPermissionDoc(uinApplication.getImportPermissionDoc());
+        }
+
+        if (uinApplication.getCinDoc() != null) {
+            actualForm.setCinDocName(uinApplication.getCinDocName());
+        }
+
+        if (uinApplication.getGstinDoc() != null) {
+            actualForm.setGstinDocName(uinApplication.getGstinDocName());
+        }
+
+        if (uinApplication.getPanCardDoc() != null) {
+            actualForm.setPanCardDocName(uinApplication.getPanCardDocName());
+        }
+
+        if (uinApplication.getSecurityClearanceDoc() != null) {
+            actualForm.setSecurityClearanceDocName(uinApplication.getSecurityClearanceDocName());
+        }
+
+        if (uinApplication.getDotPermissionDoc() != null) {
+            actualForm.setDotPermissionDocName(uinApplication.getDotPermissionDocName());
+        }
+
+        if (uinApplication.getEtaDoc() != null) {
+            actualForm.setEtaDocName(uinApplication.getEtaDocName());
+        }
+
+        if (uinApplication.getOpManualDoc() != null) {
+            actualForm.setOpManualDocName(uinApplication.getOpManualDocName());
+        }
+
+        if (uinApplication.getMaintenanceGuidelinesDoc() != null) {
+            actualForm.setMaintenanceGuidelinesDocName(uinApplication.getMaintenanceGuidelinesDocName());
+        }
 
         BeanUtils.copyProperties(uinApplication, actualForm);
 
