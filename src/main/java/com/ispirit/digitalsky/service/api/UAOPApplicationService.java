@@ -20,9 +20,9 @@ public interface UAOPApplicationService {
 
     UAOPApplication get(String id);
 
-    Collection<?> getApplicationsOfApplicant(long applicantId);
+    Collection<UAOPApplication> getApplicationsOfApplicant(long applicantId);
 
-    Collection<?> getAllApplications();
+    Collection<UAOPApplication> getAllApplications();
 
     Resource getFile(String applicationId, String fileName) throws StorageFileNotFoundException;
 

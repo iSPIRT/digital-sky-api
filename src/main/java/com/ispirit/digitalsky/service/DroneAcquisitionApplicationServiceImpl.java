@@ -116,7 +116,7 @@ public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionAp
     public Collection<T> getApplicationsOfApplicant() {
 
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
-        return droneAcquisitionFormRepository.findByApplicant(userPrincipal.getId());
+        return droneAcquisitionFormRepository.findByApplicantId(userPrincipal.getId());
     }
 
     @Override

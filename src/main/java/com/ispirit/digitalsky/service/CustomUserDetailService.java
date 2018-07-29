@@ -1,17 +1,21 @@
 package com.ispirit.digitalsky.service;
 
+import com.ispirit.digitalsky.document.BasicApplication;
+import com.ispirit.digitalsky.document.ImportDroneApplication;
+import com.ispirit.digitalsky.document.LocalDroneAcquisitionApplication;
 import com.ispirit.digitalsky.domain.ResetPasswordEmail;
 import com.ispirit.digitalsky.domain.User;
 import com.ispirit.digitalsky.domain.UserPrincipal;
 import com.ispirit.digitalsky.exception.EntityNotFoundException;
 import com.ispirit.digitalsky.repository.UserRepository;
-import com.ispirit.digitalsky.service.api.EmailService;
-import com.ispirit.digitalsky.service.api.UserService;
+import com.ispirit.digitalsky.service.api.*;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static java.lang.String.format;
@@ -20,11 +24,26 @@ public class CustomUserDetailService implements UserService {
 
     private UserRepository userRepository;
     private EmailService emailService;
+    private DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneService;
+    private DroneAcquisitionApplicationService<ImportDroneApplication> importDroneService;
+    private UAOPApplicationService uaopApplicationService;
+    private UINApplicationService uinApplicationService;
     private String resetPasswordBasePath;
 
-    public CustomUserDetailService(UserRepository userRepository, EmailService emailService, String resetPasswordBasePath) {
+    public CustomUserDetailService(
+            UserRepository userRepository,
+            EmailService emailService,
+            DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneService,
+            DroneAcquisitionApplicationService<ImportDroneApplication> importDroneService,
+            UAOPApplicationService uaopApplicationService,
+            UINApplicationService uinApplicationService,
+            String resetPasswordBasePath) {
         this.userRepository = userRepository;
         this.emailService = emailService;
+        this.localDroneService = localDroneService;
+        this.importDroneService = importDroneService;
+        this.uaopApplicationService = uaopApplicationService;
+        this.uinApplicationService = uinApplicationService;
         this.resetPasswordBasePath = resetPasswordBasePath;
     }
 
@@ -78,6 +97,17 @@ public class CustomUserDetailService implements UserService {
     @Transactional
     public User createNew(User user) {
         return userRepository.save(user);
+    }
+
+    @Override
+    public List<BasicApplication> applications(long userId) {
+        ArrayList<BasicApplication> basicApplications = new ArrayList<>();
+        basicApplications.addAll(localDroneService.getApplicationsOfApplicant());
+        basicApplications.addAll(importDroneService.getApplicationsOfApplicant());
+        basicApplications.addAll(uaopApplicationService.getApplicationsOfApplicant(userId));
+        basicApplications.addAll(uinApplicationService.getApplicationsOfApplicant(userId));
+        basicApplications.sort((BasicApplication a1, BasicApplication a2)->a2.modifiedDate().compareTo(a1.modifiedDate()));
+        return basicApplications;
     }
 
 }

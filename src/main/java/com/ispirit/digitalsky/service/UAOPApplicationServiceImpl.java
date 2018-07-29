@@ -117,13 +117,13 @@ public class UAOPApplicationServiceImpl implements UAOPApplicationService {
     }
 
     @Override
-    public Collection<?> getApplicationsOfApplicant(long applicantId) {
-        return uaopApplicationRepository.findByApplicant(applicantId);
+    public Collection<UAOPApplication> getApplicationsOfApplicant(long applicantId) {
+        return uaopApplicationRepository.findByApplicantId(applicantId);
 
     }
 
     @Override
-    public Collection<?> getAllApplications() {
+    public Collection<UAOPApplication> getAllApplications() {
         return uaopApplicationRepository.findAll();
     }
 

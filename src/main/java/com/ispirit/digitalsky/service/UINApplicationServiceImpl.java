@@ -135,13 +135,13 @@ public class UINApplicationServiceImpl implements UINApplicationService {
     }
 
     @Override
-    public Collection<?> getApplicationsOfApplicant(long applicantId) {
-        return uinApplicationRepository.findByApplicant(applicantId);
+    public Collection<UINApplication> getApplicationsOfApplicant(long applicantId) {
+        return uinApplicationRepository.findByApplicantId(applicantId);
 
     }
 
     @Override
-    public Collection<?> getAllApplications() {
+    public Collection<UINApplication> getAllApplications() {
         return uinApplicationRepository.findAll();
     }
 

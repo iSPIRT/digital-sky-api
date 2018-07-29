@@ -9,5 +9,5 @@ import java.util.Collection;
 public interface UINApplicationRepository extends MongoRepository<UINApplication, String> {
 
     UINApplication findById(@Param("id") String id);
-    Collection<?> findByApplicant(@Param("applicantId") long applicantId);
+    Collection<UINApplication> findByApplicantId(long applicantId);
 }
