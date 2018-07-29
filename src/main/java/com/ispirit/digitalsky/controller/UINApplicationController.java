@@ -207,7 +207,7 @@ public class UINApplicationController {
            uinApplication.setEtaDocName(resolveFileName(etaDoc));
        }
 
-       if(etaDoc !=null) {
+       if(opManualDoc !=null) {
            uinApplication.setOpManualDoc(opManualDoc);
            uinApplication.setOpManualDocName(resolveFileName(opManualDoc));
        }

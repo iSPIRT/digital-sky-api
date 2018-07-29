@@ -279,7 +279,7 @@ public class UINApplication extends BasicApplication {
 
     public Boolean getIsNew() { return isNew; }
 
-    public void setIsNew(Boolean isNew) { isNew = isNew; }
+    public void setIsNew(Boolean isNew) { this.isNew = isNew; }
 
     public float getMaxTakeOffWeight() { return maxTakeOffWeight; }
 
