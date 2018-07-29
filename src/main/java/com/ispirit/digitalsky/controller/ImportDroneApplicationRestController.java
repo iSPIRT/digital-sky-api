@@ -50,7 +50,7 @@ public class ImportDroneApplicationRestController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PATCH, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> updateAcquisitionForm(@PathVariable String id, @RequestParam(value="securityClearanceDocument", required = false) MultipartFile securityClearanceDoc, @RequestParam(value="droneAcquisitionForm") String droneAcquisitionFormString) {
+    public ResponseEntity<?> updateAcquisitionForm(@PathVariable String id, @RequestParam(value="securityClearanceDoc", required = false) MultipartFile securityClearanceDoc, @RequestParam(value="droneAcquisitionForm") String droneAcquisitionFormString) {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -116,7 +116,7 @@ public class ImportDroneApplicationRestController {
         return new ResponseEntity<>(applicationForm,HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{id}/document/{documentName:.+}", method = RequestMethod.GET, produces = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RequestMapping(value = "/{id}/document/{documentName:.+}", method = RequestMethod.GET)
     public ResponseEntity<?> getFile(@PathVariable String id, @PathVariable String documentName){
 
         try {

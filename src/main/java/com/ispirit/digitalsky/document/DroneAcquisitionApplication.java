@@ -1,8 +1,11 @@
 package com.ispirit.digitalsky.document;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ispirit.digitalsky.domain.ApplicantCategory;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 
@@ -67,7 +70,11 @@ public class DroneAcquisitionApplication extends BasicApplication {
     private String proposedBaseOfOperation;
 
     @Field("securityClearanceDocument")
-    private String securityClearanceDoc;
+    private String securityClearanceDocName;
+
+    @JsonIgnore
+    @Transient
+    private MultipartFile securityClearanceDoc;
 
     public DroneAcquisitionApplication() { setCreatedDate(new Date());}
 
@@ -179,9 +186,13 @@ public class DroneAcquisitionApplication extends BasicApplication {
 
     public void setProposedBaseOfOperation(String proposedBaseOfOperation) { this.proposedBaseOfOperation = proposedBaseOfOperation; }
 
-    public String getSecurityClearanceDoc() { return securityClearanceDoc; }
+    public String getSecurityClearanceDocName() { return securityClearanceDocName; }
 
-    public void setSecurityClearanceDoc(String securityClearanceDoc) { this.securityClearanceDoc = securityClearanceDoc; }
+    public void setSecurityClearanceDocName(String securityClearanceDocName) { this.securityClearanceDocName = securityClearanceDocName; }
+
+    public MultipartFile getSecurityClearanceDoc() { return securityClearanceDoc; }
+
+    public void setSecurityClearanceDoc(MultipartFile securityClearanceDoc) { this.securityClearanceDoc = securityClearanceDoc; }
 
     public int getNoOfDrones() {
         return noOfDrones;

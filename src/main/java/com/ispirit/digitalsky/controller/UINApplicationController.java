@@ -171,32 +171,51 @@ public class UINApplicationController {
     private void appendDocs(UINApplication uinApplication, MultipartFile importPermissionDoc, MultipartFile cinDoc, MultipartFile gstinDoc, MultipartFile panCardDoc,
                             MultipartFile securityClearanceDoc, MultipartFile dotPermissionDoc, MultipartFile etaDoc, MultipartFile opManualDoc, MultipartFile maintenanceGuidelinesDoc) {
 
-        uinApplication.setImportPermissionDoc(importPermissionDoc);
-        uinApplication.setImportPermissionDocName(resolveFileName(importPermissionDoc));
+        if(importPermissionDoc!=null) {
+            uinApplication.setImportPermissionDoc(importPermissionDoc);
+            uinApplication.setImportPermissionDocName(resolveFileName(importPermissionDoc));
+        }
 
-        uinApplication.setCinDoc(cinDoc);
-        uinApplication.setCinDocName(resolveFileName(cinDoc));
+       if(cinDoc!=null) {
+           uinApplication.setCinDoc(cinDoc);
+           uinApplication.setCinDocName(resolveFileName(cinDoc));
+       }
 
-        uinApplication.setGstinDoc(gstinDoc);
-        uinApplication.setGstinDocName(resolveFileName(gstinDoc));
+       if(gstinDoc!=null) {
+           uinApplication.setGstinDoc(gstinDoc);
+           uinApplication.setGstinDocName(resolveFileName(gstinDoc));
+       }
 
-        uinApplication.setPanCardDoc(panCardDoc);
-        uinApplication.setPanCardDocName(resolveFileName(panCardDoc));
+       if(panCardDoc!=null) {
+           uinApplication.setPanCardDoc(panCardDoc);
+           uinApplication.setPanCardDocName(resolveFileName(panCardDoc));
+       }
 
-        uinApplication.setSecurityClearanceDoc(securityClearanceDoc);
-        uinApplication.setSecurityClearanceDocName(resolveFileName(securityClearanceDoc));
 
-        uinApplication.setDotPermissionDoc(dotPermissionDoc);
-        uinApplication.setDotPermissionDocName(resolveFileName(dotPermissionDoc));
+       if(securityClearanceDoc!=null) {
+           uinApplication.setSecurityClearanceDoc(securityClearanceDoc);
+           uinApplication.setSecurityClearanceDocName(resolveFileName(securityClearanceDoc));
+       }
 
-        uinApplication.setEtaDoc(etaDoc);
-        uinApplication.setEtaDocName(resolveFileName(etaDoc));
+       if(dotPermissionDoc!=null) {
+           uinApplication.setDotPermissionDoc(dotPermissionDoc);
+           uinApplication.setDotPermissionDocName(resolveFileName(dotPermissionDoc));
+       }
 
-        uinApplication.setOpManualDoc(opManualDoc);
-        uinApplication.setOpManualDocName(resolveFileName(opManualDoc));
+       if(etaDoc!=null) {
+           uinApplication.setEtaDoc(etaDoc);
+           uinApplication.setEtaDocName(resolveFileName(etaDoc));
+       }
 
-        uinApplication.setMaintenanceGuidelinesDoc(maintenanceGuidelinesDoc);
-        uinApplication.setMaintenanceGuidelinesDocName(resolveFileName(maintenanceGuidelinesDoc));
+       if(etaDoc !=null) {
+           uinApplication.setOpManualDoc(opManualDoc);
+           uinApplication.setOpManualDocName(resolveFileName(opManualDoc));
+       }
+
+       if(maintenanceGuidelinesDoc !=null) {
+           uinApplication.setMaintenanceGuidelinesDoc(maintenanceGuidelinesDoc);
+           uinApplication.setMaintenanceGuidelinesDocName(resolveFileName(maintenanceGuidelinesDoc));
+       }
 
     }
 
