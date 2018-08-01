@@ -103,10 +103,8 @@ public class LocalDroneAcquisitionApplicationRestController {
 
         Collection<?> applicationForms = droneAcquisitionFormService.getAllApplications();
         List<?> submittedApplications = applicationForms.stream().filter(applicationForm -> {
-            if(applicationForm instanceof LocalDroneAcquisitionApplication) {
-                ApplicationStatus status = ((LocalDroneAcquisitionApplication) applicationForm).getStatus();
-                return status != null && status != ApplicationStatus.DRAFT;
-            } else return false;
+            ApplicationStatus status = ((LocalDroneAcquisitionApplication) applicationForm).getStatus();
+            return status != null && status != ApplicationStatus.DRAFT;
         }).collect(Collectors.toList());
         return new ResponseEntity<>(submittedApplications, HttpStatus.OK);
     }
