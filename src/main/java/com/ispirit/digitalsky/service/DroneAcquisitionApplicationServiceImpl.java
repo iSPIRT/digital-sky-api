@@ -2,12 +2,9 @@ package com.ispirit.digitalsky.service;
 
 import com.ispirit.digitalsky.document.DroneAcquisitionApplication;
 import com.ispirit.digitalsky.document.LocalDroneAcquisitionApplication;
-import com.ispirit.digitalsky.document.UAOPApplication;
-import com.ispirit.digitalsky.document.UINApplication;
 import com.ispirit.digitalsky.domain.ApplicationStatus;
 import com.ispirit.digitalsky.domain.ApproveRequestBody;
 import com.ispirit.digitalsky.domain.UserPrincipal;
-import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.*;
 import com.ispirit.digitalsky.repository.DroneAcquisitionApplicationRepository;
 import com.ispirit.digitalsky.repository.EntityRepository;
@@ -16,8 +13,6 @@ import com.ispirit.digitalsky.service.api.DroneAcquisitionApplicationService;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 

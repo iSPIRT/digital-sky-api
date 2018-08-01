@@ -100,10 +100,8 @@ public class ImportDroneApplicationRestController {
 
         Collection<?> applicationForms = droneAcquisitionFormService.getAllApplications();
         List<?> submittedApplications = applicationForms.stream().filter(applicationForm -> {
-            if(applicationForm instanceof ImportDroneApplication) {
                 ApplicationStatus status = ((ImportDroneApplication) applicationForm).getStatus();
                 return status != null && status != ApplicationStatus.DRAFT;
-            } else return false;
         }).collect(Collectors.toList());
 
         return new ResponseEntity<>(submittedApplications, HttpStatus.OK);

@@ -149,12 +149,12 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneAcquisitionService(DroneAcquisitionApplicationRepository<LocalDroneAcquisitionApplication> droneAcquisitionRepository, StorageService documentRepository, EntityRepository entityRepository) {
+    DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneAcquisitionService(LocalDroneAcquisitionApplicationRepository droneAcquisitionRepository, StorageService documentRepository, EntityRepository entityRepository) {
         return new DroneAcquisitionApplicationServiceImpl<LocalDroneAcquisitionApplication>(droneAcquisitionRepository, documentRepository, entityRepository);
     }
 
     @Bean
-    DroneAcquisitionApplicationService<ImportDroneApplication> importedDroneAcquisitionService(DroneAcquisitionApplicationRepository<ImportDroneApplication> droneAcquisitionRepository, StorageService documentRepository, EntityRepository entityRepository) {
+    DroneAcquisitionApplicationService<ImportDroneApplication> importedDroneAcquisitionService(ImportDroneApplicationRepository droneAcquisitionRepository, StorageService documentRepository, EntityRepository entityRepository) {
         return new DroneAcquisitionApplicationServiceImpl<ImportDroneApplication>(droneAcquisitionRepository, documentRepository, entityRepository);
     }
 
