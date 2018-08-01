@@ -9,6 +9,10 @@ import com.ispirit.digitalsky.util.CustomLocalDateSerializer;
 import com.ispirit.digitalsky.util.LocalDateAttributeConverter;
 
 import javax.persistence.*;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +34,8 @@ public abstract class Person {
     protected String email;
 
     @Column(name = "MOBILE_NUMBER")
+    @NotNull
+    @Size(max = 13)
     protected String mobileNumber;
 
     @Column(name = "COUNTRY")
@@ -39,6 +45,7 @@ public abstract class Person {
     @JsonSerialize(using = CustomLocalDateSerializer.class)
     @JsonDeserialize(using = CustomLocalDateDeSerializer.class)
     @Convert(converter = LocalDateAttributeConverter.class)
+    @NotNull
     protected LocalDate dateOfBirth;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
@@ -47,6 +54,7 @@ public abstract class Person {
             joinColumns = @JoinColumn(name = "PERSON_ID"),
             inverseJoinColumns = @JoinColumn(name = "ADDRESS_ID")
     )
+    @Valid
     protected List<Address> addressList = new ArrayList<>();
 
     public long getId() {

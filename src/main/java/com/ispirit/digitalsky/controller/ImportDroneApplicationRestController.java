@@ -9,6 +9,7 @@ import com.ispirit.digitalsky.domain.ApproveRequestBody;
 import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.*;
 import com.ispirit.digitalsky.service.api.DroneAcquisitionApplicationService;
+import com.ispirit.digitalsky.util.CustomValidator;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -32,10 +34,12 @@ public class ImportDroneApplicationRestController {
     public static final String IMPORTDRONEACQUISITIONFORM_RESOURCE_BASE_PATH = "/api/applicationForm/importDroneApplication";
 
     private DroneAcquisitionApplicationService<ImportDroneApplication> droneAcquisitionFormService;
+    private CustomValidator validator;
 
-    public ImportDroneApplicationRestController(DroneAcquisitionApplicationService<ImportDroneApplication> droneAcquisitionFormService) {
+    public ImportDroneApplicationRestController(DroneAcquisitionApplicationService<ImportDroneApplication> droneAcquisitionFormService, CustomValidator validator) {
 
         this.droneAcquisitionFormService = droneAcquisitionFormService;
+        this.validator = validator;
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -55,6 +59,9 @@ public class ImportDroneApplicationRestController {
         try {
             ObjectMapper mapper = new ObjectMapper();
             ImportDroneApplication droneAcquisitionForm = mapper.readValue(droneAcquisitionFormString, ImportDroneApplication.class);
+            if(droneAcquisitionForm.isSubmitted()){
+                validator.validate(droneAcquisitionForm);
+            }
             ImportDroneApplication updatedForm = droneAcquisitionFormService.updateDroneAcquisitionApplication(id, droneAcquisitionForm, securityClearanceDoc);
             return new ResponseEntity<>(updatedForm, HttpStatus.OK);
         } catch (JsonGenerationException e) {
@@ -75,7 +82,7 @@ public class ImportDroneApplicationRestController {
     }
 
     @RequestMapping(value = "/approve/{id}", method = RequestMethod.PATCH, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> approveAcquisitionForm(@PathVariable String id, @RequestBody ApproveRequestBody approveRequestBody) {
+    public ResponseEntity<?> approveAcquisitionForm(@PathVariable String id, @Valid @RequestBody ApproveRequestBody approveRequestBody) {
 
         try {
             ImportDroneApplication updatedForm = droneAcquisitionFormService.approveDroneAcquisitionApplication(approveRequestBody);

@@ -1,8 +1,11 @@
 package com.ispirit.digitalsky.document;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.ispirit.digitalsky.domain.ApplicantType;
 import com.ispirit.digitalsky.domain.ApplicationStatus;
+import com.ispirit.digitalsky.util.ApplicationStatusDeSerializer;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -40,27 +43,34 @@ public class BasicApplication {
     private String applicantNationality;
 
     @Field("applicantType")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private ApplicantType applicantType;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     @Field("submittedDate")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Date submittedDate;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     @Field("lastModifiedDate")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Date lastModifiedDate;
 
     @Field("status")
+    @JsonDeserialize(using = ApplicationStatusDeSerializer.class)
     private ApplicationStatus status = ApplicationStatus.DRAFT;
 
     @Field("approver")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String approver;
 
     @Field("approverId")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private long approverId;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     @Field("approvedDate")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Date approvedDate;
 
     @Field("approverComments")
@@ -190,6 +200,10 @@ public class BasicApplication {
 
     public Date modifiedDate(){
         return lastModifiedDate != null ? lastModifiedDate : createdDate;
+    }
+
+    public  boolean isSubmitted(){
+        return status == ApplicationStatus.SUBMITTED;
     }
 }
 

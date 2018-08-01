@@ -14,8 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-
-import java.util.ArrayList;
+import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,7 +39,7 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> addUser(@RequestBody User userPayload) {
+    public ResponseEntity<?> addUser(@Valid @RequestBody User userPayload) {
 
         if (!validate(userPayload)) {
             return new ResponseEntity<>(new Errors("Invalid Payload"), HttpStatus.BAD_REQUEST);
@@ -79,7 +78,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/resetPasswordLink", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> resetPasswordLink(@RequestBody ResetPasswordLinkRequest resetPasswordLinkRequest, HttpServletRequest request) {
+    public ResponseEntity<?> resetPasswordLink(@Valid @RequestBody ResetPasswordLinkRequest resetPasswordLinkRequest, HttpServletRequest request) {
 
         try {
             userService.generateResetPasswordLink(resetPasswordLinkRequest.getEmail());
@@ -90,7 +89,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/resetPassword", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
 
         try {
             userService.resetPassword(resetPasswordRequest.getToken(), passwordEncoder.encode(resetPasswordRequest.getPassword()));

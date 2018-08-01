@@ -12,6 +12,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 import static com.ispirit.digitalsky.controller.PilotController.PILOT_RESOURCE_BASE_PATH;
 
 @RestController
@@ -28,7 +30,7 @@ public class PilotController {
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> addPilot(@RequestBody Pilot pilot) {
+    public ResponseEntity<?> addPilot(@Valid @RequestBody Pilot pilot) {
 
         if (!validate(pilot)) {
             return new ResponseEntity<>(new Errors("Invalid Payload"), HttpStatus.BAD_REQUEST);
@@ -47,7 +49,7 @@ public class PilotController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> updatePilot(@PathVariable(value = "id") long id, @RequestBody Pilot pilotPayload) {
+    public ResponseEntity<?> updatePilot(@PathVariable(value = "id") long id, @Valid @RequestBody Pilot pilotPayload) {
 
         Pilot pilot = pilotService.find(id);
 

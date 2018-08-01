@@ -12,6 +12,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 import static com.ispirit.digitalsky.controller.IndividualOperatorController.INDIVIDUAL_OPERATOR_RESOURCE_BASE_PATH;
 
 @RestController
@@ -28,7 +30,7 @@ public class IndividualOperatorController {
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> addIndividualOperator(@RequestBody IndividualOperator individualOperator) {
+    public ResponseEntity<?> addIndividualOperator(@Valid @RequestBody IndividualOperator individualOperator) {
 
         if (!validate(individualOperator)) {
             return new ResponseEntity<>(new Errors("Invalid Payload"), HttpStatus.BAD_REQUEST);
@@ -47,7 +49,7 @@ public class IndividualOperatorController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> updateIndividualOperator(@PathVariable(value = "id") long id, @RequestBody IndividualOperator individualOperatorPayload) {
+    public ResponseEntity<?> updateIndividualOperator(@PathVariable(value = "id") long id, @Valid @RequestBody IndividualOperator individualOperatorPayload) {
 
         IndividualOperator individualOperator = individualOperatorService.find(id);
 

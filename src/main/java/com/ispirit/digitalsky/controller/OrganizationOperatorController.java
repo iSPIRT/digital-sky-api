@@ -14,6 +14,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 import static com.ispirit.digitalsky.controller.IndividualOperatorController.INDIVIDUAL_OPERATOR_RESOURCE_BASE_PATH;
 import static com.ispirit.digitalsky.controller.OrganizationOperatorController.ORGANIZATION_OPERATOR_RESOURCE_BASE_PATH;
 
@@ -31,7 +33,7 @@ public class OrganizationOperatorController {
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> addOrgOperator(@RequestBody OrganizationOperator organizationOperator) {
+    public ResponseEntity<?> addOrgOperator(@Valid @RequestBody OrganizationOperator organizationOperator) {
 
         if (!validate(organizationOperator)) {
             return new ResponseEntity<>(new Errors("Invalid Payload"), HttpStatus.BAD_REQUEST);
@@ -50,7 +52,7 @@ public class OrganizationOperatorController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> updateOrgOperator(@PathVariable(value = "id") long id, @RequestBody OrganizationOperator organizationOperatorPayload) {
+    public ResponseEntity<?> updateOrgOperator(@PathVariable(value = "id") long id, @Valid @RequestBody OrganizationOperator organizationOperatorPayload) {
 
         OrganizationOperator organizationOperator = organizationOperatorService.find(id);
 
