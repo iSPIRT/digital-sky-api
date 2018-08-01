@@ -1,7 +1,6 @@
 package com.ispirit.digitalsky.service;
 
 import com.ispirit.digitalsky.document.DroneAcquisitionApplication;
-import com.ispirit.digitalsky.document.LocalDroneAcquisitionApplication;
 import com.ispirit.digitalsky.domain.ApplicationStatus;
 import com.ispirit.digitalsky.domain.ApproveRequestBody;
 import com.ispirit.digitalsky.domain.UserPrincipal;
