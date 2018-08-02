@@ -6,8 +6,8 @@ import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-@Document(collection="localDroneAcquisitionApplicationForms")
-@TypeAlias("localDroneAcquisitionApplicationForm")
+@Document(collection="localDroneAcquisitionApplications")
+@TypeAlias("localDroneAcquisitionApplication")
 @Persistent
 public class LocalDroneAcquisitionApplication extends DroneAcquisitionApplication {
 

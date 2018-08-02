@@ -6,8 +6,8 @@ import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-@Document(collection="importDroneApplicationForms")
-@TypeAlias("importDroneApplicationForm")
+@Document(collection="importDroneApplications")
+@TypeAlias("importDroneApplication")
 @Persistent
 public class ImportDroneApplication extends DroneAcquisitionApplication {
 
