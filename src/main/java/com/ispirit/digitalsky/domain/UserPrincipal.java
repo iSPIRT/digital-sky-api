@@ -17,6 +17,7 @@ public class UserPrincipal implements UserDetails {
     private String email;
     private String password;
     private List<GrantedAuthority> authorityList;
+    private boolean accountVerified = false;
 
     public static UserPrincipal securityContext() {
         return (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -27,6 +28,7 @@ public class UserPrincipal implements UserDetails {
         this.name = user.getFullName();
         this.email = user.getEmail();
         this.password = user.getPassword();
+        this.accountVerified = user.isAccountVerified();
         this.authorityList = unmodifiableList(toAuthorityGrantList(user.getRoleNames()));
 
 
@@ -75,6 +77,10 @@ public class UserPrincipal implements UserDetails {
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
+    }
+
+    public boolean isAccountVerified() {
+        return accountVerified;
     }
 
     @Override

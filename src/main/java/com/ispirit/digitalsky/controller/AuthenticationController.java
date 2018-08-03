@@ -63,13 +63,18 @@ public class AuthenticationController {
         } catch (AuthenticationException e) {
             return new ResponseEntity<>(new Errors("Invalid email or password"), HttpStatus.UNAUTHORIZED);
         }
+
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        if (!userPrincipal.isAccountVerified()) {
+            return new ResponseEntity<>(new Errors("Account not verified, please check your inbox for verification link"), HttpStatus.UNAUTHORIZED);
+        }
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String accessToken = securityTokenService.generateToken(authentication);
 
         if (userPrincipal.isAdmin()) {
             return ResponseEntity.ok(
-                TokenResponse.adminUserResponse(accessToken, userPrincipal.getId(), userPrincipal.getUsername())
+                    TokenResponse.adminUserResponse(accessToken, userPrincipal.getId(), userPrincipal.getUsername())
             );
         }
 

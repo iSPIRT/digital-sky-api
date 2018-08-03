@@ -3,6 +3,7 @@ package com.ispirit.digitalsky.service;
 import com.ispirit.digitalsky.document.BasicApplication;
 import com.ispirit.digitalsky.document.ImportDroneApplication;
 import com.ispirit.digitalsky.document.LocalDroneAcquisitionApplication;
+import com.ispirit.digitalsky.domain.AccountVerificationEmail;
 import com.ispirit.digitalsky.domain.ResetPasswordEmail;
 import com.ispirit.digitalsky.domain.User;
 import com.ispirit.digitalsky.domain.UserPrincipal;
@@ -29,6 +30,7 @@ public class CustomUserDetailService implements UserService {
     private UAOPApplicationService uaopApplicationService;
     private UINApplicationService uinApplicationService;
     private String resetPasswordBasePath;
+    private String accountVerificationBasePath;
 
     public CustomUserDetailService(
             UserRepository userRepository,
@@ -37,7 +39,8 @@ public class CustomUserDetailService implements UserService {
             DroneAcquisitionApplicationService<ImportDroneApplication> importDroneService,
             UAOPApplicationService uaopApplicationService,
             UINApplicationService uinApplicationService,
-            String resetPasswordBasePath) {
+            String resetPasswordBasePath,
+            String accountVerificationBasePath) {
         this.userRepository = userRepository;
         this.emailService = emailService;
         this.localDroneService = localDroneService;
@@ -45,6 +48,7 @@ public class CustomUserDetailService implements UserService {
         this.uaopApplicationService = uaopApplicationService;
         this.uinApplicationService = uinApplicationService;
         this.resetPasswordBasePath = resetPasswordBasePath;
+        this.accountVerificationBasePath = accountVerificationBasePath;
     }
 
 
@@ -79,6 +83,18 @@ public class CustomUserDetailService implements UserService {
     }
 
     @Override
+    public void sendEmailVerificationLink(User user) {
+        String token = UUID.randomUUID().toString();
+
+        User userEntity = userRepository.findOne(user.getId());
+        userEntity.setAccountVerificationToken(token);
+        userRepository.save(userEntity);
+
+        String accountVerificationLink = format("%s?token=%s", accountVerificationBasePath, token);
+        emailService.send(new AccountVerificationEmail(user.getEmail(), accountVerificationLink));
+    }
+
+    @Override
     public void resetPassword(String token, String newPasswordHash) {
         User user = userRepository.loadByResetPasswordToken(token);
         if (user == null) {
@@ -106,8 +122,18 @@ public class CustomUserDetailService implements UserService {
         basicApplications.addAll(importDroneService.getApplicationsOfApplicant());
         basicApplications.addAll(uaopApplicationService.getApplicationsOfApplicant(userId));
         basicApplications.addAll(uinApplicationService.getApplicationsOfApplicant(userId));
-        basicApplications.sort((BasicApplication a1, BasicApplication a2)->a2.modifiedDate().compareTo(a1.modifiedDate()));
+        basicApplications.sort((BasicApplication a1, BasicApplication a2) -> a2.modifiedDate().compareTo(a1.modifiedDate()));
         return basicApplications;
+    }
+
+    @Override
+    public void verifyAccount(String token) {
+        User user = userRepository.loadByAccountVerificationToken(token);
+        if (user == null) {
+            throw new EntityNotFoundException("AccountVerificationToken", token);
+        }
+        user.setAccountVerified(true);
+        userRepository.save(user);
     }
 
 }

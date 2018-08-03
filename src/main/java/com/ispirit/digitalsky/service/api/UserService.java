@@ -14,6 +14,8 @@ public interface UserService extends UserDetailsService {
 
     void generateResetPasswordLink(String email);
 
+    void sendEmailVerificationLink(User user);
+
     void resetPassword(String token, String newPassword);
 
     User loadByEmail(String email);
@@ -21,4 +23,6 @@ public interface UserService extends UserDetailsService {
     User createNew(User user);
 
     List<BasicApplication> applications(long userId);
+
+    void verifyAccount(String token);
 }
