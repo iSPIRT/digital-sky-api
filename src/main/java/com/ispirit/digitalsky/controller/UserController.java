@@ -52,6 +52,7 @@ public class UserController {
             return new ResponseEntity<>(new Errors("Email id already exist"), HttpStatus.CONFLICT);
         }
         User newUser = userService.createNew(user);
+        userService.sendEmailVerificationLink(user);
         return new ResponseEntity<>(new EntityId(newUser.getId()), HttpStatus.OK);
     }
 
@@ -94,6 +95,17 @@ public class UserController {
         try {
             userService.resetPassword(resetPasswordRequest.getToken(), passwordEncoder.encode(resetPasswordRequest.getPassword()));
             return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @RequestMapping(value = "/verify", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> verify(@Valid @RequestBody AccountVerificationRequest accountVerificationRequest) {
+
+        try {
+            userService.verifyAccount(accountVerificationRequest.getToken());
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.NOT_FOUND);
         }

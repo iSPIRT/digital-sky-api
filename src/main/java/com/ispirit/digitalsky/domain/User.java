@@ -42,6 +42,14 @@ public class User {
     @JsonIgnore
     private String resetPasswordToken;
 
+    @Column(name = "ACCOUNT_VERIFICATION_TOKEN")
+    @JsonIgnore
+    private String accountVerificationToken;
+
+    @Column(name = "ACCOUNT_VERIFIED")
+    @JsonIgnore
+    private boolean accountVerified = false;
+
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "USER_ID")
     @JsonIgnore
@@ -106,8 +114,20 @@ public class User {
         this.resetPasswordToken = resetPasswordToken;
     }
 
-    public List<String> getRoleNames(){
-        if(roles==null || roles.isEmpty()) return emptyList();
-        return  roles.stream().map(UserRole::getUserRole).collect(toList());
+    public void setAccountVerificationToken(String accountVerificationToken) {
+        this.accountVerificationToken = accountVerificationToken;
+    }
+
+    public void setAccountVerified(boolean accountVerified) {
+        this.accountVerified = accountVerified;
+    }
+
+    public boolean isAccountVerified() {
+        return accountVerified;
+    }
+
+    public List<String> getRoleNames() {
+        if (roles == null || roles.isEmpty()) return emptyList();
+        return roles.stream().map(UserRole::getUserRole).collect(toList());
     }
 }

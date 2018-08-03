@@ -46,6 +46,9 @@ public class ApplicationConfiguration {
     @Value("${RESET_PASSWORD_PATH:http://192.168.33.10:3000/resetPassword}")
     private String resetPasswordBasePath;
 
+    @Value("${ACCOUNT_VERIFICATION_PATH:http://192.168.33.10:3000/verifyAccount}")
+    private String accountVerificationPath;
+
     @Value("${JWT_KEYSTORE_PATH:classpath:keystore.jks}")
     private String jwtKeyStorePath;
 
@@ -91,7 +94,8 @@ public class ApplicationConfiguration {
                 importDroneService,
                 uaopApplicationService,
                 uinApplicationService,
-                resetPasswordBasePath);
+                resetPasswordBasePath,
+                accountVerificationPath);
     }
 
     @Bean
