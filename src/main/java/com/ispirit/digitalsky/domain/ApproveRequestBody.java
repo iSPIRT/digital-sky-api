@@ -1,14 +1,16 @@
 package com.ispirit.digitalsky.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.util.Date;
+import javax.validation.constraints.NotNull;
 
 public class ApproveRequestBody {
 
+    @NotNull
     private String applicationFormId;
+
+    @NotNull
     private ApplicationStatus status;
+
+    @NotNull
     private String comments;
 
     public String getApplicationFormId() { return applicationFormId; }

@@ -10,6 +10,7 @@ import com.ispirit.digitalsky.repository.storage.FileSystemStorageService;
 import com.ispirit.digitalsky.repository.storage.StorageService;
 import com.ispirit.digitalsky.service.*;
 import com.ispirit.digitalsky.service.api.*;
+import com.ispirit.digitalsky.util.CustomValidator;
 import com.sendgrid.SendGrid;
 import freemarker.template.TemplateExceptionHandler;
 import org.apache.catalina.Context;
@@ -25,6 +26,7 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.Validator;
 
 @Configuration
 public class ApplicationConfiguration {
@@ -166,6 +168,11 @@ public class ApplicationConfiguration {
     @Bean
     UINApplicationService uinApplicationService(StorageService storageService, UINApplicationRepository uinApplicationRepository) {
         return new UINApplicationServiceImpl(uinApplicationRepository, storageService);
+    }
+
+    @Bean
+    CustomValidator customValidator(Validator validator){
+        return new CustomValidator(validator);
     }
 
     @Bean

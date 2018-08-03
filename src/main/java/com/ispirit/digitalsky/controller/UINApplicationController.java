@@ -11,6 +11,7 @@ import com.ispirit.digitalsky.exception.ApplicationNotInSubmittedStatus;
 import com.ispirit.digitalsky.exception.StorageFileNotFoundException;
 import com.ispirit.digitalsky.exception.UnAuthorizedAccessException;
 import com.ispirit.digitalsky.service.api.UINApplicationService;
+import com.ispirit.digitalsky.util.CustomValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -21,6 +22,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,11 +37,13 @@ public class UINApplicationController {
     public static final String UIN_APPLICATION_RESOURCE_BASE_PATH = "/api/applicationForm/uinApplication";
 
     private UINApplicationService uinApplicationService;
+    private CustomValidator validator;
 
     @Autowired
-    public UINApplicationController(UINApplicationService uinApplicationService) {
+    public UINApplicationController(UINApplicationService uinApplicationService, CustomValidator validator) {
 
         this.uinApplicationService = uinApplicationService;
+        this.validator = validator;
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -95,6 +99,9 @@ public class UINApplicationController {
             ObjectMapper mapper = new ObjectMapper();
             UINApplication uinApplication = mapper.readValue(uinApplicationString, UINApplication.class);
             appendDocs(uinApplication, importPermissionDoc, cinDoc, gstinDoc, panCardDoc, securityClearanceDoc, dotPermissionDoc,etaDoc,opManualDoc,maintenanceGuidelinesDoc);
+            if(uinApplication.isSubmitted()){
+                validator.validate(uinApplication);
+            }
             UINApplication updatedForm = uinApplicationService.updateApplication(id, uinApplication);
             return new ResponseEntity<>(updatedForm, HttpStatus.OK);
         } catch (Exception e) {
@@ -105,7 +112,7 @@ public class UINApplicationController {
 
     @RequestMapping(value = "/approve/{id}", method = RequestMethod.PATCH, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> approveApplication(@PathVariable String id, @RequestBody ApproveRequestBody approveRequestBody) {
+    public ResponseEntity<?> approveApplication(@PathVariable String id, @Valid @RequestBody ApproveRequestBody approveRequestBody) {
         try {
             UINApplication updatedForm = uinApplicationService.approveApplication(approveRequestBody);
             return new ResponseEntity<>(updatedForm, HttpStatus.OK);

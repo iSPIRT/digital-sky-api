@@ -1,8 +1,12 @@
 package com.ispirit.digitalsky.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.validator.constraints.Email;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -20,13 +24,18 @@ public class User {
     private long id;
 
     @Column(name = "FULL_NAME")
+    @NotNull
+    @Pattern(regexp = "^[A-Za-z0-9]*$")
     private String fullName;
 
-
     @Column(name = "EMAIL")
+    @NotNull
+    @Email
     private String email;
 
     @Column(name = "PASSWORD_HASH")
+    @NotNull
+    @Size(min = 7, max = 50)
     private String password;
 
     @Column(name = "RESET_PASSWORD_TOKEN")

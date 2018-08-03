@@ -10,6 +10,7 @@ import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.*;
 
 import com.ispirit.digitalsky.service.api.DroneAcquisitionApplicationService;
+import com.ispirit.digitalsky.util.CustomValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -20,6 +21,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -33,11 +35,13 @@ public class LocalDroneAcquisitionApplicationRestController {
     public static final String LOCALDRONEACQUISITIONFORM_RESOURCE_BASE_PATH = "/api/applicationForm/localDroneAcquisitionApplication";
 
     private DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> droneAcquisitionFormService;
+    private CustomValidator validator;
 
     @Autowired
-    public LocalDroneAcquisitionApplicationRestController(DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> droneAcquisitionFormService) {
+    public LocalDroneAcquisitionApplicationRestController(DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> droneAcquisitionFormService, CustomValidator validator) {
 
         this.droneAcquisitionFormService = droneAcquisitionFormService;
+        this.validator = validator;
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -57,6 +61,9 @@ public class LocalDroneAcquisitionApplicationRestController {
         try {
             ObjectMapper mapper = new ObjectMapper();
             LocalDroneAcquisitionApplication droneAcquisitionForm = mapper.readValue(droneAcquisitionFormString, LocalDroneAcquisitionApplication.class);
+            if(droneAcquisitionForm.isSubmitted()){
+                validator.validate(droneAcquisitionForm);
+            }
             LocalDroneAcquisitionApplication updatedForm = droneAcquisitionFormService.updateDroneAcquisitionApplication(id, droneAcquisitionForm, securityClearanceDoc);
             return new ResponseEntity<>(updatedForm, HttpStatus.OK);
         } catch (JsonGenerationException e) {
@@ -78,7 +85,7 @@ public class LocalDroneAcquisitionApplicationRestController {
 
     @RequestMapping(value = "/approve/{id}", method = RequestMethod.PATCH, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> approveAcquisitionForm(@PathVariable String id, @RequestBody ApproveRequestBody approveRequestBody) {
+    public ResponseEntity<?> approveAcquisitionForm(@PathVariable String id, @Valid @RequestBody ApproveRequestBody approveRequestBody) {
 
         try {
             LocalDroneAcquisitionApplication updatedForm = droneAcquisitionFormService.approveDroneAcquisitionApplication(approveRequestBody);
