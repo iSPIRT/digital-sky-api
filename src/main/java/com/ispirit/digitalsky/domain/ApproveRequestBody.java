@@ -10,7 +10,6 @@ public class ApproveRequestBody {
     @NotNull
     private ApplicationStatus status;
 
-    @NotNull
     private String comments;
 
     public String getApplicationFormId() { return applicationFormId; }
