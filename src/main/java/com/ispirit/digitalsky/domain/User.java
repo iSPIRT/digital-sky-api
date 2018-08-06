@@ -78,11 +78,10 @@ public class User {
         this.roles = roles;
     }
 
-    public User(String fullName, String email, String password, String reCaptcha) {
+    public User(String fullName, String email, String password) {
         this.fullName = fullName;
         this.email = email;
         this.password = password;
-        this.reCaptcha = reCaptcha;
     }
 
     public long getId() {
