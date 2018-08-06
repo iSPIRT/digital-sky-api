@@ -18,8 +18,7 @@ public class PilotTest {
     public void shouldSerialize() throws Exception {
         Address addressDtoHome = new Address("line1", "line2", "Indiranagar", "Bangalore", "India", "560001", "HOME");
         Address addressDtoOffice = new Address("line1", "line2", "Indiranagar", "Bangalore", "India", "560001", "OFFICE");
-        Pilot value = new Pilot(1L, "", "name", "email", "phone", "India", LocalDate.of(1981, Month.AUGUST, 1), Arrays.asList(addressDtoHome, addressDtoOffice));
-
+        Pilot value = new Pilot(1L, "", "name", "email", "phone", "India", LocalDate.of(1981, Month.AUGUST, 1), "nano", Arrays.asList(addressDtoHome, addressDtoOffice));
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
