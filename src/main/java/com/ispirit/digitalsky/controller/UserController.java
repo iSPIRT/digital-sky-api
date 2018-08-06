@@ -5,6 +5,8 @@ import com.ispirit.digitalsky.domain.User;
 import com.ispirit.digitalsky.domain.UserPrincipal;
 import com.ispirit.digitalsky.dto.*;
 import com.ispirit.digitalsky.exception.EntityNotFoundException;
+import com.ispirit.digitalsky.exception.ReCaptchaVerificationFailedException;
+import com.ispirit.digitalsky.service.api.ReCaptchaService;
 import com.ispirit.digitalsky.service.api.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,8 +21,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.ispirit.digitalsky.controller.UserController.USER_RESOURCE_BASE_PATH;
-import static org.springframework.util.StringUtils.containsWhitespace;
-import static org.springframework.util.StringUtils.isEmpty;
 
 @RestController
 @RequestMapping(USER_RESOURCE_BASE_PATH)
@@ -31,18 +31,22 @@ public class UserController {
     private UserService userService;
 
     PasswordEncoder passwordEncoder;
+    private ReCaptchaService reCaptchaService;
 
     @Autowired
-    public UserController(UserService userService, PasswordEncoder passwordEncoder) {
+    public UserController(UserService userService, PasswordEncoder passwordEncoder, ReCaptchaService reCaptchaService) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
+        this.reCaptchaService = reCaptchaService;
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> addUser(@Valid @RequestBody User userPayload) {
 
-        if (!validate(userPayload)) {
-            return new ResponseEntity<>(new Errors("Invalid Payload"), HttpStatus.BAD_REQUEST);
+        try {
+            reCaptchaService.verifyCaptcha(userPayload.getReCaptcha());
+        } catch (ReCaptchaVerificationFailedException e) {
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.BAD_REQUEST);
         }
 
         User user = new User(userPayload.getFullName(), userPayload.getEmail(), passwordEncoder.encode(userPayload.getPassword()));
@@ -51,8 +55,10 @@ public class UserController {
         if (existingUser != null) {
             return new ResponseEntity<>(new Errors("Email id already exist"), HttpStatus.CONFLICT);
         }
-        User newUser = userService.createNew(user);
+        User newUser =  userService.createNew(user);
+
         userService.sendEmailVerificationLink(user);
+
         return new ResponseEntity<>(new EntityId(newUser.getId()), HttpStatus.OK);
     }
 
@@ -109,15 +115,6 @@ public class UserController {
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.NOT_FOUND);
         }
-    }
-
-    private boolean validate(User userPayload) {
-        if (isEmpty(userPayload.getFullName())) return false;
-        if (isEmpty(userPayload.getEmail()) || containsWhitespace(userPayload.getEmail())) return false;
-        if (isEmpty(userPayload.getPassword())
-                || containsWhitespace(userPayload.getPassword())
-                || userPayload.getEmail().length() < 4) return false;
-        return true;
     }
 
 }
