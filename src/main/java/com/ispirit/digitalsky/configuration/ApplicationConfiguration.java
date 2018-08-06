@@ -135,8 +135,8 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    PilotService pilotService(PilotRepository pilotRepository) {
-        return new PilotServiceImpl(pilotRepository);
+    PilotService pilotService(PilotRepository pilotRepository, StorageService storageService) {
+        return new PilotServiceImpl(pilotRepository, storageService);
     }
 
     @Bean
