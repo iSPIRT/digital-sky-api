@@ -1,6 +1,7 @@
 package com.ispirit.digitalsky.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.Email;
 
 import javax.persistence.*;
@@ -60,6 +61,11 @@ public class User {
     @JsonIgnore
     private List<UserActiveSession> activeSessions = new ArrayList<>();
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Transient
+    @NotNull
+    private String reCaptcha;
+
     private User() {
         //for serialization and de-serialization
     }
@@ -72,10 +78,11 @@ public class User {
         this.roles = roles;
     }
 
-    public User(String fullName, String email, String password) {
+    public User(String fullName, String email, String password, String reCaptcha) {
         this.fullName = fullName;
         this.email = email;
         this.password = password;
+        this.reCaptcha = reCaptcha;
     }
 
     public long getId() {
@@ -124,6 +131,10 @@ public class User {
 
     public boolean isAccountVerified() {
         return accountVerified;
+    }
+
+    public String getReCaptcha() {
+        return reCaptcha;
     }
 
     public List<String> getRoleNames() {

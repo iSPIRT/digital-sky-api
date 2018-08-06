@@ -15,6 +15,9 @@ import com.sendgrid.SendGrid;
 import freemarker.template.TemplateExceptionHandler;
 import org.apache.catalina.Context;
 import org.apache.catalina.connector.Connector;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.tomcat.util.descriptor.web.SecurityCollection;
 import org.apache.tomcat.util.descriptor.web.SecurityConstraint;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,10 +26,12 @@ import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletCon
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.Validator;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
 public class ApplicationConfiguration {
@@ -70,6 +75,12 @@ public class ApplicationConfiguration {
     @Value("${FILE_STORAGE_LOCATION:uploads}")
     private String storageLocation;
 
+    @Value("${RE_CAPTCHA_VERIFY_URL:https://www.google.com/recaptcha/api/siteverify}")
+    private String reCaptchaVerifyUrl;
+
+    @Value("${RE_CAPTCHA_SITE_SECRET:secret}")
+    private String reCaptchaSiteSecret;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -83,12 +94,14 @@ public class ApplicationConfiguration {
     @Bean
     public UserService userService(
             UserRepository userRepository,
+            ReCaptchaService reCaptchaService,
             EmailService emailService,
             DroneAcquisitionApplicationService<ImportDroneApplication> importDroneService,
             UAOPApplicationService uaopApplicationService,
             UINApplicationService uinApplicationService,
             DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneService) {
         return new CustomUserDetailService(userRepository,
+                reCaptchaService,
                 emailService,
                 localDroneService,
                 importDroneService,
@@ -177,6 +190,27 @@ public class ApplicationConfiguration {
     @Bean
     CustomValidator customValidator(Validator validator){
         return new CustomValidator(validator);
+    }
+
+    @Bean
+    ReCaptchaService reCaptchaService(RestTemplate restTemplate){
+        return new GoogleReCaptchaService(restTemplate, reCaptchaVerifyUrl, reCaptchaSiteSecret);
+    }
+
+    @Bean
+    RestTemplate restTemplate(){
+        int timeout = 25000;
+        RequestConfig config = RequestConfig.custom()
+                .setConnectTimeout(timeout)
+                .setConnectionRequestTimeout(timeout)
+                .setSocketTimeout(timeout)
+                .build();
+        CloseableHttpClient client = HttpClientBuilder
+                .create()
+                .setDefaultRequestConfig(config)
+                .build();
+        HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory(client);
+        return new RestTemplate(httpRequestFactory);
     }
 
     @Bean

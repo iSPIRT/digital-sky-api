@@ -5,6 +5,7 @@ import com.ispirit.digitalsky.domain.User;
 import com.ispirit.digitalsky.domain.UserPrincipal;
 import com.ispirit.digitalsky.dto.*;
 import com.ispirit.digitalsky.exception.EntityNotFoundException;
+import com.ispirit.digitalsky.exception.ReCaptchaVerificationFailedException;
 import com.ispirit.digitalsky.service.api.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -45,13 +46,18 @@ public class UserController {
             return new ResponseEntity<>(new Errors("Invalid Payload"), HttpStatus.BAD_REQUEST);
         }
 
-        User user = new User(userPayload.getFullName(), userPayload.getEmail(), passwordEncoder.encode(userPayload.getPassword()));
+        User user = new User(userPayload.getFullName(), userPayload.getEmail(), passwordEncoder.encode(userPayload.getPassword()), userPayload.getReCaptcha());
 
         User existingUser = userService.loadByEmail(user.getEmail());
         if (existingUser != null) {
             return new ResponseEntity<>(new Errors("Email id already exist"), HttpStatus.CONFLICT);
         }
-        User newUser = userService.createNew(user);
+        User newUser = null;
+        try {
+            newUser = userService.createNew(user);
+        } catch (ReCaptchaVerificationFailedException e) {
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
         userService.sendEmailVerificationLink(user);
         return new ResponseEntity<>(new EntityId(newUser.getId()), HttpStatus.OK);
     }

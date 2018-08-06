@@ -24,6 +24,7 @@ import static java.lang.String.format;
 public class CustomUserDetailService implements UserService {
 
     private UserRepository userRepository;
+    private ReCaptchaService reCaptchaService;
     private EmailService emailService;
     private DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneService;
     private DroneAcquisitionApplicationService<ImportDroneApplication> importDroneService;
@@ -34,6 +35,7 @@ public class CustomUserDetailService implements UserService {
 
     public CustomUserDetailService(
             UserRepository userRepository,
+            ReCaptchaService reCaptchaService,
             EmailService emailService,
             DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneService,
             DroneAcquisitionApplicationService<ImportDroneApplication> importDroneService,
@@ -42,6 +44,7 @@ public class CustomUserDetailService implements UserService {
             String resetPasswordBasePath,
             String accountVerificationBasePath) {
         this.userRepository = userRepository;
+        this.reCaptchaService = reCaptchaService;
         this.emailService = emailService;
         this.localDroneService = localDroneService;
         this.importDroneService = importDroneService;
@@ -112,6 +115,7 @@ public class CustomUserDetailService implements UserService {
     @Override
     @Transactional
     public User createNew(User user) {
+        reCaptchaService.verifyCaptcha(user.getReCaptcha());
         return userRepository.save(user);
     }
 
