@@ -41,12 +41,6 @@ import java.util.Collection;
 @Configuration
 public class ApplicationConfiguration {
 
-    @Value("${server.port}")
-    private int port;
-
-    @Value("${server.http-port}")
-    private int httpPort;
-
     @Value("${DEFAULT_FROM_EMAIL_ID:no-reply@digitalsky.com}")
     private String defaultFromEmailId;
 
@@ -232,37 +226,10 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    public EmbeddedServletContainerFactory servletContainer() {
-        TomcatEmbeddedServletContainerFactory tomcat = new TomcatEmbeddedServletContainerFactory() {
-            @Override
-            protected void postProcessContext(Context context) {
-                SecurityConstraint securityConstraint = new SecurityConstraint();
-                securityConstraint.setUserConstraint("CONFIDENTIAL");
-                SecurityCollection collection = new SecurityCollection();
-                collection.addPattern("/*");
-                securityConstraint.addCollection(collection);
-                context.addConstraint(securityConstraint);
-            }
-        };
-        tomcat.addAdditionalTomcatConnectors(getHttpConnector());
-        return tomcat;
-    }
-
-    @Bean
     public ObjectMapper myObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
         objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         return objectMapper;
     }
-
-    private Connector getHttpConnector() {
-        Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
-        connector.setScheme("http");
-        connector.setPort(httpPort);
-        connector.setSecure(false);
-        connector.setRedirectPort(port);
-        return connector;
-    }
-
 }

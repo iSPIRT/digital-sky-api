@@ -38,12 +38,4 @@ flyway:
   locations: classpath:/db/migration
 
 server:
-  port: 9443
-  http-port: 9000
-  ssl:
-    enabled: true
-    key-alias: ${DS_KEY_ALIAS:tomcat-localhost}
-    key-password: ${DS_KEY_PASSWORD:cacms789}
-    key-store: ${DS_KEYSTORE_PATH:classpath:keystore.jks}
-    key-store-type: ${DS_KEYSTORE_TYPE:JKS}
-    key-store-password: ${DS_KEYSTORE_PASSWORD:cacms789}
+  port: 9000
