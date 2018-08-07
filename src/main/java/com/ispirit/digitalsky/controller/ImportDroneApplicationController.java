@@ -23,17 +23,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.ispirit.digitalsky.controller.ImportDroneApplicationRestController.IMPORTDRONEACQUISITIONFORM_RESOURCE_BASE_PATH;
+import static com.ispirit.digitalsky.controller.ImportDroneApplicationController.IMPORTDRONEACQUISITIONFORM_RESOURCE_BASE_PATH;
 
 @RestController
 @RequestMapping(IMPORTDRONEACQUISITIONFORM_RESOURCE_BASE_PATH)
-public class ImportDroneApplicationRestController {
+public class ImportDroneApplicationController {
 
     public static final String IMPORTDRONEACQUISITIONFORM_RESOURCE_BASE_PATH = "/api/applicationForm/importDroneApplication";
 
     private DroneAcquisitionApplicationService<ImportDroneApplication> droneAcquisitionFormService;
 
-    public ImportDroneApplicationRestController(DroneAcquisitionApplicationService<ImportDroneApplication> droneAcquisitionFormService) {
+    public ImportDroneApplicationController(DroneAcquisitionApplicationService<ImportDroneApplication> droneAcquisitionFormService) {
 
         this.droneAcquisitionFormService = droneAcquisitionFormService;
     }
@@ -84,6 +84,8 @@ public class ImportDroneApplicationRestController {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.NOT_FOUND);
         } catch (UnAuthorizedAccessException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.UNAUTHORIZED);
+        } catch (IOException e) {
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.UNPROCESSABLE_ENTITY);
         }
     }
 

@@ -1,11 +1,13 @@
 package com.ispirit.digitalsky.service.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ispirit.digitalsky.domain.ApproveRequestBody;
 import com.ispirit.digitalsky.exception.*;
 
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Collection;
 
 public interface DroneAcquisitionApplicationService<T> {
@@ -14,7 +16,7 @@ public interface DroneAcquisitionApplicationService<T> {
 
     T updateDroneAcquisitionApplication(String id, T droneAcquisitionApplicationForm, MultipartFile securityClearanceDoc) throws ApplicationNotFoundException, UnAuthorizedAccessException, StorageException, ApplicationNotEditableException;
 
-    T approveDroneAcquisitionApplication(ApproveRequestBody approveRequestBody) throws ApplicationNotFoundException,UnAuthorizedAccessException;
+    T approveDroneAcquisitionApplication(ApproveRequestBody approveRequestBody) throws ApplicationNotFoundException, UnAuthorizedAccessException, IOException;
 
     T get(String id);
 

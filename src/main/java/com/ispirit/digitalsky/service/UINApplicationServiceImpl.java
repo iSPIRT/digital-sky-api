@@ -32,7 +32,7 @@ public class UINApplicationServiceImpl implements UINApplicationService {
     @Transactional
     public UINApplication createApplication(UINApplication uinApplication) {
 
-        uinApplication.setId(null);
+        //uinApplication.setId(null);
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         uinApplication.setApplicantId(userPrincipal.getId());
         uinApplication.setApplicant(userPrincipal.getUsername());
@@ -54,7 +54,7 @@ public class UINApplicationServiceImpl implements UINApplicationService {
         Date createdDate = actualForm.getCreatedDate();
 
         if (uinApplication.getImportPermissionDoc() != null) {
-            actualForm.setImportPermissionDoc(uinApplication.getImportPermissionDoc());
+            actualForm.setImportPermissionDocName(uinApplication.getImportPermissionDocName());
         }
 
         if (uinApplication.getCinDoc() != null) {

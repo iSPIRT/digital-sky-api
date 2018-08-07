@@ -1,15 +1,14 @@
 package com.ispirit.digitalsky.domain;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
 
-@Entity
-@Table(name = "ds_individual_operator")
-public class IndividualOperator extends Person {
+@Embeddable
+@Table(name = "ds_manufacturer")
+public class Manufacturer extends Person {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,29 +23,12 @@ public class IndividualOperator extends Person {
     @JsonIgnore
     private String status = "DEFAULT";
 
-    //  @JsonIgnore
-//    @OneToMany
-//    @JoinTable
-//            (
-//                name="ds_operator_drone",
-//                joinColumns={ @JoinColumn(name="OPERATOR_ID", referencedColumnName="ID") },
-//                inverseJoinColumns={ @JoinColumn(name="DRONE_TYPE_ID", referencedColumnName="ID", unique=true) }
-//            )
-//    private List<OperatorDrone> drones;
-//
-//    public List<OperatorDrone> getDrones() {
-//        return this.drones;
-//    }
-//
-//    public void setDrones(List<OperatorDrone> drones) {
-//        this.drones = drones;
-//    }
 
-    private IndividualOperator() {
+    private Manufacturer() {
         //for serialization and de-serialization
     }
 
-    public IndividualOperator(long resourceOwnerId, String status, String name, String email, String mobileNumber, String country, LocalDate dateOfBirth, List<Address> addressList) {
+    public Manufacturer(long resourceOwnerId, String status, String name, String email, String mobileNumber, String country, LocalDate dateOfBirth, List<Address> addressList) {
         this.name = name;
         this.email = email;
         this.mobileNumber = mobileNumber;

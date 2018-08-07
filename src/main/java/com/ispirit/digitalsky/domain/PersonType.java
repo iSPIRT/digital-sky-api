@@ -1,6 +1,6 @@
 package com.ispirit.digitalsky.domain;
 
-public enum ApplicantType {
+public enum PersonType {
     INDIVIDUAL,
     GOVT,
     ORGANISATION

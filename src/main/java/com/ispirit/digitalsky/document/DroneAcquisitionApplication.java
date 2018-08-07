@@ -9,72 +9,78 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 
-public class DroneAcquisitionApplication extends BasicApplication {
+public abstract class DroneAcquisitionApplication extends BasicApplication {
 
     @Field("manufacturer")
-    private String manufacturer;
+    protected String manufacturer;
 
     @Field("manufacturerId")
-    private long manufacturerId;
+    protected long manufacturerId;
 
     @Field("manufacturerAddress")
-    private AddressDocument manufacturerAddress;
+    protected AddressDocument manufacturerAddress;
 
     @Field("manufacturerNationality")
-    private String manufacturerNationality;
+    protected String manufacturerNationality;
+
+    @Field("droneTypeId")
+    protected long droneTypeId;
 
     @Field("owner")
-    private String owner;
+    protected String owner;
 
     @Field("ownerId")
-    private long ownerId;
+    protected long ownerId;
 
     @Field("ownerAddress")
-    private AddressDocument ownerAddress;
+    protected AddressDocument ownerAddress;
+
+    @Field("modelName")
+    protected String modelName;
 
     @Field("modelNo")
-    private String modelNo;
+    protected String modelNo;
 
     @Field("serialNo")
-    private String serialNo;
+    protected String serialNo;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-mm-dd")
     @Field("dateOfManufacture")
-    private Date dateOfManufacture;
+    protected Date dateOfManufacture;
 
     @Field("yearOfManufacture")
-    private String yearOfManufacture;
+    protected String yearOfManufacture;
 
     @Field("wingType")
-    private String wingType;
+    protected String wingType;
 
     @Field("noOfDrones")
-    private int noOfDrones;
+    protected int noOfDrones;
 
     @Field("isNew")
-    private Boolean isNew;
+    protected Boolean isNew;
 
     @Field("maxTakeOffWeight")
-    private float maxTakeOffWeight;
+    protected float maxTakeOffWeight;
 
     @Field("maxHeightAttainable")
-    private float maxHeightAttainable;
+    protected float maxHeightAttainable;
 
-    @Field("payloadDetails")
-    private String payloadDetails;
+    @Field("compatiblePayload")
+    protected String compatiblePayload;
 
     @Field("purposeOfOperation")
-    private String purposeOfOperation;
+    protected String purposeOfOperation;
 
     @Field("proposedBaseOfOperation")
-    private String proposedBaseOfOperation;
+    protected String proposedBaseOfOperation;
 
     @Field("securityClearanceDocument")
-    private String securityClearanceDocName;
+    protected String securityClearanceDocName;
 
     @JsonIgnore
     @Transient
-    private MultipartFile securityClearanceDoc;
+    protected MultipartFile securityClearanceDoc;
 
     public DroneAcquisitionApplication() { setCreatedDate(new Date());}
 
@@ -90,6 +96,10 @@ public class DroneAcquisitionApplication extends BasicApplication {
         return manufacturer;
     }
 
+    public long getDroneTypeId() { return droneTypeId; }
+
+    public void setDroneTypeId(long droneTypeId) { this.droneTypeId = droneTypeId; }
+
     public void setManufacturer(String manufacturer) {
         this.manufacturer = manufacturer;
     }
@@ -99,6 +109,10 @@ public class DroneAcquisitionApplication extends BasicApplication {
     }
 
     public void setManufacturerAddress(AddressDocument manufacturerAddress) { this.manufacturerAddress = manufacturerAddress; }
+
+    public String getModelName() { return modelName; }
+
+    public void setModelName(String modelName) { this.modelName = modelName; }
 
     public String getModelNo() {
         return modelNo;
@@ -164,12 +178,12 @@ public class DroneAcquisitionApplication extends BasicApplication {
         this.maxHeightAttainable = maxHeightAttainable;
     }
 
-    public String getPayloadDetails() {
-        return payloadDetails;
+    public String getcompatiblePayload() {
+        return compatiblePayload;
     }
 
-    public void setPayloadDetails(String payloadDetails) {
-        this.payloadDetails = payloadDetails;
+    public void setcompatiblePayload(String compatiblePayload) {
+        this.compatiblePayload = compatiblePayload;
     }
 
     public String getPurposeOfOperation() {

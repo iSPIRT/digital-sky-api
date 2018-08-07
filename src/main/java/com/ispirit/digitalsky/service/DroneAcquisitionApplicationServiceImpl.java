@@ -1,12 +1,14 @@
 package com.ispirit.digitalsky.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ispirit.digitalsky.document.BasicApplication;
 import com.ispirit.digitalsky.document.DroneAcquisitionApplication;
-import com.ispirit.digitalsky.domain.ApplicationStatus;
-import com.ispirit.digitalsky.domain.ApproveRequestBody;
-import com.ispirit.digitalsky.domain.UserPrincipal;
+import com.ispirit.digitalsky.document.ImportDroneApplication;
+import com.ispirit.digitalsky.domain.*;
 import com.ispirit.digitalsky.exception.*;
 import com.ispirit.digitalsky.repository.DroneAcquisitionApplicationRepository;
-import com.ispirit.digitalsky.repository.EntityRepository;
+import com.ispirit.digitalsky.repository.IndividualOperatorRepository;
+import com.ispirit.digitalsky.repository.OperatorDroneRepository;
 import com.ispirit.digitalsky.repository.storage.StorageService;
 import com.ispirit.digitalsky.service.api.DroneAcquisitionApplicationService;
 
@@ -15,6 +17,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.*;
 
 import static com.ispirit.digitalsky.util.FileStoreHelper.resolveFileName;
@@ -23,12 +26,14 @@ public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionAp
 
     private final DroneAcquisitionApplicationRepository<T> droneAcquisitionFormRepository;
     private final StorageService documentRepository;
-    private final EntityRepository entityRepository;
+    private final OperatorDroneRepository operatorDroneRepository;
+    private final IndividualOperatorRepository individualOperatorRepository;
 
-    public DroneAcquisitionApplicationServiceImpl(DroneAcquisitionApplicationRepository<T> droneAcquisitionFormRepository, StorageService documentRepository, EntityRepository entityRepository) {
+    public DroneAcquisitionApplicationServiceImpl(DroneAcquisitionApplicationRepository<T> droneAcquisitionFormRepository, StorageService documentRepository, OperatorDroneRepository operatorDroneRepository, IndividualOperatorRepository individualOperatorRepository) {
         this.droneAcquisitionFormRepository = droneAcquisitionFormRepository;
         this.documentRepository = documentRepository;
-        this.entityRepository = entityRepository;
+        this.operatorDroneRepository = operatorDroneRepository;
+        this.individualOperatorRepository = individualOperatorRepository;
     }
 
     @Override
@@ -87,7 +92,7 @@ public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionAp
 
     @Override
     @Transactional
-    public T approveDroneAcquisitionApplication(ApproveRequestBody approveRequestBody) throws ApplicationNotFoundException, UnAuthorizedAccessException {
+    public T approveDroneAcquisitionApplication(ApproveRequestBody approveRequestBody) throws ApplicationNotFoundException, UnAuthorizedAccessException, IOException {
 
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         T actualForm = droneAcquisitionFormRepository.findById(approveRequestBody.getApplicationFormId());
@@ -103,6 +108,23 @@ public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionAp
         actualForm.setStatus(approveRequestBody.getStatus());
 
         T savedForm = droneAcquisitionFormRepository.save(actualForm);
+        if(((BasicApplication)savedForm).getStatus() == ApplicationStatus.APPROVED) {
+
+            boolean isImported = actualForm instanceof ImportDroneApplication;
+            boolean isIndividual = individualOperatorRepository.loadByResourceOwner(actualForm.getApplicantId()) != null;
+            PersonType operatorType = isIndividual ? PersonType.INDIVIDUAL : PersonType.ORGANISATION;
+
+            OperatorDrone opDrone = new OperatorDrone(userPrincipal.getId(), operatorType, actualForm.getDroneTypeId(), actualForm.getId(), isImported);
+            List<OperatorDrone> operatorDrones = new ArrayList<>();
+            ObjectMapper objectMapper = new ObjectMapper();
+            for (int i = 0; i < savedForm.getNoOfDrones(); i++) {
+
+                OperatorDrone deepCopy = objectMapper.readValue(objectMapper.writeValueAsString(opDrone), OperatorDrone.class);
+                operatorDrones.add(deepCopy);
+            }
+
+            operatorDroneRepository.save(operatorDrones);
+        }
         return savedForm;
     }
 
