@@ -1,8 +1,11 @@
 package com.ispirit.digitalsky.document;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.ispirit.digitalsky.domain.PersonType;
+import com.ispirit.digitalsky.domain.ApplicantType;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.ispirit.digitalsky.domain.ApplicationStatus;
+import com.ispirit.digitalsky.util.ApplicationStatusDeSerializer;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -40,28 +43,35 @@ public abstract class BasicApplication {
     protected String applicantNationality;
 
     @Field("applicantType")
-    protected PersonType applicantType;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private ApplicantType applicantType;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     @Field("submittedDate")
-    protected Date submittedDate;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private Date submittedDate;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     @Field("lastModifiedDate")
-    protected Date lastModifiedDate;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private Date lastModifiedDate;
 
     @Field("status")
-    protected ApplicationStatus status = ApplicationStatus.DRAFT;
+    @JsonDeserialize(using = ApplicationStatusDeSerializer.class)
+    private ApplicationStatus status = ApplicationStatus.DRAFT;
 
     @Field("approver")
-    protected String approver;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private String approver;
 
     @Field("approverId")
-    protected long approverId;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private long approverId;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     @Field("approvedDate")
-    protected Date approvedDate;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private Date approvedDate;
 
     @Field("approverComments")
     protected String approverComments;
@@ -160,11 +170,11 @@ public abstract class BasicApplication {
         this.approvedDate = approvedDate;
     }
 
-    public PersonType getApplicantType() {
+    public ApplicantType getApplicantType() {
         return applicantType;
     }
 
-    public void setApplicantType(PersonType applicantType) {
+    public void setApplicantType(ApplicantType applicantType) {
         this.applicantType = applicantType;
     }
 
@@ -190,6 +200,10 @@ public abstract class BasicApplication {
 
     public Date modifiedDate(){
         return lastModifiedDate != null ? lastModifiedDate : createdDate;
+    }
+
+    public  boolean isSubmitted(){
+        return status == ApplicationStatus.SUBMITTED;
     }
 }
 

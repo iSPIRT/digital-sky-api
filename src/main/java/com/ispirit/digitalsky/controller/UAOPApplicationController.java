@@ -11,6 +11,7 @@ import com.ispirit.digitalsky.exception.ApplicationNotInSubmittedStatus;
 import com.ispirit.digitalsky.exception.StorageFileNotFoundException;
 import com.ispirit.digitalsky.exception.UnAuthorizedAccessException;
 import com.ispirit.digitalsky.service.api.UAOPApplicationService;
+import com.ispirit.digitalsky.util.CustomValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -21,6 +22,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,11 +37,13 @@ public class UAOPApplicationController {
     public static final String UAOP_APPLICATION_RESOURCE_BASE_PATH = "/api/applicationForm/uaopApplication";
 
     private UAOPApplicationService uaopApplicationService;
+    private CustomValidator validator;
 
     @Autowired
-    public UAOPApplicationController(UAOPApplicationService uaopApplicationService) {
+    public UAOPApplicationController(UAOPApplicationService uaopApplicationService, CustomValidator validator) {
 
         this.uaopApplicationService = uaopApplicationService;
+        this.validator = validator;
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -85,6 +89,9 @@ public class UAOPApplicationController {
             ObjectMapper mapper = new ObjectMapper();
             UAOPApplication uaopApplication = mapper.readValue(uaopApplicationFormString, UAOPApplication.class);
             appendDocs(uaopApplication, securityProgramDoc, sopDoc, insuranceDoc, landOwnerPermissionDoc);
+            if(uaopApplication.isSubmitted()){
+                validator.validate(uaopApplication);
+            }
             UAOPApplication createdForm = uaopApplicationService.updateApplication(id, uaopApplication);
             return new ResponseEntity<>(createdForm, HttpStatus.OK);
         } catch (Exception e) {
@@ -95,7 +102,7 @@ public class UAOPApplicationController {
 
     @RequestMapping(value = "/approve/{id}", method = RequestMethod.PATCH, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> approveApplication(@PathVariable String id, @RequestBody ApproveRequestBody approveRequestBody) {
+    public ResponseEntity<?> approveApplication(@PathVariable String id, @Valid @RequestBody ApproveRequestBody approveRequestBody) {
         try {
             UAOPApplication updatedForm = uaopApplicationService.approveApplication(approveRequestBody);
             return new ResponseEntity<>(updatedForm, HttpStatus.OK);

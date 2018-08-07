@@ -3,6 +3,8 @@ package com.ispirit.digitalsky.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "ds_address")
@@ -17,21 +19,27 @@ public class Address {
     private String type = "DEFAULT";
 
     @Column(name = "LINE_ONE")
+    @NotNull
     private String lineOne;
 
     @Column(name = "LINE_TWO")
     private String lineTwo;
 
     @Column(name = "TOWN_OR_CITY")
+    @NotNull
     private String city;
 
     @Column(name = "STATE")
+    @NotNull
     private String state;
 
     @Column(name = "COUNTRY")
+    @NotNull
     private String country;
 
     @Column(name = "PIN_CODE")
+    @NotNull
+    @Size(max = 7)
     private String pinCode;
 
     private Address() {

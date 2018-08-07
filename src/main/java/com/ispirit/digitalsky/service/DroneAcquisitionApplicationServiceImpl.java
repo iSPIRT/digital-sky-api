@@ -4,7 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.document.BasicApplication;
 import com.ispirit.digitalsky.document.DroneAcquisitionApplication;
 import com.ispirit.digitalsky.document.ImportDroneApplication;
-import com.ispirit.digitalsky.domain.*;
+import com.ispirit.digitalsky.domain.ApplicationStatus;
+import com.ispirit.digitalsky.domain.ApproveRequestBody;
+import com.ispirit.digitalsky.domain.UserPrincipal;
+import com.ispirit.digitalsky.domain.ApplicantType;
+import com.ispirit.digitalsky.domain.OperatorDrone;
 import com.ispirit.digitalsky.exception.*;
 import com.ispirit.digitalsky.repository.DroneAcquisitionApplicationRepository;
 import com.ispirit.digitalsky.repository.IndividualOperatorRepository;
@@ -112,7 +116,7 @@ public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionAp
 
             boolean isImported = actualForm instanceof ImportDroneApplication;
             boolean isIndividual = individualOperatorRepository.loadByResourceOwner(actualForm.getApplicantId()) != null;
-            PersonType operatorType = isIndividual ? PersonType.INDIVIDUAL : PersonType.ORGANISATION;
+            ApplicantType operatorType = isIndividual ? ApplicantType.INDIVIDUAL : ApplicantType.ORGANISATION;
 
             OperatorDrone opDrone = new OperatorDrone(userPrincipal.getId(), operatorType, actualForm.getDroneTypeId(), actualForm.getId(), isImported);
             List<OperatorDrone> operatorDrones = new ArrayList<>();

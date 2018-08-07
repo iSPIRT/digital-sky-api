@@ -1,7 +1,13 @@
 package com.ispirit.digitalsky.dto;
 
+import org.hibernate.validator.constraints.Email;
+
+import javax.validation.constraints.NotNull;
+
 public class ResetPasswordLinkRequest {
 
+    @NotNull
+    @Email
     private String email;
 
     private ResetPasswordLinkRequest() {

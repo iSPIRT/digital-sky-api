@@ -14,6 +14,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 import static com.ispirit.digitalsky.controller.DirectorController.DIRECTOR_RESOURCE_BASE_PATH;
 
 @RestController
@@ -33,7 +35,7 @@ public class DirectorController {
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> addDirector(@PathVariable(value = "operatorId") long operatorId, @RequestBody Director director) {
+    public ResponseEntity<?> addDirector(@PathVariable(value = "operatorId") long operatorId, @Valid @RequestBody Director director) {
 
         if (!validate(director)) {
             return new ResponseEntity<>(new Errors("Invalid Payload"), HttpStatus.BAD_REQUEST);
@@ -53,7 +55,7 @@ public class DirectorController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> updateDirector(@PathVariable(value = "id") long id, @PathVariable(value = "operatorId") long operatorId, @RequestBody Director directorPayload) {
+    public ResponseEntity<?> updateDirector(@PathVariable(value = "id") long id, @PathVariable(value = "operatorId") long operatorId, @Valid @RequestBody Director directorPayload) {
 
         try {
             validateOperatorAccess(operatorId);

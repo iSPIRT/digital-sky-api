@@ -1,7 +1,7 @@
 package com.ispirit.digitalsky.repository;
 
+import com.ispirit.digitalsky.domain.ApplicantType;
 import com.ispirit.digitalsky.domain.OperatorDrone;
-import com.ispirit.digitalsky.domain.PersonType;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -9,5 +9,5 @@ import org.springframework.data.repository.query.Param;
 public interface OperatorDroneRepository extends CrudRepository<OperatorDrone, Long> {
 
     @Query("SELECT od FROM OperatorDrone od WHERE od.operatorId = operatorId and od.operatorType = operatorType")
-    OperatorDrone loadByOperator(@Param("operatorId") long operatorId, @Param("operatorType") PersonType operatorType);
+    OperatorDrone loadByOperator(@Param("operatorId") long operatorId, @Param("operatorType") ApplicantType operatorType);
 }

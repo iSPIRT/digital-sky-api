@@ -12,10 +12,14 @@ import com.ispirit.digitalsky.repository.storage.FileSystemStorageService;
 import com.ispirit.digitalsky.repository.storage.StorageService;
 import com.ispirit.digitalsky.service.*;
 import com.ispirit.digitalsky.service.api.*;
+import com.ispirit.digitalsky.util.CustomValidator;
 import com.sendgrid.SendGrid;
 import freemarker.template.TemplateExceptionHandler;
 import org.apache.catalina.Context;
 import org.apache.catalina.connector.Connector;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.tomcat.util.descriptor.web.SecurityCollection;
 import org.apache.tomcat.util.descriptor.web.SecurityConstraint;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,9 +29,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.Validator;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Collection;
 
@@ -49,6 +56,9 @@ public class ApplicationConfiguration {
     @Value("${RESET_PASSWORD_PATH:http://192.168.33.10:3000/resetPassword}")
     private String resetPasswordBasePath;
 
+    @Value("${ACCOUNT_VERIFICATION_PATH:http://192.168.33.10:3000/verifyAccount}")
+    private String accountVerificationPath;
+
     @Value("${JWT_KEYSTORE_PATH:classpath:keystore.jks}")
     private String jwtKeyStorePath;
 
@@ -69,6 +79,12 @@ public class ApplicationConfiguration {
 
     @Value("${FILE_STORAGE_LOCATION:uploads}")
     private String storageLocation;
+
+    @Value("${RE_CAPTCHA_VERIFY_URL:https://www.google.com/recaptcha/api/siteverify}")
+    private String reCaptchaVerifyUrl;
+
+    @Value("${RE_CAPTCHA_SITE_SECRET:secret}")
+    private String reCaptchaSiteSecret;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -94,7 +110,8 @@ public class ApplicationConfiguration {
                 importDroneService,
                 uaopApplicationService,
                 uinApplicationService,
-                resetPasswordBasePath);
+                resetPasswordBasePath,
+                accountVerificationPath);
     }
 
     @Bean
@@ -134,8 +151,8 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    PilotService pilotService(PilotRepository pilotRepository) {
-        return new PilotServiceImpl(pilotRepository);
+    PilotService pilotService(PilotRepository pilotRepository, StorageService storageService) {
+        return new PilotServiceImpl(pilotRepository, storageService);
     }
 
     @Bean
@@ -185,7 +202,33 @@ public class ApplicationConfiguration {
 
     @Bean
     DroneService droneService(DroneTypeRepository droneTypeRepository, StorageService storageService) {
-        return new DroneServiceImpl(droneTypeRepository, storageService) ;
+        return new DroneServiceImpl(droneTypeRepository, storageService);
+    }
+
+    @Bean
+    CustomValidator customValidator(Validator validator){
+        return new CustomValidator(validator);
+    }
+
+    @Bean
+    ReCaptchaService reCaptchaService(RestTemplate restTemplate){
+        return new GoogleReCaptchaService(restTemplate, reCaptchaVerifyUrl, reCaptchaSiteSecret);
+    }
+
+    @Bean
+    RestTemplate restTemplate(){
+        int timeout = 25000;
+        RequestConfig config = RequestConfig.custom()
+                .setConnectTimeout(timeout)
+                .setConnectionRequestTimeout(timeout)
+                .setSocketTimeout(timeout)
+                .build();
+        CloseableHttpClient client = HttpClientBuilder
+                .create()
+                .setDefaultRequestConfig(config)
+                .build();
+        HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory(client);
+        return new RestTemplate(httpRequestFactory);
     }
 
     @Bean

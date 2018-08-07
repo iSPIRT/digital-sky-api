@@ -1,8 +1,13 @@
 package com.ispirit.digitalsky.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.hibernate.validator.constraints.Email;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -20,18 +25,31 @@ public class User {
     private long id;
 
     @Column(name = "FULL_NAME")
+    @NotNull
+    @Pattern(regexp = "^[A-Za-z0-9]*$")
     private String fullName;
 
-
     @Column(name = "EMAIL")
+    @NotNull
+    @Email
     private String email;
 
     @Column(name = "PASSWORD_HASH")
+    @NotNull
+    @Size(min = 7, max = 50)
     private String password;
 
     @Column(name = "RESET_PASSWORD_TOKEN")
     @JsonIgnore
     private String resetPasswordToken;
+
+    @Column(name = "ACCOUNT_VERIFICATION_TOKEN")
+    @JsonIgnore
+    private String accountVerificationToken;
+
+    @Column(name = "ACCOUNT_VERIFIED")
+    @JsonIgnore
+    private boolean accountVerified = false;
 
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "USER_ID")
@@ -42,6 +60,11 @@ public class User {
     @JoinColumn(name = "USER_ID")
     @JsonIgnore
     private List<UserActiveSession> activeSessions = new ArrayList<>();
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Transient
+    @NotNull
+    private String reCaptcha;
 
     private User() {
         //for serialization and de-serialization
@@ -97,8 +120,24 @@ public class User {
         this.resetPasswordToken = resetPasswordToken;
     }
 
-    public List<String> getRoleNames(){
-        if(roles==null || roles.isEmpty()) return emptyList();
-        return  roles.stream().map(UserRole::getUserRole).collect(toList());
+    public void setAccountVerificationToken(String accountVerificationToken) {
+        this.accountVerificationToken = accountVerificationToken;
+    }
+
+    public void setAccountVerified(boolean accountVerified) {
+        this.accountVerified = accountVerified;
+    }
+
+    public boolean isAccountVerified() {
+        return accountVerified;
+    }
+
+    public String getReCaptcha() {
+        return reCaptcha;
+    }
+
+    public List<String> getRoleNames() {
+        if (roles == null || roles.isEmpty()) return emptyList();
+        return roles.stream().map(UserRole::getUserRole).collect(toList());
     }
 }

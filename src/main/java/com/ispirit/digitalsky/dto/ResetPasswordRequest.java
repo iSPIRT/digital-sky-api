@@ -1,9 +1,15 @@
 package com.ispirit.digitalsky.dto;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 public class ResetPasswordRequest {
 
+    @NotNull
     private String token;
 
+    @NotNull
+    @Size(min = 8, max = 20)
     private String password;
 
     private ResetPasswordRequest() {

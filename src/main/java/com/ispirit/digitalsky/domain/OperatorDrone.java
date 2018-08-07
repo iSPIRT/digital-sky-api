@@ -22,7 +22,7 @@ public class OperatorDrone {
     private long operatorId;
 
     @Column(name = "OPERATOR_TYPE")
-    private PersonType operatorType;
+    private ApplicantType operatorType;
 
     @Column(name = "ACQUISITION_APPLICATION_ID")
     private String acquisitionApplicationId;
@@ -40,7 +40,7 @@ public class OperatorDrone {
 
     }
 
-    public OperatorDrone(long operatorId, PersonType operatorType, long droneTypeId, String acquisitionApplicationId, boolean isImported) {
+    public OperatorDrone(long operatorId, ApplicantType operatorType, long droneTypeId, String acquisitionApplicationId, boolean isImported) {
 
         this.operatorId =  operatorId;
         this.operatorType = operatorType;
@@ -70,11 +70,11 @@ public class OperatorDrone {
         this.operatorId = operatorId;
     }
 
-    public PersonType getOperatorType() {
+    public ApplicantType getOperatorType() {
         return operatorType;
     }
 
-    public void setOperatorType(PersonType operatorType) {
+    public void setOperatorType(ApplicantType operatorType) {
         this.operatorType = operatorType;
     }
 

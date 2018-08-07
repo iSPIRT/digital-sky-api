@@ -1,8 +1,11 @@
 package com.ispirit.digitalsky.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.validator.constraints.Email;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,18 +20,26 @@ public abstract class Organisation {
     protected long id;
 
     @Column(name = "NAME")
+    @NotNull
     protected String name;
 
     @Column(name = "EMAIL")
+    @NotNull
+    @Email
     protected String email;
 
     @Column(name = "MOBILE_NUMBER")
+    @NotNull
+    @Size(max = 13)
     protected String mobileNumber;
 
     @Column(name = "CONTACT_NUMBER")
+    @Size(max = 13)
     protected String contactNumber;
 
     @Column(name = "COUNTRY")
+    @NotNull
+    @Size(max = 20)
     protected String country;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
