@@ -1,9 +1,9 @@
 package com.ispirit.digitalsky.document;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ispirit.digitalsky.domain.ApplicantType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.ispirit.digitalsky.domain.ApplicantType;
 import com.ispirit.digitalsky.domain.ApplicationStatus;
 import com.ispirit.digitalsky.util.ApplicationStatusDeSerializer;
 import org.springframework.data.annotation.Id;
@@ -11,36 +11,36 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.Date;
 
-public class BasicApplication {
+public abstract class BasicApplication {
 
     @Id
     @Field("id")
-    private String id;
+    protected String id;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     @Field("createdDate")
-    private Date createdDate;
+    protected Date createdDate;
 
     @Field("applicationNumber")
-    private String applicationNumber;
+    protected String applicationNumber;
 
     @Field("applicant")
-    private String applicant;
+    protected String applicant;
 
     @Field("applicantId")
-    private long applicantId;
+    protected long applicantId;
 
     @Field("applicantAddress")
-    private AddressDocument applicantAddress;
+    protected AddressDocument applicantAddress;
 
     @Field("applicantEmail")
-    private String applicantEmail;
+    protected String applicantEmail;
 
     @Field("applicantPhone")
-    private String applicantPhone;
+    protected String applicantPhone;
 
     @Field("applicantNationality")
-    private String applicantNationality;
+    protected String applicantNationality;
 
     @Field("applicantType")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -74,7 +74,7 @@ public class BasicApplication {
     private Date approvedDate;
 
     @Field("approverComments")
-    private String approverComments;
+    protected String approverComments;
 
     public String getId() {
         return id;

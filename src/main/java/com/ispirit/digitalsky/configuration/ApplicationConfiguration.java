@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.document.ImportDroneApplication;
 import com.ispirit.digitalsky.document.LocalDroneAcquisitionApplication;
+import com.ispirit.digitalsky.domain.DroneType;
+import com.ispirit.digitalsky.exception.StorageFileNotFoundException;
 import com.ispirit.digitalsky.repository.*;
 import com.ispirit.digitalsky.repository.storage.FileSystemStorageService;
 import com.ispirit.digitalsky.repository.storage.StorageService;
@@ -25,6 +27,7 @@ import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -32,6 +35,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.Validator;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.Collection;
 
 @Configuration
 public class ApplicationConfiguration {
@@ -166,13 +171,23 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneAcquisitionService(LocalDroneAcquisitionApplicationRepository droneAcquisitionRepository, StorageService documentRepository, EntityRepository entityRepository) {
-        return new DroneAcquisitionApplicationServiceImpl<LocalDroneAcquisitionApplication>(droneAcquisitionRepository, documentRepository, entityRepository);
+    DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneAcquisitionService(
+                LocalDroneAcquisitionApplicationRepository droneAcquisitionRepository,
+                StorageService documentRepository,
+                OperatorDroneRepository operatorDroneRepository,
+                IndividualOperatorRepository individualOperatorRepository) {
+
+        return new DroneAcquisitionApplicationServiceImpl<LocalDroneAcquisitionApplication>(droneAcquisitionRepository, documentRepository, operatorDroneRepository, individualOperatorRepository);
     }
 
     @Bean
-    DroneAcquisitionApplicationService<ImportDroneApplication> importedDroneAcquisitionService(ImportDroneApplicationRepository droneAcquisitionRepository, StorageService documentRepository, EntityRepository entityRepository) {
-        return new DroneAcquisitionApplicationServiceImpl<ImportDroneApplication>(droneAcquisitionRepository, documentRepository, entityRepository);
+    DroneAcquisitionApplicationService<ImportDroneApplication> importedDroneAcquisitionService(
+                ImportDroneApplicationRepository droneAcquisitionRepository,
+                StorageService documentRepository,
+                OperatorDroneRepository operatorDroneRepository,
+                IndividualOperatorRepository individualOperatorRepository) {
+
+        return new DroneAcquisitionApplicationServiceImpl<ImportDroneApplication>(droneAcquisitionRepository, documentRepository, operatorDroneRepository, individualOperatorRepository);
     }
 
     @Bean
@@ -183,6 +198,11 @@ public class ApplicationConfiguration {
     @Bean
     UINApplicationService uinApplicationService(StorageService storageService, UINApplicationRepository uinApplicationRepository) {
         return new UINApplicationServiceImpl(uinApplicationRepository, storageService);
+    }
+
+    @Bean
+    DroneService droneService(DroneTypeRepository droneTypeRepository, StorageService storageService) {
+        return new DroneServiceImpl(droneTypeRepository, storageService);
     }
 
     @Bean

@@ -70,6 +70,9 @@ public class UINApplication extends BasicApplication {
     @Field("feeDetails")
     private String feeDetails;
 
+    @Field("droneTypeId")
+    private long droneTypeId;
+
     @Field("manufacturer")
     private String manufacturer;
 
@@ -185,27 +188,27 @@ public class UINApplication extends BasicApplication {
         setCreatedDate(new Date());
     }
 
-    public String getImportPermissionDocName() { return importPermissionDocName; }
+    public String getImportPermissionDocName() { return this.importPermissionDocName; }
 
     public void setImportPermissionDocName(String importPermissionDocName) { this.importPermissionDocName = importPermissionDocName; }
 
-    public MultipartFile getImportPermissionDoc() { return importPermissionDoc; }
+    public MultipartFile getImportPermissionDoc() { return this.importPermissionDoc; }
 
     public void setImportPermissionDoc(MultipartFile importPermissionDoc) { this.importPermissionDoc = importPermissionDoc; }
 
-    public String getCinDocName() { return cinDocName; }
+    public String getCinDocName() { return this.cinDocName; }
 
     public void setCinDocName(String cinDocName) { this.cinDocName = cinDocName; }
 
-    public MultipartFile getCinDoc() { return cinDoc; }
+    public MultipartFile getCinDoc() { return this.cinDoc; }
 
     public void setCinDoc(MultipartFile cinDoc) { this.cinDoc = cinDoc; }
 
-    public String getGstinDocName() { return gstinDocName; }
+    public String getGstinDocName() { return this.gstinDocName; }
 
     public void setGstinDocName(String gstinDocName) { this.gstinDocName = gstinDocName; }
 
-    public MultipartFile getGstinDoc() { return gstinDoc; }
+    public MultipartFile getGstinDoc() { return this.gstinDoc; }
 
     public void setGstinDoc(MultipartFile gstinDoc) { this.gstinDoc = gstinDoc; }
 
@@ -242,6 +245,10 @@ public class UINApplication extends BasicApplication {
     public void setEtaDoc(MultipartFile etaDoc) { this.etaDoc = etaDoc; }
 
     public String getFeeDetails() { return feeDetails; }
+
+    public long getDroneTypeId() { return droneTypeId; }
+
+    public void setDroneTypeId(long droneTypeId) { this.droneTypeId = droneTypeId; }
 
     public void setFeeDetails(String feeDetails) { this.feeDetails = feeDetails; }
 
