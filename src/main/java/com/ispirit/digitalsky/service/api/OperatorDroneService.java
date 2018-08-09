@@ -1,14 +1,17 @@
 package com.ispirit.digitalsky.service.api;
 
-import com.ispirit.digitalsky.domain.DroneType;
+import com.ispirit.digitalsky.domain.ApplicantType;
 import com.ispirit.digitalsky.domain.OperatorDrone;
-import com.ispirit.digitalsky.domain.OperatorDroneStatus;
+
+import java.util.List;
 
 public interface OperatorDroneService {
 
-    OperatorDrone createNewOperatorDrone(long droneTypeId, String acquisitionApplicationId, boolean isImported);
+    List<OperatorDrone> createOperatorDrones(List<OperatorDrone> operatorDrones);
 
-    DroneType updateOperatorDrone(long id, long uinApplicationId, OperatorDroneStatus operatorDroneStatus);
+    OperatorDrone updateOperatorDrone(OperatorDrone operatorDrone);
 
-    DroneType find(long id);
+    OperatorDrone find(long id);
+
+    List<?> loadByOperator(long userId, ApplicantType applicantType);
 }

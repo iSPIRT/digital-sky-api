@@ -1,10 +1,12 @@
 package com.ispirit.digitalsky.service;
 
-import com.ispirit.digitalsky.domain.DroneType;
+import com.ispirit.digitalsky.domain.ApplicantType;
 import com.ispirit.digitalsky.domain.OperatorDrone;
-import com.ispirit.digitalsky.domain.OperatorDroneStatus;
 import com.ispirit.digitalsky.repository.OperatorDroneRepository;
 import com.ispirit.digitalsky.service.api.OperatorDroneService;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class OperatorDroneServiceImpl implements OperatorDroneService {
 
@@ -16,17 +18,25 @@ public class OperatorDroneServiceImpl implements OperatorDroneService {
     }
 
     @Override
-    public OperatorDrone createNewOperatorDrone(long droneTypeId, String acquisitionApplicationId, boolean isImported) {
-        return null;
+    public List<OperatorDrone> createOperatorDrones(List<OperatorDrone> operatorDrones) {
+        Iterable<OperatorDrone> addedDrones =  operatorDroneRepository.save(operatorDrones);
+        List<OperatorDrone> dronesList = new ArrayList<>();
+        addedDrones.forEach(dronesList::add);
+        return dronesList;
     }
 
     @Override
-    public DroneType updateOperatorDrone(long id, long uinApplicationId, OperatorDroneStatus operatorDroneStatus) {
-        return null;
+    public OperatorDrone updateOperatorDrone(OperatorDrone operatorDrone) {
+        return operatorDroneRepository.save(operatorDrone);
     }
 
     @Override
-    public DroneType find(long id) {
-        return null;
+    public OperatorDrone find(long id) {
+        return operatorDroneRepository.findOne(id);
+    }
+
+    @Override
+    public List<?> loadByOperator(long operatorId, ApplicantType operatorType) {
+        return operatorDroneRepository.loadByOperator(operatorId, operatorType);
     }
 }

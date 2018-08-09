@@ -56,7 +56,7 @@ public class ApplicationConfiguration {
     @Value("${RESET_PASSWORD_PATH:http://192.168.33.10:3000/resetPassword}")
     private String resetPasswordBasePath;
 
-    @Value("${ACCOUNT_VERIFICATION_PATH:http://192.168.33.10:3000/verifyAccount}")
+    @Value("${ACCOUNT_VERIFICATION_PATH:http://localhost:3000/verifyAccount}")
     private String accountVerificationPath;
 
     @Value("${JWT_KEYSTORE_PATH:classpath:keystore.jks}")
@@ -99,12 +99,14 @@ public class ApplicationConfiguration {
     @Bean
     public UserService userService(
             UserRepository userRepository,
+            OperatorDroneService operatorDroneService,
             EmailService emailService,
             DroneAcquisitionApplicationService<ImportDroneApplication> importDroneService,
             UAOPApplicationService uaopApplicationService,
             UINApplicationService uinApplicationService,
             DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneService) {
         return new CustomUserDetailService(userRepository,
+                operatorDroneService,
                 emailService,
                 localDroneService,
                 importDroneService,
@@ -171,23 +173,30 @@ public class ApplicationConfiguration {
     }
 
     @Bean
+    OperatorDroneService operatorDroneService(OperatorDroneRepository operatorDroneRepository) {
+        return new OperatorDroneServiceImpl(operatorDroneRepository);
+    }
+
+    @Bean
     DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneAcquisitionService(
                 LocalDroneAcquisitionApplicationRepository droneAcquisitionRepository,
-                StorageService documentRepository,
-                OperatorDroneRepository operatorDroneRepository,
+                StorageService storageService,
+                DroneService droneService,
+                OperatorDroneService operatorDroneService,
                 IndividualOperatorRepository individualOperatorRepository) {
 
-        return new DroneAcquisitionApplicationServiceImpl<LocalDroneAcquisitionApplication>(droneAcquisitionRepository, documentRepository, operatorDroneRepository, individualOperatorRepository);
+        return new DroneAcquisitionApplicationServiceImpl<LocalDroneAcquisitionApplication>(droneAcquisitionRepository, storageService, droneService, operatorDroneService, individualOperatorRepository);
     }
 
     @Bean
     DroneAcquisitionApplicationService<ImportDroneApplication> importedDroneAcquisitionService(
                 ImportDroneApplicationRepository droneAcquisitionRepository,
-                StorageService documentRepository,
-                OperatorDroneRepository operatorDroneRepository,
+                StorageService storageService,
+                DroneService droneService,
+                OperatorDroneService operatorDroneService,
                 IndividualOperatorRepository individualOperatorRepository) {
 
-        return new DroneAcquisitionApplicationServiceImpl<ImportDroneApplication>(droneAcquisitionRepository, documentRepository, operatorDroneRepository, individualOperatorRepository);
+        return new DroneAcquisitionApplicationServiceImpl<ImportDroneApplication>(droneAcquisitionRepository, storageService, droneService, operatorDroneService, individualOperatorRepository);
     }
 
     @Bean

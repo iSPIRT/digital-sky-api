@@ -26,7 +26,7 @@ public class User {
 
     @Column(name = "FULL_NAME")
     @NotNull
-    @Pattern(regexp = "^[A-Za-z0-9]*$")
+    @Pattern(regexp = "^[A-Za-z0-9 ]*$")
     private String fullName;
 
     @Column(name = "EMAIL")
