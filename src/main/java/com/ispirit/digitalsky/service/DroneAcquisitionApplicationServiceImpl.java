@@ -4,15 +4,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.document.BasicApplication;
 import com.ispirit.digitalsky.document.DroneAcquisitionApplication;
 import com.ispirit.digitalsky.document.ImportDroneApplication;
+
 import com.ispirit.digitalsky.domain.*;
 import com.ispirit.digitalsky.exception.*;
+
 import com.ispirit.digitalsky.repository.DroneAcquisitionApplicationRepository;
 import com.ispirit.digitalsky.repository.IndividualOperatorRepository;
 import com.ispirit.digitalsky.repository.storage.StorageService;
-import com.ispirit.digitalsky.service.api.DroneAcquisitionApplicationService;
 
+
+import com.ispirit.digitalsky.service.api.DroneAcquisitionApplicationService;
 import com.ispirit.digitalsky.service.api.DroneService;
 import com.ispirit.digitalsky.service.api.OperatorDroneService;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +30,7 @@ import static com.ispirit.digitalsky.util.FileStoreHelper.resolveFileName;
 public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionApplication> implements DroneAcquisitionApplicationService<T> {
 
     private final DroneAcquisitionApplicationRepository<T> droneAcquisitionFormRepository;
+
     private final StorageService storageService;
     private final OperatorDroneService operatorDroneService;
     private final IndividualOperatorRepository individualOperatorRepository;
@@ -129,7 +134,8 @@ public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionAp
             }
 
             operatorDroneService.createOperatorDrones(operatorDrones);
-        }
+            }
+
         return savedForm;
     }
 

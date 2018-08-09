@@ -2,11 +2,13 @@ package com.ispirit.digitalsky.service;
 
 import com.ispirit.digitalsky.domain.ApplicantType;
 import com.ispirit.digitalsky.domain.OperatorDrone;
+
 import com.ispirit.digitalsky.repository.OperatorDroneRepository;
 import com.ispirit.digitalsky.service.api.OperatorDroneService;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class OperatorDroneServiceImpl implements OperatorDroneService {
 
@@ -39,4 +41,5 @@ public class OperatorDroneServiceImpl implements OperatorDroneService {
     public List<?> loadByOperator(long operatorId, ApplicantType operatorType) {
         return operatorDroneRepository.loadByOperator(operatorId, operatorType);
     }
+
 }

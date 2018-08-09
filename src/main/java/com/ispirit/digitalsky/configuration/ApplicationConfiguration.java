@@ -5,8 +5,6 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.document.ImportDroneApplication;
 import com.ispirit.digitalsky.document.LocalDroneAcquisitionApplication;
-import com.ispirit.digitalsky.domain.DroneType;
-import com.ispirit.digitalsky.exception.StorageFileNotFoundException;
 import com.ispirit.digitalsky.repository.*;
 import com.ispirit.digitalsky.repository.storage.FileSystemStorageService;
 import com.ispirit.digitalsky.repository.storage.StorageService;
@@ -15,19 +13,12 @@ import com.ispirit.digitalsky.service.api.*;
 import com.ispirit.digitalsky.util.CustomValidator;
 import com.sendgrid.SendGrid;
 import freemarker.template.TemplateExceptionHandler;
-import org.apache.catalina.Context;
-import org.apache.catalina.connector.Connector;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.tomcat.util.descriptor.web.SecurityCollection;
-import org.apache.tomcat.util.descriptor.web.SecurityConstraint;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
-import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -40,12 +31,6 @@ import java.util.Collection;
 
 @Configuration
 public class ApplicationConfiguration {
-
-    @Value("${server.port}")
-    private int port;
-
-    @Value("${server.http-port}")
-    private int httpPort;
 
     @Value("${DEFAULT_FROM_EMAIL_ID:no-reply@digitalsky.com}")
     private String defaultFromEmailId;
@@ -173,6 +158,7 @@ public class ApplicationConfiguration {
     }
 
     @Bean
+
     OperatorDroneService operatorDroneService(OperatorDroneRepository operatorDroneRepository) {
         return new OperatorDroneServiceImpl(operatorDroneRepository);
     }
@@ -241,37 +227,10 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    public EmbeddedServletContainerFactory servletContainer() {
-        TomcatEmbeddedServletContainerFactory tomcat = new TomcatEmbeddedServletContainerFactory() {
-            @Override
-            protected void postProcessContext(Context context) {
-                SecurityConstraint securityConstraint = new SecurityConstraint();
-                securityConstraint.setUserConstraint("CONFIDENTIAL");
-                SecurityCollection collection = new SecurityCollection();
-                collection.addPattern("/*");
-                securityConstraint.addCollection(collection);
-                context.addConstraint(securityConstraint);
-            }
-        };
-        tomcat.addAdditionalTomcatConnectors(getHttpConnector());
-        return tomcat;
-    }
-
-    @Bean
     public ObjectMapper myObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
         objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         return objectMapper;
     }
-
-    private Connector getHttpConnector() {
-        Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
-        connector.setScheme("http");
-        connector.setPort(httpPort);
-        connector.setSecure(false);
-        connector.setRedirectPort(port);
-        return connector;
-    }
-
 }

@@ -1,10 +1,11 @@
 package com.ispirit.digitalsky.domain;
 
+
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.util.Date;
+
 
 @Entity
 @Table(name = "ds_operator_drone")
@@ -38,6 +39,7 @@ public class OperatorDrone {
     @Column(name = "REGISTERED_DATE")
     private Date registeredDate;
 
+
     @Column(name = "OPERATOR_DRONE_STATUS")
     private OperatorDroneStatus operatorDroneStatus;
 
@@ -56,14 +58,6 @@ public class OperatorDrone {
     public long getId() {
         return id;
     }
-
-//    public long getDroneTypeId() {
-//        return droneTypeId;
-//    }
-//
-//    public void setDroneTypeId(long droneTypeId) {
-//        this.droneTypeId = droneTypeId;
-//    }
 
     public long getOperatorId() {
         return operatorId;
