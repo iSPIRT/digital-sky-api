@@ -87,6 +87,11 @@ public class DroneServiceImpl implements DroneService {
     }
 
     @Override
+    public DroneType get(long id) {
+
+        return droneTypeRepository.findOne(id);
+    }
+
     public Resource getFile(String applicationId, String fileName) throws StorageFileNotFoundException {
         return storageService.loadAsResource(applicationId, fileName);
     }

@@ -14,5 +14,7 @@ public interface DroneService {
 
     Collection<DroneType> getAll();
 
+    DroneType get(long id);
+
     Resource getFile(String applicationId, String fileName) throws StorageFileNotFoundException;
 }

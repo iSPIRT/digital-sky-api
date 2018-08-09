@@ -5,8 +5,6 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.document.ImportDroneApplication;
 import com.ispirit.digitalsky.document.LocalDroneAcquisitionApplication;
-import com.ispirit.digitalsky.domain.DroneType;
-import com.ispirit.digitalsky.exception.StorageFileNotFoundException;
 import com.ispirit.digitalsky.repository.*;
 import com.ispirit.digitalsky.repository.storage.FileSystemStorageService;
 import com.ispirit.digitalsky.repository.storage.StorageService;
@@ -15,19 +13,12 @@ import com.ispirit.digitalsky.service.api.*;
 import com.ispirit.digitalsky.util.CustomValidator;
 import com.sendgrid.SendGrid;
 import freemarker.template.TemplateExceptionHandler;
-import org.apache.catalina.Context;
-import org.apache.catalina.connector.Connector;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.tomcat.util.descriptor.web.SecurityCollection;
-import org.apache.tomcat.util.descriptor.web.SecurityConstraint;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
-import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -50,7 +41,7 @@ public class ApplicationConfiguration {
     @Value("${RESET_PASSWORD_PATH:http://192.168.33.10:3000/resetPassword}")
     private String resetPasswordBasePath;
 
-    @Value("${ACCOUNT_VERIFICATION_PATH:http://192.168.33.10:3000/verifyAccount}")
+    @Value("${ACCOUNT_VERIFICATION_PATH:http://localhost:3000/verifyAccount}")
     private String accountVerificationPath;
 
     @Value("${JWT_KEYSTORE_PATH:classpath:keystore.jks}")
@@ -93,12 +84,14 @@ public class ApplicationConfiguration {
     @Bean
     public UserService userService(
             UserRepository userRepository,
+            OperatorDroneService operatorDroneService,
             EmailService emailService,
             DroneAcquisitionApplicationService<ImportDroneApplication> importDroneService,
             UAOPApplicationService uaopApplicationService,
             UINApplicationService uinApplicationService,
             DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneService) {
         return new CustomUserDetailService(userRepository,
+                operatorDroneService,
                 emailService,
                 localDroneService,
                 importDroneService,
@@ -165,23 +158,31 @@ public class ApplicationConfiguration {
     }
 
     @Bean
+
+    OperatorDroneService operatorDroneService(OperatorDroneRepository operatorDroneRepository) {
+        return new OperatorDroneServiceImpl(operatorDroneRepository);
+    }
+
+    @Bean
     DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneAcquisitionService(
                 LocalDroneAcquisitionApplicationRepository droneAcquisitionRepository,
-                StorageService documentRepository,
-                OperatorDroneRepository operatorDroneRepository,
+                StorageService storageService,
+                DroneService droneService,
+                OperatorDroneService operatorDroneService,
                 IndividualOperatorRepository individualOperatorRepository) {
 
-        return new DroneAcquisitionApplicationServiceImpl<LocalDroneAcquisitionApplication>(droneAcquisitionRepository, documentRepository, operatorDroneRepository, individualOperatorRepository);
+        return new DroneAcquisitionApplicationServiceImpl<LocalDroneAcquisitionApplication>(droneAcquisitionRepository, storageService, droneService, operatorDroneService, individualOperatorRepository);
     }
 
     @Bean
     DroneAcquisitionApplicationService<ImportDroneApplication> importedDroneAcquisitionService(
                 ImportDroneApplicationRepository droneAcquisitionRepository,
-                StorageService documentRepository,
-                OperatorDroneRepository operatorDroneRepository,
+                StorageService storageService,
+                DroneService droneService,
+                OperatorDroneService operatorDroneService,
                 IndividualOperatorRepository individualOperatorRepository) {
 
-        return new DroneAcquisitionApplicationServiceImpl<ImportDroneApplication>(droneAcquisitionRepository, documentRepository, operatorDroneRepository, individualOperatorRepository);
+        return new DroneAcquisitionApplicationServiceImpl<ImportDroneApplication>(droneAcquisitionRepository, storageService, droneService, operatorDroneService, individualOperatorRepository);
     }
 
     @Bean

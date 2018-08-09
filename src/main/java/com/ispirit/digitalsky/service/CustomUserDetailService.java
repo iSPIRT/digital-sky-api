@@ -3,10 +3,7 @@ package com.ispirit.digitalsky.service;
 import com.ispirit.digitalsky.document.BasicApplication;
 import com.ispirit.digitalsky.document.ImportDroneApplication;
 import com.ispirit.digitalsky.document.LocalDroneAcquisitionApplication;
-import com.ispirit.digitalsky.domain.AccountVerificationEmail;
-import com.ispirit.digitalsky.domain.ResetPasswordEmail;
-import com.ispirit.digitalsky.domain.User;
-import com.ispirit.digitalsky.domain.UserPrincipal;
+import com.ispirit.digitalsky.domain.*;
 import com.ispirit.digitalsky.exception.EntityNotFoundException;
 import com.ispirit.digitalsky.repository.UserRepository;
 import com.ispirit.digitalsky.service.api.*;
@@ -23,6 +20,7 @@ import static java.lang.String.format;
 public class CustomUserDetailService implements UserService {
 
     private UserRepository userRepository;
+    private OperatorDroneService operatorDroneService;
     private EmailService emailService;
     private DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneService;
     private DroneAcquisitionApplicationService<ImportDroneApplication> importDroneService;
@@ -33,6 +31,7 @@ public class CustomUserDetailService implements UserService {
 
     public CustomUserDetailService(
             UserRepository userRepository,
+            OperatorDroneService operatorDroneService,
             EmailService emailService,
             DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneService,
             DroneAcquisitionApplicationService<ImportDroneApplication> importDroneService,
@@ -41,6 +40,7 @@ public class CustomUserDetailService implements UserService {
             String resetPasswordBasePath,
             String accountVerificationBasePath) {
         this.userRepository = userRepository;
+        this.operatorDroneService = operatorDroneService;
         this.emailService = emailService;
         this.localDroneService = localDroneService;
         this.importDroneService = importDroneService;
@@ -123,6 +123,16 @@ public class CustomUserDetailService implements UserService {
         basicApplications.addAll(uinApplicationService.getApplicationsOfApplicant(userId));
         basicApplications.sort((BasicApplication a1, BasicApplication a2) -> a2.modifiedDate().compareTo(a1.modifiedDate()));
         return basicApplications;
+    }
+
+    @Override
+    public List<?> drones(long userId, ApplicantType applicantType) {
+        return operatorDroneService.loadByOperator(userId, applicantType);
+    }
+
+    @Override
+    public OperatorDrone drone(long operatorDroneId) {
+        return operatorDroneService.find(operatorDroneId);
     }
 
     @Override

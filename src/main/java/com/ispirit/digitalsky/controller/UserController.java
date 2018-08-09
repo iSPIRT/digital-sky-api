@@ -1,11 +1,14 @@
 package com.ispirit.digitalsky.controller;
 
 import com.ispirit.digitalsky.document.BasicApplication;
+import com.ispirit.digitalsky.domain.ApplicantType;
+import com.ispirit.digitalsky.domain.OperatorDrone;
 import com.ispirit.digitalsky.domain.User;
 import com.ispirit.digitalsky.domain.UserPrincipal;
 import com.ispirit.digitalsky.dto.*;
 import com.ispirit.digitalsky.exception.EntityNotFoundException;
 import com.ispirit.digitalsky.exception.ReCaptchaVerificationFailedException;
+import com.ispirit.digitalsky.repository.IndividualOperatorRepository;
 import com.ispirit.digitalsky.service.api.ReCaptchaService;
 import com.ispirit.digitalsky.service.api.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,13 +32,15 @@ public class UserController {
     public static final String USER_RESOURCE_BASE_PATH = "/api/user";
 
     private UserService userService;
+    private IndividualOperatorRepository individualOperatorRepository;
 
     PasswordEncoder passwordEncoder;
     private ReCaptchaService reCaptchaService;
 
     @Autowired
-    public UserController(UserService userService, PasswordEncoder passwordEncoder, ReCaptchaService reCaptchaService) {
+    public UserController(UserService userService, IndividualOperatorRepository individualOperatorRepository, PasswordEncoder passwordEncoder, ReCaptchaService reCaptchaService) {
         this.userService = userService;
+        this.individualOperatorRepository = individualOperatorRepository;
         this.passwordEncoder = passwordEncoder;
         this.reCaptchaService = reCaptchaService;
     }
@@ -83,6 +88,25 @@ public class UserController {
         List<BasicApplication> applications = userService.applications(userPrincipal.getId());
         return new ResponseEntity<>(applications.stream().map(ApplicationAbstract::new).collect(Collectors.toList()), HttpStatus.OK);
     }
+
+    @RequestMapping(value = "/drones", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<?> drones() {
+        UserPrincipal userPrincipal = UserPrincipal.securityContext();
+
+        boolean isIndividual = individualOperatorRepository.loadByResourceOwner(userPrincipal.getId()) != null;
+        ApplicantType operatorType = isIndividual ? ApplicantType.INDIVIDUAL : ApplicantType.ORGANISATION;
+
+        List<?> userDrones = userService.drones(userPrincipal.getId(),operatorType );
+        return new ResponseEntity<>(userDrones, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/drones/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<?> drone(@PathVariable("id") long id) {
+
+        OperatorDrone userDrone = userService.drone(id);
+        return new ResponseEntity<>(userDrone, HttpStatus.OK);
+    }
+
 
     @RequestMapping(value = "/resetPasswordLink", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> resetPasswordLink(@Valid @RequestBody ResetPasswordLinkRequest resetPasswordLinkRequest, HttpServletRequest request) {

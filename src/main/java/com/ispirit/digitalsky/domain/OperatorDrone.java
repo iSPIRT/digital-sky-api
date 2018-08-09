@@ -1,8 +1,11 @@
 package com.ispirit.digitalsky.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.persistence.*;
+import java.util.Date;
+
 
 @Entity
 @Table(name = "ds_operator_drone")
@@ -10,18 +13,17 @@ public class OperatorDrone {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @JsonIgnore
     private long id;
 
-    @Column(name = "DRONE_TYPE_ID")
-   // @ManyToOne(fetch = FetchType.LAZY)
-    //@JoinColumn(name = "ID", nullable = false)
-    private long droneTypeId;
+    @OneToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "DRONE_TYPE_ID")
+    private DroneType droneType;
 
     @Column(name = "OPERATOR_ID")
     private long operatorId;
 
     @Column(name = "OPERATOR_TYPE")
+    @Enumerated(EnumType.STRING)
     private ApplicantType operatorType;
 
     @Column(name = "ACQUISITION_APPLICATION_ID")
@@ -33,6 +35,11 @@ public class OperatorDrone {
     @Column(name = "UIN_APPLICATION_ID")
     private long uinApplicationId;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+    @Column(name = "REGISTERED_DATE")
+    private Date registeredDate;
+
+
     @Column(name = "OPERATOR_DRONE_STATUS")
     private OperatorDroneStatus operatorDroneStatus;
 
@@ -40,11 +47,10 @@ public class OperatorDrone {
 
     }
 
-    public OperatorDrone(long operatorId, ApplicantType operatorType, long droneTypeId, String acquisitionApplicationId, boolean isImported) {
+    public OperatorDrone(long operatorId, ApplicantType operatorType, String acquisitionApplicationId, boolean isImported) {
 
         this.operatorId =  operatorId;
         this.operatorType = operatorType;
-        this.droneTypeId = droneTypeId;
         this.acquisitionApplicationId = acquisitionApplicationId;
         this.isImported = isImported;
     }
@@ -52,15 +58,6 @@ public class OperatorDrone {
     public long getId() {
         return id;
     }
-
-    public long getDroneTypeId() {
-        return droneTypeId;
-    }
-
-    public void setDroneTypeId(long droneTypeId) {
-        this.droneTypeId = droneTypeId;
-    }
-
 
     public long getOperatorId() {
         return operatorId;
@@ -110,4 +107,19 @@ public class OperatorDrone {
         this.operatorDroneStatus = operatorDroneStatus;
     }
 
+    public Date getRegisteredDate() {
+        return registeredDate;
+    }
+
+    public void setRegisteredDate(Date registeredDate) {
+        this.registeredDate = registeredDate;
+    }
+
+    public DroneType getDroneType() {
+        return droneType;
+    }
+
+    public void setDroneType(DroneType droneType) {
+        this.droneType = droneType;
+    }
 }
