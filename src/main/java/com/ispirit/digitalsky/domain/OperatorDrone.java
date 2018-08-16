@@ -47,6 +47,7 @@ public class OperatorDrone {
     }
 
     public OperatorDrone(long operatorId, ApplicantType operatorType, String acquisitionApplicationId, boolean isImported) {
+
         this.operatorId =  operatorId;
         this.operatorType = operatorType;
         this.acquisitionApplicationId = acquisitionApplicationId;

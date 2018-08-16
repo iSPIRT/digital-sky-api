@@ -2,11 +2,10 @@ package com.ispirit.digitalsky.service;
 
 import com.ispirit.digitalsky.domain.ApplicantType;
 import com.ispirit.digitalsky.domain.OperatorDrone;
+
 import com.ispirit.digitalsky.domain.OperatorDroneStatus;
 import com.ispirit.digitalsky.repository.OperatorDroneRepository;
 import com.ispirit.digitalsky.service.api.OperatorDroneService;
-
-import org.springframework.beans.BeanUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -57,6 +56,8 @@ public class OperatorDroneServiceImpl implements OperatorDroneService {
         if(operatorDroneStatus == OperatorDroneStatus.UIN_APPROVED) {
             drone.setRegisteredDate(new Date());
         }
+
         return operatorDroneRepository.save(drone);
     }
+
 }

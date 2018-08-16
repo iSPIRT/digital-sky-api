@@ -17,4 +17,5 @@ public interface OperatorDroneService {
     List<?> loadByOperator(long userId, ApplicantType applicantType);
 
     OperatorDrone updateOperatorDroneStatus(long id, OperatorDroneStatus operatorDroneStatus);
+
 }

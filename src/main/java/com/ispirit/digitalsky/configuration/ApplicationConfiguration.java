@@ -211,6 +211,11 @@ public class ApplicationConfiguration {
     }
 
     @Bean
+    BlogService blogService(BlogRepository blogRepository){
+        return new BlogServiceImpl(blogRepository);
+    }
+
+    @Bean
     RestTemplate restTemplate(){
         int timeout = 25000;
         RequestConfig config = RequestConfig.custom()

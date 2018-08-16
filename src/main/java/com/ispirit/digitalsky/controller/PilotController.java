@@ -3,7 +3,6 @@ package com.ispirit.digitalsky.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.domain.Pilot;
 import com.ispirit.digitalsky.domain.UserPrincipal;
-import com.ispirit.digitalsky.dto.EntityId;
 import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.PilotProfileAlreadyExist;
 import com.ispirit.digitalsky.exception.StorageFileNotFoundException;
