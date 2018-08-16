@@ -1,9 +1,13 @@
 package com.ispirit.digitalsky.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.ispirit.digitalsky.util.CustomLocalDateDeSerializer;
+import com.ispirit.digitalsky.util.CustomLocalDateSerializer;
+import com.ispirit.digitalsky.util.LocalDateAttributeConverter;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 
 
 @Entity
@@ -34,9 +38,11 @@ public class OperatorDrone {
     @Column(name = "UIN_APPLICATION_ID")
     private String uinApplicationId;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     @Column(name = "REGISTERED_DATE")
-    private Date registeredDate;
+    @JsonSerialize(using = CustomLocalDateSerializer.class)
+    @JsonDeserialize(using = CustomLocalDateDeSerializer.class)
+    @Convert(converter = LocalDateAttributeConverter.class)
+    private LocalDate registeredDate;
 
     @Column(name = "OPERATOR_DRONE_STATUS")
     @Enumerated(EnumType.STRING)
@@ -106,11 +112,11 @@ public class OperatorDrone {
         this.operatorDroneStatus = operatorDroneStatus;
     }
 
-    public Date getRegisteredDate() {
+    public LocalDate getRegisteredDate() {
         return registeredDate;
     }
 
-    public void setRegisteredDate(Date registeredDate) {
+    public void setRegisteredDate(LocalDate registeredDate) {
         this.registeredDate = registeredDate;
     }
 

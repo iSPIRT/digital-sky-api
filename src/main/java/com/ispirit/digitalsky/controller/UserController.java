@@ -62,7 +62,7 @@ public class UserController {
         }
         User newUser =  userService.createNew(user);
 
-        userService.sendEmailVerificationLink(user);
+       // userService.sendEmailVerificationLink(user);
 
         return new ResponseEntity<>(new EntityId(newUser.getId()), HttpStatus.OK);
     }

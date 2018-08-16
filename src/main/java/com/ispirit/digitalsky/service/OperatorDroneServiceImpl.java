@@ -7,6 +7,7 @@ import com.ispirit.digitalsky.domain.OperatorDroneStatus;
 import com.ispirit.digitalsky.repository.OperatorDroneRepository;
 import com.ispirit.digitalsky.service.api.OperatorDroneService;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -54,7 +55,7 @@ public class OperatorDroneServiceImpl implements OperatorDroneService {
         drone.setOperatorDroneStatus(operatorDroneStatus);
 
         if(operatorDroneStatus == OperatorDroneStatus.UIN_APPROVED) {
-            drone.setRegisteredDate(new Date());
+            drone.setRegisteredDate(LocalDate.now());
         }
 
         return operatorDroneRepository.save(drone);
