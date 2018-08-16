@@ -11,6 +11,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -34,7 +35,7 @@ public class DroneServiceImpl implements DroneService {
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         droneType.setCreatedBy(userPrincipal.getId());
         droneType.setLastModifiedBy(userPrincipal.getId());
-        droneType.setLastModifiedDate(new Date());
+        droneType.setLastModifiedDate(LocalDate.now());
         DroneType savedDroneType = droneTypeRepository.save(droneType);
         storageService.store(droneType.getAllDocs(), String.valueOf(savedDroneType.getId()));
 
@@ -52,7 +53,7 @@ public class DroneServiceImpl implements DroneService {
         }
 
         long createdById = actualDroneType.getCreatedBy();
-        Date createdDate = actualDroneType.getCreatedDate();
+        LocalDate createdDate = actualDroneType.getCreatedDate();
 
         if (actualDroneType.getOpManualDoc() != null) {
             actualDroneType.setOpManualDocName(actualDroneType.getOpManualDocName());
@@ -64,7 +65,7 @@ public class DroneServiceImpl implements DroneService {
 
         BeanUtils.copyProperties(droneType, actualDroneType);
 
-        actualDroneType.setLastModifiedDate(new Date());
+        actualDroneType.setLastModifiedDate(LocalDate.now());
         actualDroneType.setLastModifiedBy(userPrincipal.getId());
         actualDroneType.setCreatedDate(createdDate);
         actualDroneType.setCreatedBy(createdById);

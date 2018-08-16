@@ -7,7 +7,7 @@ public class AddressDocument {
     private String city;
     private String state;
     private String country;
-    private String pincode;
+    private String pinCode;
 
     public String getLineOne() {
         return lineOne;
@@ -49,12 +49,12 @@ public class AddressDocument {
         this.country = country;
     }
 
-    public String getPincode() {
-        return pincode;
+    public String getPinCode() {
+        return pinCode;
     }
 
-    public void setPincode(String pincode) {
-        this.pincode = pincode;
+    public void setPinCode(String pinCode) {
+        this.pinCode = pinCode;
     }
 
 }

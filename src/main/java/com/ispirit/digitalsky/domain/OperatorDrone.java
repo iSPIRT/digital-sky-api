@@ -1,6 +1,5 @@
 package com.ispirit.digitalsky.domain;
 
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.persistence.*;
@@ -33,22 +32,21 @@ public class OperatorDrone {
     private boolean isImported;
 
     @Column(name = "UIN_APPLICATION_ID")
-    private long uinApplicationId;
+    private String uinApplicationId;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     @Column(name = "REGISTERED_DATE")
     private Date registeredDate;
 
-
     @Column(name = "OPERATOR_DRONE_STATUS")
-    private OperatorDroneStatus operatorDroneStatus;
+    @Enumerated(EnumType.STRING)
+    private OperatorDroneStatus operatorDroneStatus = OperatorDroneStatus.UIN_NOT_APPLIED;
 
     public OperatorDrone() {
 
     }
 
     public OperatorDrone(long operatorId, ApplicantType operatorType, String acquisitionApplicationId, boolean isImported) {
-
         this.operatorId =  operatorId;
         this.operatorType = operatorType;
         this.acquisitionApplicationId = acquisitionApplicationId;
@@ -91,11 +89,11 @@ public class OperatorDrone {
         this.isImported = imported;
     }
 
-    public long getUinApplicationId() {
+    public String getUinApplicationId() {
         return uinApplicationId;
     }
 
-    public void setUinApplicationId(long uinApplicationId) {
+    public void setUinApplicationId(String uinApplicationId) {
         this.uinApplicationId = uinApplicationId;
     }
 

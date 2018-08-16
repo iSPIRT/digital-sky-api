@@ -191,8 +191,8 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    UINApplicationService uinApplicationService(StorageService storageService, UINApplicationRepository uinApplicationRepository) {
-        return new UINApplicationServiceImpl(uinApplicationRepository, storageService);
+    UINApplicationService uinApplicationService(StorageService storageService, UINApplicationRepository uinApplicationRepository, OperatorDroneService operatorDroneService) {
+        return new UINApplicationServiceImpl(uinApplicationRepository, storageService, operatorDroneService);
     }
 
     @Bean
