@@ -1,12 +1,11 @@
 package com.ispirit.digitalsky.service;
 
 import com.ispirit.digitalsky.document.UINApplication;
-import com.ispirit.digitalsky.domain.ApplicationStatus;
-import com.ispirit.digitalsky.domain.ApproveRequestBody;
-import com.ispirit.digitalsky.domain.UserPrincipal;
+import com.ispirit.digitalsky.domain.*;
 import com.ispirit.digitalsky.exception.*;
 import com.ispirit.digitalsky.repository.UINApplicationRepository;
 import com.ispirit.digitalsky.repository.storage.StorageService;
+import com.ispirit.digitalsky.service.api.OperatorDroneService;
 import com.ispirit.digitalsky.service.api.UINApplicationService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.io.Resource;
@@ -19,25 +18,29 @@ public class UINApplicationServiceImpl implements UINApplicationService {
 
 
     private UINApplicationRepository uinApplicationRepository;
+    private OperatorDroneService operatorDroneService;
 
     private StorageService storageService;
 
-    public UINApplicationServiceImpl(UINApplicationRepository uinApplicationRepository, StorageService storageService) {
+    public UINApplicationServiceImpl(UINApplicationRepository uinApplicationRepository, StorageService storageService, OperatorDroneService operatorDroneService ) {
 
         this.uinApplicationRepository = uinApplicationRepository;
         this.storageService = storageService;
+        this.operatorDroneService = operatorDroneService;
     }
 
     @Override
     @Transactional
     public UINApplication createApplication(UINApplication uinApplication) {
 
-        //uinApplication.setId(null);
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         uinApplication.setApplicantId(userPrincipal.getId());
         uinApplication.setApplicant(userPrincipal.getUsername());
         UINApplication document = uinApplicationRepository.insert(uinApplication);
         storageService.store(uinApplication.getAllDocs(), document.getId());
+
+        operatorDroneService.updateOperatorDrone(uinApplication.getOperatorDroneId(), uinApplication.getId(), OperatorDroneStatus.UIN_DRAFT);
+
         return document;
     }
 
@@ -93,6 +96,7 @@ public class UINApplicationServiceImpl implements UINApplicationService {
 
         if (actualForm.getStatus() == ApplicationStatus.SUBMITTED) {
             actualForm.setSubmittedDate(new Date());
+            operatorDroneService.updateOperatorDroneStatus(uinApplication.getOperatorDroneId(), OperatorDroneStatus.UIN_SUBMITTED);
         }
         actualForm.setLastModifiedDate(new Date());
         actualForm.setCreatedDate(createdDate);
@@ -123,6 +127,9 @@ public class UINApplicationServiceImpl implements UINApplicationService {
         actualForm.setApprovedDate(new Date());
         actualForm.setApproverComments(approveRequestBody.getComments());
         actualForm.setStatus(approveRequestBody.getStatus());
+
+        OperatorDroneStatus opdroneStatus = approveRequestBody.getStatus() == ApplicationStatus.APPROVED ? OperatorDroneStatus.UIN_APPROVED : OperatorDroneStatus.UIN_REJECTED;
+        operatorDroneService.updateOperatorDroneStatus(actualForm.getOperatorDroneId(), opdroneStatus);
 
         UINApplication savedForm = uinApplicationRepository.save(actualForm);
         return savedForm;

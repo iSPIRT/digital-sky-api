@@ -2,14 +2,21 @@ package com.ispirit.digitalsky.document;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.ispirit.digitalsky.domain.DroneDimensions;
 import com.ispirit.digitalsky.domain.DroneCategoryType;
+import com.ispirit.digitalsky.util.CustomLocalDateDeSerializer;
+import com.ispirit.digitalsky.util.CustomLocalDateSerializer;
+import com.ispirit.digitalsky.util.LocalDateAttributeConverter;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.Convert;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -73,6 +80,9 @@ public class UINApplication extends BasicApplication {
     @Field("droneTypeId")
     private long droneTypeId;
 
+    @Field("operatorDroneId")
+    private long operatorDroneId;
+
     @Field("manufacturer")
     private String manufacturer;
 
@@ -85,15 +95,20 @@ public class UINApplication extends BasicApplication {
     @Field("manufacturerNationality")
     private String manufacturerNationality;
 
+    @Field("modelName")
+    private String modelName;
+
     @Field("modelNo")
     private String modelNo;
 
     @Field("serialNo")
     private String serialNo;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-mm-dd")
     @Field("dateOfManufacture")
-    private Date dateOfManufacture;
+    @JsonSerialize(using = CustomLocalDateSerializer.class)
+    @JsonDeserialize(using = CustomLocalDateDeSerializer.class)
+    @Convert(converter = LocalDateAttributeConverter.class)
+    private LocalDate dateOfManufacture;
 
     @Field("wingType")
     private String wingType;
@@ -107,8 +122,8 @@ public class UINApplication extends BasicApplication {
     @Field("maxHeightAttainable")
     private float maxHeightAttainable;
 
-    @Field("payloadDetails")
-    private String payloadDetails;
+    @Field("compatiblePayload")
+    private String compatiblePayload;
 
     @Field("droneCategoryType")
     private DroneCategoryType droneCategoryType;
@@ -169,6 +184,8 @@ public class UINApplication extends BasicApplication {
 
     @Field("opManualDocName")
     private String opManualDocName;
+
+
 
     @JsonIgnore
     @Transient
@@ -250,6 +267,14 @@ public class UINApplication extends BasicApplication {
 
     public void setDroneTypeId(long droneTypeId) { this.droneTypeId = droneTypeId; }
 
+    public String getModelName() { return modelName; }
+
+    public void setModelName(String modelName) { this.modelName = modelName; }
+
+    public long getOperatorDroneId() { return operatorDroneId; }
+
+    public void setOperatorDroneTypeId(long operatorDroneId) { this.operatorDroneId = operatorDroneId; }
+
     public void setFeeDetails(String feeDetails) { this.feeDetails = feeDetails; }
 
     public String getManufacturer() { return manufacturer; }
@@ -276,9 +301,9 @@ public class UINApplication extends BasicApplication {
 
     public void setSerialNo(String serialNo) { this.serialNo = serialNo; }
 
-    public Date getDateOfManufacture() { return dateOfManufacture; }
+    public LocalDate getDateOfManufacture() { return dateOfManufacture; }
 
-    public void setDateOfManufacture(Date dateOfManufacture) { this.dateOfManufacture = dateOfManufacture; }
+    public void setDateOfManufacture(LocalDate dateOfManufacture) { this.dateOfManufacture = dateOfManufacture; }
 
     public String getWingType() { return wingType; }
 
@@ -296,9 +321,9 @@ public class UINApplication extends BasicApplication {
 
     public void setMaxHeightAttainable(float maxHeightAttainable) { this.maxHeightAttainable = maxHeightAttainable; }
 
-    public String getPayloadDetails() { return payloadDetails; }
+    public String getCompatiblePayload() { return compatiblePayload; }
 
-    public void setPayloadDetails(String payloadDetails) { this.payloadDetails = payloadDetails; }
+    public void setCompatiblePayload(String compatiblePayload) { this.compatiblePayload = compatiblePayload; }
 
     public DroneCategoryType getDroneCategoryType() { return droneCategoryType; }
 
@@ -429,4 +454,6 @@ public class UINApplication extends BasicApplication {
 
         return list;
     }
+
+
 }

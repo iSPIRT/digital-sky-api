@@ -2,9 +2,15 @@ package com.ispirit.digitalsky.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.ispirit.digitalsky.util.CustomLocalDateDeSerializer;
+import com.ispirit.digitalsky.util.CustomLocalDateSerializer;
+import com.ispirit.digitalsky.util.LocalDateAttributeConverter;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -23,16 +29,20 @@ public class DroneType {
     @Column(name = "CREATED_BY_ID")
     private long createdBy;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     @Column(name = "CREATED_DATE")
-    private Date createdDate;
+    @JsonSerialize(using = CustomLocalDateSerializer.class)
+    @JsonDeserialize(using = CustomLocalDateDeSerializer.class)
+    @Convert(converter = LocalDateAttributeConverter.class)
+    private LocalDate createdDate;
 
     @Column(name = "LAST_MODIFIED_BY_ID")
     private long lastModifiedBy;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     @Column(name = "LAST_MODIFIED_DATE")
-    private Date lastModifiedDate;
+    @JsonSerialize(using = CustomLocalDateSerializer.class)
+    @JsonDeserialize(using = CustomLocalDateDeSerializer.class)
+    @Convert(converter = LocalDateAttributeConverter.class)
+    private LocalDate lastModifiedDate;
 
     @Column(name = "MANUFACTURER")
     private String manufacturer;
@@ -59,9 +69,11 @@ public class DroneType {
     @Column(name = "SERIAL_NO")
     private String serialNo;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     @Column(name = "DATE_OF_MANUFACTURE")
-    private Date dateOfManufacture;
+    @JsonSerialize(using = CustomLocalDateSerializer.class)
+    @JsonDeserialize(using = CustomLocalDateDeSerializer.class)
+    @Convert(converter = LocalDateAttributeConverter.class)
+    private LocalDate dateOfManufacture;
 
     @Column(name = "YEAR_OF_MANUFACTURE")
     @Transient
@@ -125,6 +137,9 @@ public class DroneType {
     @Column(name = "HAS_GNSS")
     private boolean hasGNSS = false;
 
+    @Column(name = "MAX_HEIGHT_OF_OPERATION")
+    private float maxHeightOfOperation;
+
     @Column(name = "HAS_AUTONOMOUS_FLIGHT_TERMINATION_SYSTEM")
     private boolean hasAutonomousFlightTerminationSystem = false;
 
@@ -151,7 +166,7 @@ public class DroneType {
     @Transient
     private MultipartFile maintenanceGuidelinesDoc;
 
-    public DroneType() { setCreatedDate(new Date()); }
+    public DroneType() { setCreatedDate (LocalDate.now()); }
 
     public long getId() { return id; }
 
@@ -159,17 +174,17 @@ public class DroneType {
 
     public void setCreatedBy(long createdBy) { this.createdBy = createdBy; }
 
-    public Date getCreatedDate() { return createdDate; }
+    public LocalDate getCreatedDate() { return createdDate; }
 
-    public void setCreatedDate(Date createdDate) { this.createdDate = createdDate; }
+    public void setCreatedDate(LocalDate createdDate) { this.createdDate = createdDate; }
 
     public long getLastModifiedBy() { return lastModifiedBy; }
 
     public void setLastModifiedBy(long lastModifiedBy) { this.lastModifiedBy = lastModifiedBy; }
 
-    public Date getLastModifiedDate() { return lastModifiedDate; }
+    public LocalDate getLastModifiedDate() { return lastModifiedDate; }
 
-    public void setLastModifiedDate(Date lastModifiedDate) { this.lastModifiedDate = lastModifiedDate; }
+    public void setLastModifiedDate(LocalDate lastModifiedDate) { this.lastModifiedDate = lastModifiedDate; }
 
     public String getManufacturer() {
         return manufacturer;
@@ -211,11 +226,11 @@ public class DroneType {
         this.serialNo = serialNo;
     }
 
-    public Date getDateOfManufacture() {
+    public LocalDate getDateOfManufacture() {
         return dateOfManufacture;
     }
 
-    public void setDateOfManufacture(Date dateOfManufacture) {
+    public void setDateOfManufacture(LocalDate dateOfManufacture) {
         this.dateOfManufacture = dateOfManufacture;
     }
 
@@ -375,6 +390,14 @@ public class DroneType {
         this.hasFlashingAntiCollisionStrobeLights = hasFlashingAntiCollisionStrobeLights;
     }
 
+    public float getMaxHeightOfOperation() {
+        return maxHeightOfOperation;
+    }
+
+    public void setMaxHeightOfOperation(float maxHeightOfOperation) {
+        this.maxHeightOfOperation = maxHeightOfOperation;
+    }
+
     public boolean isHasRFID_GSM_SIMCard() {
         return hasRFID_GSM_SIMCard;
     }
@@ -436,6 +459,5 @@ public class DroneType {
 
         return list;
     }
-
 
 }

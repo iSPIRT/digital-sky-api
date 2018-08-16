@@ -28,7 +28,7 @@ import static com.ispirit.digitalsky.util.FileStoreHelper.resolveFileName;
 @RequestMapping(DRONE_RESOURCE_BASE_PATH)
 public class DroneController {
 
-    public static final String DRONE_RESOURCE_BASE_PATH = "/api/droneTypes";
+    public static final String DRONE_RESOURCE_BASE_PATH = "/api/droneType";
 
     private DroneService droneTypeService;
 
@@ -42,7 +42,7 @@ public class DroneController {
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createDroneType(
-            @RequestParam(value="droneTypeString") String droneTypeString,
+            @RequestParam(value="droneType") String droneTypeString,
             @RequestParam(value = "opManualDoc", required = false) MultipartFile opManualDoc,
             @RequestParam(value = "maintenanceGuidelinesDoc", required = false) MultipartFile maintenanceGuidelinesDoc) {
 
@@ -53,7 +53,7 @@ public class DroneController {
             DroneType createdDroneType = droneTypeService.createDroneType(droneType);
             return new ResponseEntity<>(createdDroneType, HttpStatus.OK);
         } catch(Exception e){
-            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.CONFLICT);
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -63,7 +63,7 @@ public class DroneController {
             @PathVariable long id,
             @RequestParam(value = "opManualDoc", required = false) MultipartFile opManualDoc,
             @RequestParam(value = "maintenanceGuidelinesDoc", required = false) MultipartFile maintenanceGuidelinesDoc,
-            @RequestParam(value="droneTypeString") String droneTypeString) {
+            @RequestParam(value="droneType") String droneTypeString) {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -93,6 +93,13 @@ public class DroneController {
 
         Collection<?> droneTypes = droneTypeService.getAll();
         return new ResponseEntity<>(droneTypes, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> get(@PathVariable long id) {
+
+        DroneType droneType = droneTypeService.get(id);
+        return new ResponseEntity<>(droneType, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{id}/document/{documentName:.+}", method = RequestMethod.GET)

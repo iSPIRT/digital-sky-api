@@ -1,10 +1,13 @@
 package com.ispirit.digitalsky.domain;
 
-
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.ispirit.digitalsky.util.CustomLocalDateDeSerializer;
+import com.ispirit.digitalsky.util.CustomLocalDateSerializer;
+import com.ispirit.digitalsky.util.LocalDateAttributeConverter;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 
 
 @Entity
@@ -33,15 +36,17 @@ public class OperatorDrone {
     private boolean isImported;
 
     @Column(name = "UIN_APPLICATION_ID")
-    private long uinApplicationId;
+    private String uinApplicationId;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     @Column(name = "REGISTERED_DATE")
-    private Date registeredDate;
-
+    @JsonSerialize(using = CustomLocalDateSerializer.class)
+    @JsonDeserialize(using = CustomLocalDateDeSerializer.class)
+    @Convert(converter = LocalDateAttributeConverter.class)
+    private LocalDate registeredDate;
 
     @Column(name = "OPERATOR_DRONE_STATUS")
-    private OperatorDroneStatus operatorDroneStatus;
+    @Enumerated(EnumType.STRING)
+    private OperatorDroneStatus operatorDroneStatus = OperatorDroneStatus.UIN_NOT_APPLIED;
 
     public OperatorDrone() {
 
@@ -91,11 +96,11 @@ public class OperatorDrone {
         this.isImported = imported;
     }
 
-    public long getUinApplicationId() {
+    public String getUinApplicationId() {
         return uinApplicationId;
     }
 
-    public void setUinApplicationId(long uinApplicationId) {
+    public void setUinApplicationId(String uinApplicationId) {
         this.uinApplicationId = uinApplicationId;
     }
 
@@ -107,11 +112,11 @@ public class OperatorDrone {
         this.operatorDroneStatus = operatorDroneStatus;
     }
 
-    public Date getRegisteredDate() {
+    public LocalDate getRegisteredDate() {
         return registeredDate;
     }
 
-    public void setRegisteredDate(Date registeredDate) {
+    public void setRegisteredDate(LocalDate registeredDate) {
         this.registeredDate = registeredDate;
     }
 
