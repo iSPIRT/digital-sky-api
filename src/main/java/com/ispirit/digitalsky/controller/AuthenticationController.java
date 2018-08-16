@@ -65,9 +65,9 @@ public class AuthenticationController {
         }
 
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-//        if (!userPrincipal.isAccountVerified()) {
-//            return new ResponseEntity<>(new Errors("Account not verified, please check your inbox for verification link"), HttpStatus.UNAUTHORIZED);
-//        }
+        if (!userPrincipal.isAccountVerified()) {
+            return new ResponseEntity<>(new Errors("Account not verified, please check your inbox for verification link"), HttpStatus.UNAUTHORIZED);
+        }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String accessToken = securityTokenService.generateToken(authentication);
