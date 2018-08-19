@@ -32,5 +32,4 @@ public class CustomLocalDateDeSerializer extends StdDeserializer<LocalDate> {
         return LocalDate.parse(jsonParser.getText(), formatter);
     }
 
-
 }

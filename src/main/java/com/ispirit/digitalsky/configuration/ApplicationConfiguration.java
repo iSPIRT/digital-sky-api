@@ -216,6 +216,16 @@ public class ApplicationConfiguration {
     }
 
     @Bean
+    UserProfileService userProfileService(PilotRepository pilotRepository, IndividualOperatorRepository individualOperatorRepository, OrganizationOperatorRepository organizationOperatorRepository){
+        return new UserProfileServiceImpl(pilotRepository, individualOperatorRepository, organizationOperatorRepository);
+    }
+
+    @Bean
+    OccurrenceReportService occurrenceReportService(OccurrenceReportRepository occurrenceReportRepository){
+        return new OccurrenceReportServiceImpl(occurrenceReportRepository);
+    }
+
+    @Bean
     RestTemplate restTemplate(){
         int timeout = 25000;
         RequestConfig config = RequestConfig.custom()

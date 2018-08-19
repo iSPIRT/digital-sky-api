@@ -1,15 +1,13 @@
 package com.ispirit.digitalsky.controller;
 
 import com.ispirit.digitalsky.document.BasicApplication;
-import com.ispirit.digitalsky.domain.ApplicantType;
-import com.ispirit.digitalsky.domain.OperatorDrone;
-import com.ispirit.digitalsky.domain.User;
-import com.ispirit.digitalsky.domain.UserPrincipal;
+import com.ispirit.digitalsky.domain.*;
 import com.ispirit.digitalsky.dto.*;
 import com.ispirit.digitalsky.exception.EntityNotFoundException;
 import com.ispirit.digitalsky.exception.ReCaptchaVerificationFailedException;
 import com.ispirit.digitalsky.repository.IndividualOperatorRepository;
 import com.ispirit.digitalsky.service.api.ReCaptchaService;
+import com.ispirit.digitalsky.service.api.UserProfileService;
 import com.ispirit.digitalsky.service.api.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,13 +34,15 @@ public class UserController {
 
     PasswordEncoder passwordEncoder;
     private ReCaptchaService reCaptchaService;
+    private UserProfileService userProfileService;
 
     @Autowired
-    public UserController(UserService userService, IndividualOperatorRepository individualOperatorRepository, PasswordEncoder passwordEncoder, ReCaptchaService reCaptchaService) {
+    public UserController(UserService userService, IndividualOperatorRepository individualOperatorRepository, PasswordEncoder passwordEncoder, ReCaptchaService reCaptchaService, UserProfileService userProfileService) {
         this.userService = userService;
         this.individualOperatorRepository = individualOperatorRepository;
         this.passwordEncoder = passwordEncoder;
         this.reCaptchaService = reCaptchaService;
+        this.userProfileService = userProfileService;
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -104,6 +104,15 @@ public class UserController {
     ResponseEntity<?> drone(@PathVariable("id") long id) {
 
         OperatorDrone userDrone = userService.drone(id);
+        if (userDrone == null) {
+            return new ResponseEntity<>(new Errors("Drone not found"), HttpStatus.NOT_FOUND);
+        }
+
+        UserProfile profile = userProfileService.profile(UserPrincipal.securityContext().getId());
+        if (!profile.owns(userDrone)) {
+            return new ResponseEntity<>(new Errors("UnAuthorized Access"), HttpStatus.UNAUTHORIZED);
+        }
+
         return new ResponseEntity<>(userDrone, HttpStatus.OK);
     }
 
