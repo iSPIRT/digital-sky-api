@@ -68,7 +68,7 @@ public abstract class DroneAcquisitionApplication extends BasicApplication {
     protected int noOfDrones;
 
     @Field("isNew")
-    protected Boolean isNew;
+    protected Boolean isNew = true;
 
     @Field("maxTakeOffWeight")
     protected float maxTakeOffWeight;

@@ -114,7 +114,7 @@ public class UINApplication extends BasicApplication {
     private String wingType;
 
     @Field("isNew")
-    private Boolean isNew;
+    private Boolean isNew = true;
 
     @Field("maxTakeOffWeight")
     private float maxTakeOffWeight;
