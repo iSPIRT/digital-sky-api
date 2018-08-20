@@ -11,6 +11,8 @@ import com.ispirit.digitalsky.repository.IndividualOperatorRepository;
 import com.ispirit.digitalsky.repository.OrganizationOperatorRepository;
 import com.ispirit.digitalsky.repository.PilotRepository;
 import com.ispirit.digitalsky.service.api.SecurityTokenService;
+import com.ispirit.digitalsky.service.api.UserProfileService;
+import com.ispirit.digitalsky.util.AuthenticationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +28,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
+import static com.ispirit.digitalsky.util.AuthenticationUtil.generateTokenResponse;
+import static com.ispirit.digitalsky.util.AuthenticationUtil.setSecurityUserSecurityContext;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthenticationController {
@@ -34,19 +39,14 @@ public class AuthenticationController {
 
     private SecurityTokenService securityTokenService;
 
-    private PilotRepository pilotRepository;
+    private UserProfileService userProfileService;
 
-    private IndividualOperatorRepository individualOperatorRepository;
-
-    private OrganizationOperatorRepository organizationOperatorRepository;
 
     @Autowired
-    public AuthenticationController(AuthenticationManager authenticationManager, SecurityTokenService securityTokenService, PilotRepository pilotRepository, IndividualOperatorRepository individualOperatorRepository, OrganizationOperatorRepository organizationOperatorRepository) {
+    public AuthenticationController(AuthenticationManager authenticationManager, SecurityTokenService securityTokenService, UserProfileService userProfileService) {
         this.authenticationManager = authenticationManager;
         this.securityTokenService = securityTokenService;
-        this.pilotRepository = pilotRepository;
-        this.individualOperatorRepository = individualOperatorRepository;
-        this.organizationOperatorRepository = organizationOperatorRepository;
+        this.userProfileService = userProfileService;
     }
 
     @PostMapping("/token")
@@ -69,30 +69,8 @@ public class AuthenticationController {
             return new ResponseEntity<>(new Errors("Account not verified, please check your inbox for verification link"), HttpStatus.UNAUTHORIZED);
         }
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String accessToken = securityTokenService.generateToken(authentication);
+        String accessToken = setSecurityUserSecurityContext(securityTokenService, authentication);
 
-        if (userPrincipal.isAdmin()) {
-            return ResponseEntity.ok(
-                    TokenResponse.adminUserResponse(accessToken, userPrincipal.getId(), userPrincipal.getUsername())
-            );
-        }
-
-        Pilot pilot = pilotRepository.loadByResourceOwner(userPrincipal.getId());
-        IndividualOperator individualOperator = individualOperatorRepository.loadByResourceOwner(userPrincipal.getId());
-        OrganizationOperator organizationOperator = organizationOperatorRepository.loadByResourceOwner(userPrincipal.getId());
-
-        long pilotProfileId = (pilot != null) ? pilot.getId() : 0;
-        long individualOperatorProfileId = (individualOperator != null) ? individualOperator.getId() : 0;
-        long organizationOperatorProfileId = (organizationOperator != null) ? organizationOperator.getId() : 0;
-
-        return ResponseEntity.ok(new TokenResponse(
-                accessToken,
-                userPrincipal.getId(),
-                userPrincipal.getUsername(),
-                pilotProfileId,
-                individualOperatorProfileId,
-                organizationOperatorProfileId)
-        );
+        return generateTokenResponse(userPrincipal, userProfileService.profile(userPrincipal.getId()), accessToken);
     }
 }
