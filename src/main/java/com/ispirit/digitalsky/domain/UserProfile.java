@@ -23,4 +23,20 @@ public class UserProfile {
         }
         return orgOperatorId == operatorDrone.getOperatorId();
     }
+
+    public long getId() {
+        return id;
+    }
+
+    public long getPilotProfileId() {
+        return pilotProfileId;
+    }
+
+    public long getIndividualOperatorId() {
+        return individualOperatorId;
+    }
+
+    public long getOrgOperatorId() {
+        return orgOperatorId;
+    }
 }
