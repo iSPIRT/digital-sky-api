@@ -94,13 +94,14 @@ public class CustomUserDetailService implements UserService {
     }
 
     @Override
-    public void resetPassword(String token, String newPasswordHash) {
+    public User resetPassword(String token, String newPasswordHash) {
         User user = userRepository.loadByResetPasswordToken(token);
         if (user == null) {
             throw new EntityNotFoundException("ResetPasswordToken", token);
         }
+        user.setResetPasswordToken(null);
         user.setPassword(newPasswordHash);
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 
     @Override
@@ -136,13 +137,14 @@ public class CustomUserDetailService implements UserService {
     }
 
     @Override
-    public void verifyAccount(String token) {
+    public User verifyAccount(String token) {
         User user = userRepository.loadByAccountVerificationToken(token);
-        if (user == null) {
+        if (user == null || user.isAccountVerified()) {
             throw new EntityNotFoundException("AccountVerificationToken", token);
         }
+        user.setAccountVerificationToken(null);
         user.setAccountVerified(true);
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 
 }

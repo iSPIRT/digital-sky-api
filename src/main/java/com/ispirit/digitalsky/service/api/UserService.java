@@ -18,7 +18,7 @@ public interface UserService extends UserDetailsService {
 
     void sendEmailVerificationLink(User user);
 
-    void resetPassword(String token, String newPassword);
+    User resetPassword(String token, String newPassword);
 
     User loadByEmail(String email);
 
@@ -30,5 +30,5 @@ public interface UserService extends UserDetailsService {
 
     OperatorDrone drone(long droneId);
 
-    void verifyAccount(String token);
+    User verifyAccount(String token);
 }

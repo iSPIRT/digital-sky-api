@@ -7,8 +7,10 @@ import com.ispirit.digitalsky.exception.EntityNotFoundException;
 import com.ispirit.digitalsky.exception.ReCaptchaVerificationFailedException;
 import com.ispirit.digitalsky.repository.IndividualOperatorRepository;
 import com.ispirit.digitalsky.service.api.ReCaptchaService;
+import com.ispirit.digitalsky.service.api.SecurityTokenService;
 import com.ispirit.digitalsky.service.api.UserProfileService;
 import com.ispirit.digitalsky.service.api.UserService;
+import com.ispirit.digitalsky.util.AuthenticationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,6 +24,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.ispirit.digitalsky.controller.UserController.USER_RESOURCE_BASE_PATH;
+import static com.ispirit.digitalsky.util.AuthenticationUtil.generateTokenResponse;
+import static com.ispirit.digitalsky.util.AuthenticationUtil.setSecurityUserSecurityContext;
 
 @RestController
 @RequestMapping(USER_RESOURCE_BASE_PATH)
@@ -35,14 +39,16 @@ public class UserController {
     PasswordEncoder passwordEncoder;
     private ReCaptchaService reCaptchaService;
     private UserProfileService userProfileService;
+    private SecurityTokenService securityTokenService;
 
     @Autowired
-    public UserController(UserService userService, IndividualOperatorRepository individualOperatorRepository, PasswordEncoder passwordEncoder, ReCaptchaService reCaptchaService, UserProfileService userProfileService) {
+    public UserController(UserService userService, IndividualOperatorRepository individualOperatorRepository, PasswordEncoder passwordEncoder, ReCaptchaService reCaptchaService, UserProfileService userProfileService, SecurityTokenService securityTokenService) {
         this.userService = userService;
         this.individualOperatorRepository = individualOperatorRepository;
         this.passwordEncoder = passwordEncoder;
         this.reCaptchaService = reCaptchaService;
         this.userProfileService = userProfileService;
+        this.securityTokenService = securityTokenService;
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -60,7 +66,7 @@ public class UserController {
         if (existingUser != null) {
             return new ResponseEntity<>(new Errors("Email id already exist"), HttpStatus.CONFLICT);
         }
-        User newUser =  userService.createNew(user);
+        User newUser = userService.createNew(user);
 
         userService.sendEmailVerificationLink(user);
 
@@ -96,7 +102,7 @@ public class UserController {
         boolean isIndividual = individualOperatorRepository.loadByResourceOwner(userPrincipal.getId()) != null;
         ApplicantType operatorType = isIndividual ? ApplicantType.INDIVIDUAL : ApplicantType.ORGANISATION;
 
-        List<?> userDrones = userService.drones(userPrincipal.getId(),operatorType );
+        List<?> userDrones = userService.drones(userPrincipal.getId(), operatorType);
         return new ResponseEntity<>(userDrones, HttpStatus.OK);
     }
 
@@ -132,19 +138,24 @@ public class UserController {
     public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
 
         try {
-            userService.resetPassword(resetPasswordRequest.getToken(), passwordEncoder.encode(resetPasswordRequest.getPassword()));
-            return new ResponseEntity<>(HttpStatus.CREATED);
+            User user = userService.resetPassword(resetPasswordRequest.getToken(), passwordEncoder.encode(resetPasswordRequest.getPassword()));
+            UserPrincipal userPrincipal = new UserPrincipal(user);
+            String accessToken = setSecurityUserSecurityContext(securityTokenService, userPrincipal);
+            return generateTokenResponse(userPrincipal, userProfileService.profile(userPrincipal.getId()), accessToken);
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.NOT_FOUND);
         }
     }
 
+
     @RequestMapping(value = "/verify", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> verify(@Valid @RequestBody AccountVerificationRequest accountVerificationRequest) {
 
         try {
-            userService.verifyAccount(accountVerificationRequest.getToken());
-            return new ResponseEntity<>(HttpStatus.OK);
+            User user = userService.verifyAccount(accountVerificationRequest.getToken());
+            UserPrincipal userPrincipal = new UserPrincipal(user);
+            String accessToken = setSecurityUserSecurityContext(securityTokenService, userPrincipal);
+            return generateTokenResponse(userPrincipal, userProfileService.profile(userPrincipal.getId()), accessToken);
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.NOT_FOUND);
         }
