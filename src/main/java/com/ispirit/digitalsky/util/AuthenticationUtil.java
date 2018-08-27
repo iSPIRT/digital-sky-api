@@ -35,7 +35,8 @@ public class AuthenticationUtil {
                 userPrincipal.getUsername(),
                 userProfile.getPilotProfileId(),
                 userProfile.getIndividualOperatorId(),
-                userProfile.getOrgOperatorId())
+                userProfile.getOrgOperatorId(),
+                userProfile.getManufacturerId())
         );
     }
 }

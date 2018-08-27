@@ -14,6 +14,8 @@ public class TokenResponse {
 
     private long organizationOperatorProfileId;
 
+    private long manufacturerProfileId;
+
     private String tokenType = "Bearer";
 
     private boolean isAdmin = false;
@@ -22,13 +24,14 @@ public class TokenResponse {
         //for serialization and de-serialization
     }
 
-    public TokenResponse(String accessToken, long id, String username, long pilotProfileId, long individualOperatorProfileId, long organizationOperatorProfileId) {
+    public TokenResponse(String accessToken, long id, String username, long pilotProfileId, long individualOperatorProfileId, long organizationOperatorProfileId, long manufacturerProfileId) {
         this.accessToken = accessToken;
         this.id = id;
         this.username = username;
         this.pilotProfileId = pilotProfileId;
         this.individualOperatorProfileId = individualOperatorProfileId;
         this.organizationOperatorProfileId = organizationOperatorProfileId;
+        this.manufacturerProfileId =  manufacturerProfileId;
     }
 
     public static TokenResponse adminUserResponse(String accessToken, long id, String username) {
@@ -67,4 +70,8 @@ public class TokenResponse {
     public long getOrganizationOperatorProfileId() {
         return organizationOperatorProfileId;
     }
+
+    public long getManufacturerProfileId() { return manufacturerProfileId; }
+
+    public void setManufacturerProfileId(long manufacturerProfileId) { this.manufacturerProfileId = manufacturerProfileId; }
 }

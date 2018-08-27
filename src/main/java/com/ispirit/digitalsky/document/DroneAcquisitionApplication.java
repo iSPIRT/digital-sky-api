@@ -1,6 +1,5 @@
 package com.ispirit.digitalsky.document;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -8,7 +7,6 @@ import com.ispirit.digitalsky.domain.ApplicantCategory;
 import com.ispirit.digitalsky.util.CustomLocalDateDeSerializer;
 import com.ispirit.digitalsky.util.CustomLocalDateSerializer;
 import com.ispirit.digitalsky.util.LocalDateAttributeConverter;
-import org.apache.tomcat.jni.Local;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.web.multipart.MultipartFile;

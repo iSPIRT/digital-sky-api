@@ -151,12 +151,16 @@ public class ApplicationConfiguration {
     }
 
     @Bean
+    ManufacturerService manufacturerService(ManufacturerRepository manufacturerRepository) {
+        return new ManufacturerServiceImpl(manufacturerRepository);
+    }
+
+    @Bean
     DirectorService directorService(DirectorRepository directorRepository) {
         return new DirectorServiceImpl(directorRepository);
     }
 
     @Bean
-
     OperatorDroneService operatorDroneService(OperatorDroneRepository operatorDroneRepository) {
         return new OperatorDroneServiceImpl(operatorDroneRepository);
     }
@@ -214,8 +218,8 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    UserProfileService userProfileService(PilotRepository pilotRepository, IndividualOperatorRepository individualOperatorRepository, OrganizationOperatorRepository organizationOperatorRepository){
-        return new UserProfileServiceImpl(pilotRepository, individualOperatorRepository, organizationOperatorRepository);
+    UserProfileService userProfileService(PilotRepository pilotRepository, IndividualOperatorRepository individualOperatorRepository, OrganizationOperatorRepository organizationOperatorRepository, ManufacturerRepository manufacturerRepository){
+        return new UserProfileServiceImpl(pilotRepository, individualOperatorRepository, organizationOperatorRepository, manufacturerRepository);
     }
 
     @Bean
