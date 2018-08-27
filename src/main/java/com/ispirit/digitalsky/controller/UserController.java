@@ -34,7 +34,6 @@ public class UserController {
     public static final String USER_RESOURCE_BASE_PATH = "/api/user";
 
     private UserService userService;
-    private IndividualOperatorRepository individualOperatorRepository;
 
     PasswordEncoder passwordEncoder;
     private ReCaptchaService reCaptchaService;
@@ -42,9 +41,8 @@ public class UserController {
     private SecurityTokenService securityTokenService;
 
     @Autowired
-    public UserController(UserService userService, IndividualOperatorRepository individualOperatorRepository, PasswordEncoder passwordEncoder, ReCaptchaService reCaptchaService, UserProfileService userProfileService, SecurityTokenService securityTokenService) {
+    public UserController(UserService userService, PasswordEncoder passwordEncoder, ReCaptchaService reCaptchaService, UserProfileService userProfileService, SecurityTokenService securityTokenService) {
         this.userService = userService;
-        this.individualOperatorRepository = individualOperatorRepository;
         this.passwordEncoder = passwordEncoder;
         this.reCaptchaService = reCaptchaService;
         this.userProfileService = userProfileService;
@@ -93,33 +91,6 @@ public class UserController {
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         List<BasicApplication> applications = userService.applications(userPrincipal.getId());
         return new ResponseEntity<>(applications.stream().map(ApplicationAbstract::new).collect(Collectors.toList()), HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/drones", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<?> drones() {
-        UserPrincipal userPrincipal = UserPrincipal.securityContext();
-
-        boolean isIndividual = individualOperatorRepository.loadByResourceOwner(userPrincipal.getId()) != null;
-        ApplicantType operatorType = isIndividual ? ApplicantType.INDIVIDUAL : ApplicantType.ORGANISATION;
-
-        List<?> userDrones = userService.drones(userPrincipal.getId(), operatorType);
-        return new ResponseEntity<>(userDrones, HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/drones/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<?> drone(@PathVariable("id") long id) {
-
-        OperatorDrone userDrone = userService.drone(id);
-        if (userDrone == null) {
-            return new ResponseEntity<>(new Errors("Drone not found"), HttpStatus.NOT_FOUND);
-        }
-
-        UserProfile profile = userProfileService.profile(UserPrincipal.securityContext().getId());
-        if (!profile.owns(userDrone)) {
-            return new ResponseEntity<>(new Errors("UnAuthorized Access"), HttpStatus.UNAUTHORIZED);
-        }
-
-        return new ResponseEntity<>(userDrone, HttpStatus.OK);
     }
 
 
