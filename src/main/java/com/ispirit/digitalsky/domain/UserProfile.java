@@ -10,11 +10,14 @@ public class UserProfile {
 
     private long orgOperatorId;
 
-    public UserProfile(long id, long pilotProfileId, long individualOperatorId, long orgOperatorId) {
+    private long manufacturerId;
+
+    public UserProfile(long id, long pilotProfileId, long individualOperatorId, long orgOperatorId, long manufacturerId) {
         this.id = id;
         this.pilotProfileId = pilotProfileId;
         this.individualOperatorId = individualOperatorId;
         this.orgOperatorId = orgOperatorId;
+        this.manufacturerId = manufacturerId;
     }
 
     public boolean owns(OperatorDrone operatorDrone) {
@@ -39,4 +42,6 @@ public class UserProfile {
     public long getOrgOperatorId() {
         return orgOperatorId;
     }
+
+    public long getManufacturerId() { return manufacturerId; }
 }
