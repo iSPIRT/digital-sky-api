@@ -20,7 +20,6 @@ import static java.lang.String.format;
 public class CustomUserDetailService implements UserService {
 
     private UserRepository userRepository;
-    private OperatorDroneService operatorDroneService;
     private EmailService emailService;
     private DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneService;
     private DroneAcquisitionApplicationService<ImportDroneApplication> importDroneService;
@@ -31,7 +30,6 @@ public class CustomUserDetailService implements UserService {
 
     public CustomUserDetailService(
             UserRepository userRepository,
-            OperatorDroneService operatorDroneService,
             EmailService emailService,
             DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneService,
             DroneAcquisitionApplicationService<ImportDroneApplication> importDroneService,
@@ -40,7 +38,6 @@ public class CustomUserDetailService implements UserService {
             String resetPasswordBasePath,
             String accountVerificationBasePath) {
         this.userRepository = userRepository;
-        this.operatorDroneService = operatorDroneService;
         this.emailService = emailService;
         this.localDroneService = localDroneService;
         this.importDroneService = importDroneService;
@@ -124,16 +121,6 @@ public class CustomUserDetailService implements UserService {
         basicApplications.addAll(uinApplicationService.getApplicationsOfApplicant(userId));
         basicApplications.sort((BasicApplication a1, BasicApplication a2) -> a2.modifiedDate().compareTo(a1.modifiedDate()));
         return basicApplications;
-    }
-
-    @Override
-    public List<?> drones(long userId, ApplicantType applicantType) {
-        return operatorDroneService.loadByOperator(userId, applicantType);
-    }
-
-    @Override
-    public OperatorDrone drone(long operatorDroneId) {
-        return operatorDroneService.find(operatorDroneId);
     }
 
     @Override

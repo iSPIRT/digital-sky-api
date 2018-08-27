@@ -84,14 +84,12 @@ public class ApplicationConfiguration {
     @Bean
     public UserService userService(
             UserRepository userRepository,
-            OperatorDroneService operatorDroneService,
             EmailService emailService,
             DroneAcquisitionApplicationService<ImportDroneApplication> importDroneService,
             UAOPApplicationService uaopApplicationService,
             UINApplicationService uinApplicationService,
             DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneService) {
         return new CustomUserDetailService(userRepository,
-                operatorDroneService,
                 emailService,
                 localDroneService,
                 importDroneService,
