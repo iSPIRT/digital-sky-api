@@ -14,9 +14,9 @@ public class OrganizationOperatorTest {
 
     @Test
     public void name() throws Exception {
-        Address director1 = new Address("line1", "line2", "Indiranagar", "Bangalore", "India", "560001", "HOME");
-        Address director2 = new Address("line2", "line2", "Indiranagar", "Bangalore", "India", "560001", "HOME");
-        Address org = new Address("line3", "line2", "Indiranagar", "Bangalore", "India", "560001", "HOME");
+        Address director1 = new Address("line2", "Indiranagar", "Bangalore", "India", "560001", "HOME");
+        Address director2 = new Address("line2", "Indiranagar", "Bangalore", "India", "560001", "HOME");
+        Address org = new Address("line2", "Indiranagar", "Bangalore", "India", "560001", "HOME");
 
         List<Director> directors = new ArrayList<>();
         directors.add(new Director(1,"","name1","email","mobile","india",null,toAddressList(director1)));

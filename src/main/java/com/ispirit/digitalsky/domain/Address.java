@@ -45,7 +45,7 @@ public class Address {
     private Address() {
     }
 
-    public Address(String type, String lineOne, String lineTwo, String city, String state, String country, String pinCode) {
+    public Address(String lineOne, String lineTwo, String city, String state, String country, String pinCode) {
         this.lineOne = lineOne;
         this.lineTwo = lineTwo;
         this.city = city;

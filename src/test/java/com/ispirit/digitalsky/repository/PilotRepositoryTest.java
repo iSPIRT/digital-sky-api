@@ -23,10 +23,10 @@ public class PilotRepositoryTest {
 
     @Test
     public void savePilotDetails() throws Exception {
-        Address addressHome = new Address("HOME", "line1", "line2", "ml", "bangalore", "india", "560001");
-        Address addressTwo = new Address("OFFICE", "line12", "line22", "ml", "bangalore", "india", "560001");
-        Address addressHome1 = new Address("HOME", "line111", "line2", "ml", "bangalore", "india", "560001");
-        Address addressTwo2 = new Address("OFFICE", "line12343", "line22", "ml", "bangalore", "india", "560001");
+        Address addressHome = new Address("line1", "line2", "ml", "bangalore", "india", "560001");
+        Address addressTwo = new Address("line12", "line22", "ml", "bangalore", "india", "560001");
+        Address addressHome1 = new Address("line111", "line2", "ml", "bangalore", "india", "560001");
+        Address addressTwo2 = new Address("line12343", "line22", "ml", "bangalore", "india", "560001");
         Pilot pilot1 = new Pilot(1L, null, "Name", "email", "mobile", "India", LocalDate.of(1981, Month.AUGUST, 1), "", toAddressList(addressHome, addressTwo));
         Pilot pilot2 = new Pilot(2L, null, "Name", "email", "mobile", "India", LocalDate.of(1981, Month.AUGUST, 1), "", toAddressList(addressHome, addressTwo));
 

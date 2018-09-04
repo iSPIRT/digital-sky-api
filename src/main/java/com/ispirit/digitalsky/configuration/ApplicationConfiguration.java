@@ -228,6 +228,11 @@ public class ApplicationConfiguration {
     }
 
     @Bean
+    AirspaceCategoryService airspaceCategoryService(AirspaceCategoryRepository airspaceCategoryRepository){
+        return new AirspaceCategoryServiceImpl(airspaceCategoryRepository);
+    }
+
+    @Bean
     RestTemplate restTemplate(){
         int timeout = 25000;
         RequestConfig config = RequestConfig.custom()
