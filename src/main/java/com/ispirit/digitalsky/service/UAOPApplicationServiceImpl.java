@@ -37,6 +37,9 @@ public class UAOPApplicationServiceImpl implements UAOPApplicationService {
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         uaopApplication.setApplicantId(userPrincipal.getId());
         uaopApplication.setApplicant(userPrincipal.getUsername());
+        if (uaopApplication.getStatus() == ApplicationStatus.SUBMITTED) {
+            uaopApplication.setSubmittedDate(new Date());
+        }
         UAOPApplication document = uaopApplicationRepository.insert(uaopApplication);
         storageService.store(uaopApplication.getAllDocs(), document.getId());
         return document;
@@ -50,8 +53,6 @@ public class UAOPApplicationServiceImpl implements UAOPApplicationService {
             throw new ApplicationNotFoundException();
         }
 
-        long applicantId = actualForm.getApplicantId();
-        Date createdDate = actualForm.getCreatedDate();
 
         actualForm.setName(uaopApplication.getName());
         actualForm.setDesignation(uaopApplication.getDesignation());
@@ -73,12 +74,10 @@ public class UAOPApplicationServiceImpl implements UAOPApplicationService {
             actualForm.setLandOwnerPermissionDocName(uaopApplication.getLandOwnerPermissionDocName());
         }
 
-        if (actualForm.getStatus() == ApplicationStatus.SUBMITTED) {
+        if (uaopApplication.getStatus() == ApplicationStatus.SUBMITTED) {
             actualForm.setSubmittedDate(new Date());
         }
         actualForm.setLastModifiedDate(new Date());
-        actualForm.setCreatedDate(createdDate);
-        actualForm.setApplicantId(applicantId);
 
         UAOPApplication savedForm = uaopApplicationRepository.save(actualForm);
 

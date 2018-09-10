@@ -19,6 +19,7 @@ public abstract class BasicApplication {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     @Field("createdDate")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     protected Date createdDate;
 
     @Field("applicationNumber")
@@ -28,6 +29,7 @@ public abstract class BasicApplication {
     protected String applicant;
 
     @Field("applicantId")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     protected long applicantId;
 
     @Field("applicantAddress")

@@ -233,6 +233,11 @@ public class ApplicationConfiguration {
     }
 
     @Bean
+    FlyDronePermissionApplicationService flyDronePermissionApplicationService(FlyDronePermissionApplicationRepository repository, StorageService storageService){
+        return new FlyDronePermissionApplicationServiceImpl(repository, storageService);
+    }
+
+    @Bean
     RestTemplate restTemplate(){
         int timeout = 25000;
         RequestConfig config = RequestConfig.custom()

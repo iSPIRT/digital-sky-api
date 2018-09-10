@@ -165,4 +165,13 @@ public class AirspaceCategory {
     public void setGeoJsonString(String geoJsonString) {
         this.geoJsonString = geoJsonString;
     }
+
+    public void setGeoJsonFromString(){
+        try {
+            this.geoJson = new ObjectMapper().readValue(geoJsonString, GeoJsonObject.class);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

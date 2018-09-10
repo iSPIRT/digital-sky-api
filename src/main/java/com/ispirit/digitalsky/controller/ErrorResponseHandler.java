@@ -2,6 +2,7 @@ package com.ispirit.digitalsky.controller;
 
 import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.EntityNotFoundException;
+import com.ispirit.digitalsky.exception.UnAuthorizedAccessException;
 import com.ispirit.digitalsky.exception.ValidationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -43,5 +44,10 @@ public class ErrorResponseHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     public final ResponseEntity<?> handleValidationException(EntityNotFoundException ex, WebRequest request) {
         return new ResponseEntity<>(new Errors(ex.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(UnAuthorizedAccessException.class)
+    public final ResponseEntity<?> handleValidationException(UnAuthorizedAccessException ex, WebRequest request) {
+        return new ResponseEntity<>(new Errors(ex.getMessage()), HttpStatus.UNAUTHORIZED);
     }
 }

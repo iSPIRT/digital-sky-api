@@ -52,6 +52,7 @@ public class AirspaceCategoryServiceImpl implements AirspaceCategoryService {
         if (airspaceCategory == null) {
             throw new EntityNotFoundException("AirspaceCategory", id);
         }
+        airspaceCategory.setGeoJsonFromString();
         return airspaceCategory;
     }
 
@@ -60,9 +61,10 @@ public class AirspaceCategoryServiceImpl implements AirspaceCategoryService {
         Iterable<AirspaceCategory> categories = airspaceCategoryRepository.findAll();
         List<AirspaceCategory> result = new ArrayList<>();
         for (AirspaceCategory category : categories) {
+            category.setGeoJsonFromString();
             result.add(category);
         }
-        result.sort((o1, o2) -> o1.getType() != o2.getType() ? (o1.getType().getLayerOrder() - o2.getType().getLayerOrder()) : o1.getName().compareTo(o2.getName()));
+        result.sort((o1, o2) -> o2.getModifiedDate().compareTo(o1.getModifiedDate()));
         return result;
     }
 
