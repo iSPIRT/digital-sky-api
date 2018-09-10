@@ -6,10 +6,7 @@ import com.ispirit.digitalsky.domain.ApplicationStatus;
 import com.ispirit.digitalsky.domain.ApproveRequestBody;
 import com.ispirit.digitalsky.domain.UserPrincipal;
 import com.ispirit.digitalsky.dto.Errors;
-import com.ispirit.digitalsky.exception.ApplicationNotFoundException;
-import com.ispirit.digitalsky.exception.ApplicationNotInSubmittedStatus;
-import com.ispirit.digitalsky.exception.StorageFileNotFoundException;
-import com.ispirit.digitalsky.exception.UnAuthorizedAccessException;
+import com.ispirit.digitalsky.exception.*;
 import com.ispirit.digitalsky.service.api.UAOPApplicationService;
 import com.ispirit.digitalsky.util.CustomValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +75,9 @@ public class UAOPApplicationController {
         try {
             UserPrincipal userPrincipal = UserPrincipal.securityContext();
             UAOPApplication application = uaopApplicationService.get(id);
+
+            if(application == null) throw new EntityNotFoundException("UAOPApplication", id);
+
             if (userPrincipal.getId() != application.getApplicantId()) {
                 return new ResponseEntity<>(new Errors("UnAuthorized Access"), HttpStatus.UNAUTHORIZED);
             }

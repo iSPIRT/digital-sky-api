@@ -2,8 +2,10 @@ package com.ispirit.digitalsky.service.api;
 
 
 import com.ispirit.digitalsky.domain.AirspaceCategory;
+import org.geojson.GeoJsonObject;
 
 import java.util.List;
+import java.util.Map;
 
 public interface AirspaceCategoryService {
 
@@ -14,4 +16,6 @@ public interface AirspaceCategoryService {
     AirspaceCategory find(long id);
 
     List<AirspaceCategory> findAll();
+
+    Map<AirspaceCategory.Type, GeoJsonObject> findGeoJsonMapByType();
 }

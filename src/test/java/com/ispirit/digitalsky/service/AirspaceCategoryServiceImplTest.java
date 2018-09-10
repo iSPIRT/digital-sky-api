@@ -9,11 +9,16 @@ import com.ispirit.digitalsky.exception.ValidationException;
 import com.ispirit.digitalsky.repository.AirspaceCategoryRepository;
 import com.ispirit.digitalsky.service.api.AirspaceCategoryService;
 import org.apache.commons.io.IOUtils;
+import org.geojson.FeatureCollection;
+import org.geojson.GeoJsonObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
@@ -119,6 +124,8 @@ public class AirspaceCategoryServiceImplTest {
     public void shouldGetAirspaceCategory() throws Exception {
         //given
         String geoJson = IOUtils.toString(this.getClass().getResourceAsStream("/geoJsonPolygon.json"), "UTF-8");
+        GeoJsonObject geoJsonObject = new ObjectMapper().readValue(geoJson, GeoJsonObject.class);
+
         AirspaceCategory airspaceCategory = new AirspaceCategory("Sample", AirspaceCategory.Type.GREEN, geoJson);
         when(repository.findOne(1L)).thenReturn(airspaceCategory);
 
@@ -126,25 +133,39 @@ public class AirspaceCategoryServiceImplTest {
         AirspaceCategory result = airspaceCategoryService.find(1L);
 
         assertThat(result, is(airspaceCategory));
+        assertThat(result.getGeoJson(), is(geoJsonObject));
     }
 
     @Test
     public void shouldGetAllAirspaceCategory() throws Exception {
         //given
+        LocalDateTime now = LocalDateTime.now();
         String geoJson = IOUtils.toString(this.getClass().getResourceAsStream("/geoJsonPolygon.json"), "UTF-8");
+        GeoJsonObject geoJsonObject = new ObjectMapper().readValue(geoJson, GeoJsonObject.class);
         AirspaceCategory airspaceCategoryGreenOne = new AirspaceCategory("Sample1", AirspaceCategory.Type.GREEN, geoJson);
+        airspaceCategoryGreenOne.setModifiedDate(now);
+
         AirspaceCategory airspaceCategoryGreenTwo = new AirspaceCategory("Sample2", AirspaceCategory.Type.GREEN, geoJson);
+        airspaceCategoryGreenTwo.setModifiedDate(now.plusMinutes(1));
+
         AirspaceCategory airspaceCategoryAmberOne = new AirspaceCategory("Sample1", AirspaceCategory.Type.AMBER, geoJson);
+        airspaceCategoryAmberOne.setModifiedDate(now.plusMinutes(2));
+
         AirspaceCategory airspaceCategoryAmberTwo = new AirspaceCategory("Sample2", AirspaceCategory.Type.AMBER, geoJson);
+        airspaceCategoryAmberTwo.setModifiedDate(now.plusMinutes(3));
+
         AirspaceCategory airspaceCategoryRedOne = new AirspaceCategory("Sample1", AirspaceCategory.Type.RED, geoJson);
+        airspaceCategoryRedOne.setModifiedDate(now.plusMinutes(4));
+
         AirspaceCategory airspaceCategoryRedTwo = new AirspaceCategory("Sample2", AirspaceCategory.Type.RED, geoJson);
+        airspaceCategoryRedTwo.setModifiedDate(now.plusMinutes(5));
 
         when(repository.findAll()).thenReturn(asList(
                 airspaceCategoryGreenOne,
-                airspaceCategoryAmberOne,
                 airspaceCategoryRedOne,
-                airspaceCategoryRedTwo,
+                airspaceCategoryAmberOne,
                 airspaceCategoryGreenTwo,
+                airspaceCategoryRedTwo,
                 airspaceCategoryAmberTwo));
 
         //when
@@ -152,6 +173,36 @@ public class AirspaceCategoryServiceImplTest {
 
         //then
         assertThat(result.size(), is(6));
-        assertThat(result, is(asList(airspaceCategoryGreenOne, airspaceCategoryGreenTwo, airspaceCategoryAmberOne, airspaceCategoryAmberTwo, airspaceCategoryRedOne, airspaceCategoryRedTwo)));
+        assertThat(result, is(asList(airspaceCategoryRedTwo, airspaceCategoryRedOne,airspaceCategoryAmberTwo,  airspaceCategoryAmberOne, airspaceCategoryGreenTwo, airspaceCategoryGreenOne)));
+        assertThat(result.get(0).getGeoJson(), is(geoJsonObject));
+        assertThat(result.get(1).getGeoJson(), is(geoJsonObject));
+        assertThat(result.get(2).getGeoJson(), is(geoJsonObject));
+        assertThat(result.get(3).getGeoJson(), is(geoJsonObject));
+        assertThat(result.get(4).getGeoJson(), is(geoJsonObject));
+        assertThat(result.get(5).getGeoJson(), is(geoJsonObject));
+    }
+
+    @Test
+    public void shouldGetAirspaceGeoJsonGroupedByType() throws Exception {
+        //given
+        String greenOne = "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"properties\":{},\"geometry\":{\"type\":\"Point\",\"coordinates\":[90.00,35.00]}}]}";
+        String greenTwo = "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"properties\":{},\"geometry\":{\"type\":\"Point\",\"coordinates\":[91.00,36.00]}}]}";
+        String amberOne = "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"properties\":{},\"geometry\":{\"type\":\"Point\",\"coordinates\":[92.00,37.00]}}]}";
+        String amberTwo = "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"properties\":{},\"geometry\":{\"type\":\"Point\",\"coordinates\":[93.00,38.00]}}]}";
+        String redOne = "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"properties\":{},\"geometry\":{\"type\":\"Point\",\"coordinates\":[94.00,39.00]}}]}";
+        AirspaceCategory airspaceCategoryGreenOne = new AirspaceCategory("Sample1", AirspaceCategory.Type.GREEN, greenOne);
+        AirspaceCategory airspaceCategoryGreenTwo = new AirspaceCategory("Sample1", AirspaceCategory.Type.GREEN, greenTwo);
+        AirspaceCategory airspaceCategoryAmberOne = new AirspaceCategory("Sample1", AirspaceCategory.Type.AMBER, amberOne);
+        AirspaceCategory airspaceCategoryAmberTwo = new AirspaceCategory("Sample1", AirspaceCategory.Type.AMBER, amberTwo);
+        AirspaceCategory airspaceCategoryRedOne = new AirspaceCategory("Sample1", AirspaceCategory.Type.RED, redOne);
+
+        when(repository.findAll()).thenReturn(asList(airspaceCategoryGreenOne, airspaceCategoryGreenTwo, airspaceCategoryAmberOne, airspaceCategoryAmberTwo, airspaceCategoryRedOne));
+
+        //when
+        Map<AirspaceCategory.Type, GeoJsonObject> geoJsonMapByType = airspaceCategoryService.findGeoJsonMapByType();
+
+        assertThat(((FeatureCollection) geoJsonMapByType.get(AirspaceCategory.Type.GREEN)).getFeatures().size(),is(2));
+        assertThat(((FeatureCollection) geoJsonMapByType.get(AirspaceCategory.Type.AMBER)).getFeatures().size(),is(2));
+        assertThat(((FeatureCollection) geoJsonMapByType.get(AirspaceCategory.Type.RED)).getFeatures().size(),is(1));
     }
 }
