@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.domain.DroneType;
 import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.*;
-import com.ispirit.digitalsky.service.api.DroneService;
+import com.ispirit.digitalsky.service.api.DroneTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -21,21 +21,21 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Collection;
 
-import static com.ispirit.digitalsky.controller.DroneController.DRONE_RESOURCE_BASE_PATH;
+import static com.ispirit.digitalsky.controller.DroneTypeController.DRONE_RESOURCE_BASE_PATH;
 import static com.ispirit.digitalsky.util.FileStoreHelper.resolveFileName;
 
 @RestController
 @RequestMapping(DRONE_RESOURCE_BASE_PATH)
-public class DroneController {
+public class DroneTypeController {
 
     public static final String DRONE_RESOURCE_BASE_PATH = "/api/droneType";
 
-    private DroneService droneTypeService;
+    private DroneTypeService droneTypeService;
 
     PasswordEncoder passwordEncoder;
 
     @Autowired
-    public DroneController(DroneService droneTypeService) {
+    public DroneTypeController(DroneTypeService droneTypeService) {
         this.droneTypeService = droneTypeService;
     }
 
