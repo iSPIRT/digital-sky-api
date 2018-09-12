@@ -1,15 +1,15 @@
 package com.ispirit.digitalsky.controller;
 
-import com.ispirit.digitalsky.domain.Drone;
+import com.ispirit.digitalsky.domain.DroneDevice;
 import com.ispirit.digitalsky.domain.RegisterDroneRequestPayload;
 import com.ispirit.digitalsky.domain.RegisterDroneResponseCode;
 import com.ispirit.digitalsky.domain.RegisterDroneResponsePayload;
 import com.ispirit.digitalsky.dto.Errors;
-import com.ispirit.digitalsky.exception.DroneAlreadyExistException;
-import com.ispirit.digitalsky.exception.DroneNotFoundException;
+import com.ispirit.digitalsky.exception.DroneDeviceAlreadyExistException;
+import com.ispirit.digitalsky.exception.DroneDeviceNotFoundException;
 import com.ispirit.digitalsky.exception.InvalidDigitalSignatureException;
 import com.ispirit.digitalsky.exception.InvalidOperatorCodeException;
-import com.ispirit.digitalsky.service.api.DroneService;
+import com.ispirit.digitalsky.service.api.DroneDeviceService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,17 +21,17 @@ import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.Collection;
 
-import static com.ispirit.digitalsky.controller.DroneController.DRONE_RESOURCE_BASE_PATH;
+import static com.ispirit.digitalsky.controller.DroneDeviceController.DRONEDEVICE_RESOURCE_BASE_PATH;
 
 
 @RestController
-@RequestMapping(DRONE_RESOURCE_BASE_PATH)
-public class DroneController {
-    public static final String DRONE_RESOURCE_BASE_PATH = "/api/drone";
+@RequestMapping(DRONEDEVICE_RESOURCE_BASE_PATH)
+public class DroneDeviceController {
+    public static final String DRONEDEVICE_RESOURCE_BASE_PATH = "/api/droneDevice";
 
-    DroneService droneRegistrationService;
+    DroneDeviceService droneRegistrationService;
 
-    public DroneController(DroneService droneRegistrationService) {
+    public DroneDeviceController(DroneDeviceService droneRegistrationService) {
         this.droneRegistrationService = droneRegistrationService;
     }
 
@@ -48,7 +48,7 @@ public class DroneController {
         } catch(InvalidOperatorCodeException e){
             responsePayload.setCode(RegisterDroneResponseCode.OPERATORCODE_INVALID);
             return new ResponseEntity<>(responsePayload, HttpStatus.PRECONDITION_FAILED);
-        } catch(DroneAlreadyExistException e){
+        } catch(DroneDeviceAlreadyExistException e){
             responsePayload.setCode(RegisterDroneResponseCode.DRONE_ALREADY_REGISTERED);
             return new ResponseEntity<>(responsePayload, HttpStatus.PRECONDITION_FAILED);
         } catch(Exception e){
@@ -68,7 +68,7 @@ public class DroneController {
         } catch(InvalidDigitalSignatureException e){
             responsePayload.setCode(RegisterDroneResponseCode.INVALID_SIGNATURE);
             return new ResponseEntity<>(responsePayload, HttpStatus.PRECONDITION_FAILED);
-        } catch(DroneNotFoundException e){
+        } catch(DroneDeviceNotFoundException e){
             responsePayload.setCode(RegisterDroneResponseCode.DRONE_NOT_FOUND);
             return new ResponseEntity<>(responsePayload, HttpStatus.PRECONDITION_FAILED);
         } catch(Exception e){
@@ -80,7 +80,7 @@ public class DroneController {
 
     @RequestMapping(value = "/list", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> list(@RequestParam(value = "operatorCode", required = true) String operatorCode) {
-        Collection<Drone> operatorDrones= droneRegistrationService.getOperatorDrones(operatorCode);
+        Collection<String> operatorDrones= droneRegistrationService.getNotRegisteredOperatorDroneDeviceIds(operatorCode);
         return new ResponseEntity<>(operatorDrones, HttpStatus.OK);
     }
 }

@@ -1,5 +1,5 @@
 /*  References ds_operator_drone, id = ds_operator_drone.id */
-CREATE TABLE ds_drone (
+CREATE TABLE ds_drone_device (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     MANUFACTURER_ID VARCHAR(100),
     UNIQUE_DEVICE_ID VARCHAR(50),

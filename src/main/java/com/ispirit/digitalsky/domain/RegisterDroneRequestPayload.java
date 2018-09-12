@@ -1,8 +1,8 @@
 package com.ispirit.digitalsky.domain;
 
-public class DronePayload {
+public class RegisterDroneRequestPayload {
 
-    private Drone drone;
+    private DroneDevice drone;
 
     private String signature;
 
@@ -16,7 +16,7 @@ public class DronePayload {
 
     public void setDigitalCertificate(String digitalCertificate) { this.digitalCertificate = digitalCertificate; }
 
-    public Drone getDrone() { return drone; }
+    public DroneDevice getDrone() { return drone; }
 
-    public void setDrone(Drone drone) { this.drone = drone; }
+    public void setDrone(DroneDevice drone) { this.drone = drone; }
 }

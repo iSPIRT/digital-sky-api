@@ -10,13 +10,15 @@ import com.ispirit.digitalsky.exception.*;
 
 import com.ispirit.digitalsky.repository.DroneAcquisitionApplicationRepository;
 import com.ispirit.digitalsky.repository.IndividualOperatorRepository;
+import com.ispirit.digitalsky.repository.OrganizationOperatorRepository;
 import com.ispirit.digitalsky.repository.storage.StorageService;
 
 
 import com.ispirit.digitalsky.service.api.DroneAcquisitionApplicationService;
-import com.ispirit.digitalsky.service.api.DroneService;
+import com.ispirit.digitalsky.service.api.DroneTypeService;
 import com.ispirit.digitalsky.service.api.OperatorDroneService;
 
+import com.ispirit.digitalsky.service.api.OrganizationOperatorService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,20 +36,26 @@ public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionAp
     private final StorageService storageService;
     private final OperatorDroneService operatorDroneService;
     private final IndividualOperatorRepository individualOperatorRepository;
-    private final DroneService droneService;
+    private final OrganizationOperatorRepository organizationOperatorRepository;
+    private final DroneTypeService droneService;
 
-    public DroneAcquisitionApplicationServiceImpl(DroneAcquisitionApplicationRepository<T> droneAcquisitionFormRepository, StorageService storageService, DroneService droneService, OperatorDroneService operatorDroneService, IndividualOperatorRepository individualOperatorRepository) {
+    public DroneAcquisitionApplicationServiceImpl(DroneAcquisitionApplicationRepository<T> droneAcquisitionFormRepository,
+              StorageService storageService,
+              DroneTypeService droneService,
+              OperatorDroneService operatorDroneService,
+              IndividualOperatorRepository individualOperatorRepository,
+              OrganizationOperatorRepository organizationOperatorRepository) {
         this.droneAcquisitionFormRepository = droneAcquisitionFormRepository;
         this.storageService = storageService;
         this.droneService = droneService;
         this.operatorDroneService = operatorDroneService;
         this.individualOperatorRepository = individualOperatorRepository;
+        this.organizationOperatorRepository = organizationOperatorRepository;
     }
 
     @Override
     @Transactional
     public T createDroneAcquisitionApplication(T droneAcquisitionApplicationForm) {
-
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         droneAcquisitionApplicationForm.setApplicantId(userPrincipal.getId());
         droneAcquisitionApplicationForm.setCreatedDate(new Date());
@@ -59,7 +67,6 @@ public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionAp
     @Override
     @Transactional
     public T updateDroneAcquisitionApplication(String id, T droneAcquisitionApplicationForm, MultipartFile securityClearanceDoc) throws ApplicationNotFoundException, UnAuthorizedAccessException, StorageException, ApplicationNotEditableException {
-
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         T actualForm = droneAcquisitionFormRepository.findById(id);
         if (actualForm == null) {
@@ -119,11 +126,19 @@ public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionAp
         if(((BasicApplication)savedForm).getStatus() == ApplicationStatus.APPROVED) {
 
             boolean isImported = actualForm instanceof ImportDroneApplication;
-            boolean isIndividual = individualOperatorRepository.loadByResourceOwner(actualForm.getApplicantId()) != null;
-            ApplicantType operatorType = isIndividual ? ApplicantType.INDIVIDUAL : ApplicantType.ORGANISATION;
+            long operatorId ;
+            IndividualOperator individualOperator = individualOperatorRepository.loadByResourceOwner(actualForm.getApplicantId());
+            if(individualOperator != null) {
+                operatorId = individualOperator.getId();
+            }
+            else {
+                operatorId = organizationOperatorRepository.loadByResourceOwner(userPrincipal.getId()).getId();
+            }
 
+            ApplicantType operatorType = (individualOperator != null) ? ApplicantType.INDIVIDUAL : ApplicantType.ORGANISATION;
             DroneType actualDroneType = droneService.get(actualForm.getDroneTypeId());
-            OperatorDrone opDrone = new OperatorDrone(actualForm.getApplicantId(), operatorType, actualForm.getId(), isImported);
+
+            OperatorDrone opDrone = new OperatorDrone(operatorId, operatorType, actualForm.getId(), isImported);
             List<OperatorDrone> operatorDrones = new ArrayList<>();
             ObjectMapper objectMapper = new ObjectMapper();
             for (int i = 0; i < savedForm.getNoOfDrones(); i++) {
@@ -141,20 +156,17 @@ public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionAp
 
     @Override
     public Collection<T> getApplicationsOfApplicant() {
-
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         return droneAcquisitionFormRepository.findByApplicantId(userPrincipal.getId());
     }
 
     @Override
     public Collection<T> getAllApplications() {
-
         return droneAcquisitionFormRepository.findAll();
     }
 
     @Override
     public T get(String id) {
-
         return droneAcquisitionFormRepository.findById(id);
     }
 

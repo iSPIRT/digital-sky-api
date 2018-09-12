@@ -24,24 +24,6 @@ public class IndividualOperator extends Person {
     @JsonIgnore
     private String status = "DEFAULT";
 
-    //  @JsonIgnore
-//    @OneToMany
-//    @JoinTable
-//            (
-//                name="ds_operator_drone",
-//                joinColumns={ @JoinColumn(name="OPERATOR_ID", referencedColumnName="ID") },
-//                inverseJoinColumns={ @JoinColumn(name="DRONE_TYPE_ID", referencedColumnName="ID", unique=true) }
-//            )
-//    private List<OperatorDrone> drones;
-//
-//    public List<OperatorDrone> getDrones() {
-//        return this.drones;
-//    }
-//
-//    public void setDrones(List<OperatorDrone> drones) {
-//        this.drones = drones;
-//    }
-
     private IndividualOperator() {
         //for serialization and de-serialization
     }

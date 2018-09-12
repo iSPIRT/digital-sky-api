@@ -1,48 +1,52 @@
 package com.ispirit.digitalsky.service;
 
-import com.ispirit.digitalsky.domain.Drone;
-import com.ispirit.digitalsky.domain.DroneRegistrationStatus;
+import com.ispirit.digitalsky.domain.DroneDevice;
+import com.ispirit.digitalsky.domain.DroneDeviceRegistrationStatus;
 import com.ispirit.digitalsky.domain.RegisterDroneRequestPayload;
-import com.ispirit.digitalsky.exception.DroneAlreadyExistException;
-import com.ispirit.digitalsky.exception.DroneNotFoundException;
+import com.ispirit.digitalsky.exception.DroneDeviceAlreadyExistException;
+import com.ispirit.digitalsky.exception.DroneDeviceNotFoundException;
 import com.ispirit.digitalsky.exception.InvalidDigitalSignatureException;
 import com.ispirit.digitalsky.exception.InvalidOperatorCodeException;
-import com.ispirit.digitalsky.repository.DroneRepository;
+import com.ispirit.digitalsky.repository.DroneDeviceRepository;
 import com.ispirit.digitalsky.repository.IndividualOperatorRepository;
 import com.ispirit.digitalsky.repository.OrganizationOperatorRepository;
-import com.ispirit.digitalsky.service.api.DroneService;
+import com.ispirit.digitalsky.service.api.DroneDeviceService;
+import com.ispirit.digitalsky.service.api.OperatorDroneService;
 import com.ispirit.digitalsky.service.api.SignatureVerifierService;
 
 import java.time.LocalDate;
 import java.util.Collection;
 
-public class DroneServiceImpl implements DroneService {
+public class DroneDeviceServiceImpl implements DroneDeviceService {
 
-    private DroneRepository droneRegistrationRepository;
+    private DroneDeviceRepository droneRegistrationRepository;
     private IndividualOperatorRepository individualOperatorRepository;
     private OrganizationOperatorRepository organizationOperatorRepository;
+    private OperatorDroneService operatorDroneService;
     private SignatureVerifierService signatureVerifierService;
 
-    public DroneServiceImpl(DroneRepository droneRegistrationRepository,
-                            SignatureVerifierService signatureVerifierService,
-                            IndividualOperatorRepository individualOperatorRepository,
-                            OrganizationOperatorRepository organizationOperatorRepository) {
+    public DroneDeviceServiceImpl(DroneDeviceRepository droneRegistrationRepository,
+                                  SignatureVerifierService signatureVerifierService,
+                                  IndividualOperatorRepository individualOperatorRepository,
+                                  OrganizationOperatorRepository organizationOperatorRepository,
+                                  OperatorDroneService operatorDroneService) {
         this.droneRegistrationRepository = droneRegistrationRepository;
         this.signatureVerifierService = signatureVerifierService;
         this.individualOperatorRepository = individualOperatorRepository;
         this.organizationOperatorRepository = organizationOperatorRepository;
+        this.operatorDroneService = operatorDroneService;
     }
 
     @Override
-    public Drone register(String manufacturerId, RegisterDroneRequestPayload payload) throws InvalidOperatorCodeException, DroneAlreadyExistException, InvalidDigitalSignatureException {
-        Drone drone = payload.getDrone();
+    public DroneDevice register(String manufacturerId, RegisterDroneRequestPayload payload) throws InvalidOperatorCodeException, DroneDeviceAlreadyExistException, InvalidDigitalSignatureException {
+        DroneDevice drone = payload.getDrone();
         if(signatureVerifierService.isValidSignature(payload)) {
             if(!droneExists(drone.getDeviceId())) {
                 if(operatorExists(drone.getOperatorCode())) {
                     drone.setCreatedDate(LocalDate.now());
                     drone.setManufacturerId(manufacturerId);
-                    drone.setRegistrationStatus(DroneRegistrationStatus.REGISTERED);
-                    Drone createdDrone = droneRegistrationRepository.save(drone);
+                    drone.setRegistrationStatus(DroneDeviceRegistrationStatus.REGISTERED);
+                    DroneDevice createdDrone = droneRegistrationRepository.save(drone);
                     return createdDrone;
                 }
                 else {
@@ -50,7 +54,7 @@ public class DroneServiceImpl implements DroneService {
                 }
             }
             else {
-                throw new DroneAlreadyExistException();
+                throw new DroneDeviceAlreadyExistException();
             }
         }
         else {
@@ -59,15 +63,15 @@ public class DroneServiceImpl implements DroneService {
     }
 
     @Override
-    public Drone deregister(String manufacturerId, RegisterDroneRequestPayload payload) throws DroneNotFoundException, InvalidDigitalSignatureException {
+    public DroneDevice deregister(String manufacturerId, RegisterDroneRequestPayload payload) throws DroneDeviceNotFoundException, InvalidDigitalSignatureException {
         if(signatureVerifierService.isValidSignature(payload)) {
-            Drone actualDrone = droneRegistrationRepository.findByDeviceId(payload.getDrone().getDeviceId());
+            DroneDevice actualDrone = droneRegistrationRepository.findByDeviceId(payload.getDrone().getDeviceId());
             if (actualDrone == null) {
-                throw new DroneNotFoundException();
+                throw new DroneDeviceNotFoundException();
             }
             actualDrone.setLastModifiedDate(LocalDate.now());
-            actualDrone.setRegistrationStatus(DroneRegistrationStatus.DEREGISTERED);
-            Drone savedDrone = droneRegistrationRepository.save(actualDrone);
+            actualDrone.setRegistrationStatus(DroneDeviceRegistrationStatus.DEREGISTERED);
+            DroneDevice savedDrone = droneRegistrationRepository.save(actualDrone);
             return savedDrone;
         }
         else {
@@ -76,12 +80,13 @@ public class DroneServiceImpl implements DroneService {
     }
 
     @Override
-    public Collection<Drone> getOperatorDrones(String operatorCode) {
-        return droneRegistrationRepository.findOperatorDrones(operatorCode);
+    public Collection<String> getNotRegisteredOperatorDroneDeviceIds(String operatorCode) {
+        Collection<String> droneDeviceIds =  droneRegistrationRepository.findNotRegisteredOperatorDroneDevices(operatorCode);
+        return operatorDroneService.getAvailableDroneDeviceIds(droneDeviceIds);
     }
 
     private boolean droneExists(String uniqueDeviceCode) {
-        Drone drone = droneRegistrationRepository.findByDeviceId(uniqueDeviceCode) ;
+        DroneDevice drone = droneRegistrationRepository.findByDeviceId(uniqueDeviceCode) ;
         boolean droneExists = (drone != null) ? true : false ;
         return droneExists;
     }
