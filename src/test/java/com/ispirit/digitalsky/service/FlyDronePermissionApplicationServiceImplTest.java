@@ -8,7 +8,7 @@ import com.ispirit.digitalsky.domain.ApplicationStatus;
 import com.ispirit.digitalsky.domain.ApproveRequestBody;
 import com.ispirit.digitalsky.domain.UserPrincipal;
 import com.ispirit.digitalsky.exception.ApplicationNotFoundException;
-import com.ispirit.digitalsky.exception.ApplicationNotInSubmittedStatus;
+import com.ispirit.digitalsky.exception.ApplicationNotInSubmittedStatusException;
 import com.ispirit.digitalsky.repository.FlyDronePermissionApplicationRepository;
 import com.ispirit.digitalsky.repository.storage.StorageService;
 import org.junit.Before;
@@ -187,7 +187,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
         try {
             service.approveApplication(approveRequestBody);
             fail("should have thrown ApplicationNotFoundException");
-        } catch (ApplicationNotInSubmittedStatus e) {
+        } catch (ApplicationNotInSubmittedStatusException e) {
 
         }
     }

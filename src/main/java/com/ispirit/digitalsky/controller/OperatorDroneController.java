@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collection;
 import java.util.List;
 
 import static com.ispirit.digitalsky.controller.OperatorDroneController.OPERATOR_DRONE_RESOURCE_BASE_PATH;
@@ -27,23 +28,16 @@ public class OperatorDroneController {
     public static final String OPERATOR_DRONE_RESOURCE_BASE_PATH = "/api/operatorDrone";
 
     private OperatorDroneService operatorDroneService;
-    private IndividualOperatorRepository individualOperatorRepository;
     private UserProfileService userProfileService;
 
     public OperatorDroneController(OperatorDroneService operatorDroneService, IndividualOperatorRepository individualOperatorRepository, UserProfileService userProfileService ) {
         this.operatorDroneService = operatorDroneService;
-        this.individualOperatorRepository = individualOperatorRepository;
         this.userProfileService = userProfileService;
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<?> drones() {
-        UserPrincipal userPrincipal = UserPrincipal.securityContext();
-
-        boolean isIndividual = individualOperatorRepository.loadByResourceOwner(userPrincipal.getId()) != null;
-        ApplicantType operatorType = isIndividual ? ApplicantType.INDIVIDUAL : ApplicantType.ORGANISATION;
-
-        List<?> userDrones = operatorDroneService.loadByOperator(userPrincipal.getId(), operatorType);
+        Collection<?> userDrones = operatorDroneService.loadByOperator();
         return new ResponseEntity<>(userDrones, HttpStatus.OK);
     }
 

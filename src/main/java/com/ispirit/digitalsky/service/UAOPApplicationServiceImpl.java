@@ -96,7 +96,7 @@ public class UAOPApplicationServiceImpl implements UAOPApplicationService {
         }
 
         if (actualForm.getStatus() != ApplicationStatus.SUBMITTED) {
-            throw new ApplicationNotInSubmittedStatus();
+            throw new ApplicationNotInSubmittedStatusException();
         }
 
         actualForm.setApproverId(userPrincipal.getId());

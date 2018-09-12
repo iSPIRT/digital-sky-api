@@ -9,7 +9,6 @@ import com.ispirit.digitalsky.util.LocalDateAttributeConverter;
 import javax.persistence.*;
 import java.time.LocalDate;
 
-
 @Entity
 @Table(name = "ds_operator_drone")
 public class OperatorDrone {
@@ -48,6 +47,9 @@ public class OperatorDrone {
     @Enumerated(EnumType.STRING)
     private OperatorDroneStatus operatorDroneStatus = OperatorDroneStatus.UIN_NOT_APPLIED;
 
+    @Column(name = "UNIQUE_DEVICE_ID")
+    private String deviceId;
+
     public OperatorDrone() {
 
     }
@@ -84,9 +86,7 @@ public class OperatorDrone {
         return this.acquisitionApplicationId;
     }
 
-    public void setAcquisitionApplicationId(String acquisitionApplicationId) {
-        this.acquisitionApplicationId = acquisitionApplicationId;
-    }
+    public void setAcquisitionApplicationId(String acquisitionApplicationId) { this.acquisitionApplicationId = acquisitionApplicationId; }
 
     public boolean isImported() {
         return this.isImported;
@@ -108,9 +108,7 @@ public class OperatorDrone {
         return operatorDroneStatus;
     }
 
-    public void setOperatorDroneStatus(OperatorDroneStatus operatorDroneStatus) {
-        this.operatorDroneStatus = operatorDroneStatus;
-    }
+    public void setOperatorDroneStatus(OperatorDroneStatus operatorDroneStatus) { this.operatorDroneStatus = operatorDroneStatus; }
 
     public LocalDate getRegisteredDate() {
         return registeredDate;
@@ -127,4 +125,9 @@ public class OperatorDrone {
     public void setDroneType(DroneType droneType) {
         this.droneType = droneType;
     }
+
+    public String getDeviceId() { return deviceId; }
+
+    public void setDeviceId(String deviceId) { this.deviceId = deviceId; }
+
 }

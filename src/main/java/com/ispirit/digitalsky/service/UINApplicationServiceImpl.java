@@ -39,7 +39,7 @@ public class UINApplicationServiceImpl implements UINApplicationService {
         UINApplication document = uinApplicationRepository.insert(uinApplication);
         storageService.store(uinApplication.getAllDocs(), document.getId());
 
-        operatorDroneService.updateOperatorDrone(uinApplication.getOperatorDroneId(), uinApplication.getId(), OperatorDroneStatus.UIN_DRAFT);
+        operatorDroneService.updateUINApplicationId(uinApplication.getOperatorDroneId(), uinApplication.getId(), OperatorDroneStatus.UIN_DRAFT);
 
         return document;
     }
@@ -96,8 +96,13 @@ public class UINApplicationServiceImpl implements UINApplicationService {
 
         if (actualForm.getStatus() == ApplicationStatus.SUBMITTED) {
             actualForm.setSubmittedDate(new Date());
-            operatorDroneService.updateOperatorDroneStatus(uinApplication.getOperatorDroneId(), OperatorDroneStatus.UIN_SUBMITTED);
+            operatorDroneService.updateStatus(uinApplication.getOperatorDroneId(), OperatorDroneStatus.UIN_SUBMITTED);
         }
+
+        if(actualForm.getUniqueDeviceId() !=null) {
+            operatorDroneService.updateUniqueDeviceId(uinApplication.getOperatorDroneId(), actualForm.getUniqueDeviceId());
+        }
+
         actualForm.setLastModifiedDate(new Date());
         actualForm.setCreatedDate(createdDate);
         actualForm.setApplicantId(applicantId);
@@ -119,7 +124,7 @@ public class UINApplicationServiceImpl implements UINApplicationService {
         }
 
         if (actualForm.getStatus() != ApplicationStatus.SUBMITTED) {
-            throw new ApplicationNotInSubmittedStatus();
+            throw new ApplicationNotInSubmittedStatusException();
         }
 
         actualForm.setApproverId(userPrincipal.getId());
@@ -129,7 +134,11 @@ public class UINApplicationServiceImpl implements UINApplicationService {
         actualForm.setStatus(approveRequestBody.getStatus());
 
         OperatorDroneStatus opdroneStatus = approveRequestBody.getStatus() == ApplicationStatus.APPROVED ? OperatorDroneStatus.UIN_APPROVED : OperatorDroneStatus.UIN_REJECTED;
-        operatorDroneService.updateOperatorDroneStatus(actualForm.getOperatorDroneId(), opdroneStatus);
+        operatorDroneService.updateStatus(actualForm.getOperatorDroneId(), opdroneStatus);
+
+        if(opdroneStatus == OperatorDroneStatus.UIN_REJECTED) {
+            operatorDroneService.updateUniqueDeviceId(actualForm.getOperatorDroneId(), null);
+        }
 
         UINApplication savedForm = uinApplicationRepository.save(actualForm);
         return savedForm;

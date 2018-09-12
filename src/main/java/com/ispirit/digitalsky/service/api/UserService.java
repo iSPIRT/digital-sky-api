@@ -10,6 +10,8 @@ public interface UserService extends UserDetailsService {
 
     User findUserById(long id);
 
+    User findUserByName(String fullName);
+
     User find(long id);
 
     void generateResetPasswordLink(String email);

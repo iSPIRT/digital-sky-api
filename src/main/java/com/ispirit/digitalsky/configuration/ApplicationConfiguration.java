@@ -27,8 +27,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.Validator;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collection;
-
 @Configuration
 public class ApplicationConfiguration {
 
@@ -151,8 +149,8 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    ManufacturerService manufacturerService(ManufacturerRepository manufacturerRepository) {
-        return new ManufacturerServiceImpl(manufacturerRepository);
+    ManufacturerService manufacturerService(ManufacturerRepository manufacturerRepository, UserService userService) {
+        return new ManufacturerServiceImpl(manufacturerRepository, userService);
     }
 
     @Bean
@@ -161,30 +159,32 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    OperatorDroneService operatorDroneService(OperatorDroneRepository operatorDroneRepository) {
-        return new OperatorDroneServiceImpl(operatorDroneRepository);
+    OperatorDroneService operatorDroneService(OperatorDroneRepository operatorDroneRepository, IndividualOperatorRepository individualOperatorRepository, OrganizationOperatorRepository organizationOperatorRepository) {
+        return new OperatorDroneServiceImpl(operatorDroneRepository, individualOperatorRepository, organizationOperatorRepository );
     }
 
     @Bean
     DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneAcquisitionService(
                 LocalDroneAcquisitionApplicationRepository droneAcquisitionRepository,
                 StorageService storageService,
-                DroneService droneService,
+                DroneTypeService droneService,
                 OperatorDroneService operatorDroneService,
-                IndividualOperatorRepository individualOperatorRepository) {
+                IndividualOperatorRepository individualOperatorRepository,
+                OrganizationOperatorRepository organizationOperatorRepository) {
 
-        return new DroneAcquisitionApplicationServiceImpl<LocalDroneAcquisitionApplication>(droneAcquisitionRepository, storageService, droneService, operatorDroneService, individualOperatorRepository);
+        return new DroneAcquisitionApplicationServiceImpl<LocalDroneAcquisitionApplication>(droneAcquisitionRepository, storageService, droneService, operatorDroneService, individualOperatorRepository, organizationOperatorRepository);
     }
 
     @Bean
     DroneAcquisitionApplicationService<ImportDroneApplication> importedDroneAcquisitionService(
                 ImportDroneApplicationRepository droneAcquisitionRepository,
                 StorageService storageService,
-                DroneService droneService,
+                DroneTypeService droneService,
                 OperatorDroneService operatorDroneService,
-                IndividualOperatorRepository individualOperatorRepository) {
+                IndividualOperatorRepository individualOperatorRepository,
+                OrganizationOperatorRepository organizationOperatorRepository) {
 
-        return new DroneAcquisitionApplicationServiceImpl<ImportDroneApplication>(droneAcquisitionRepository, storageService, droneService, operatorDroneService, individualOperatorRepository);
+        return new DroneAcquisitionApplicationServiceImpl<ImportDroneApplication>(droneAcquisitionRepository, storageService, droneService, operatorDroneService, individualOperatorRepository, organizationOperatorRepository);
     }
 
     @Bean
@@ -198,8 +198,21 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    DroneService droneService(DroneTypeRepository droneTypeRepository, StorageService storageService) {
-        return new DroneServiceImpl(droneTypeRepository, storageService);
+    DroneTypeService droneTypeService(DroneTypeRepository droneTypeRepository, StorageService storageService) {
+        return new DroneTypeServiceImpl(droneTypeRepository, storageService);
+    }
+
+    @Bean
+    DroneDeviceService droneDeviceService(DroneDeviceRepository droneRepository, SignatureVerifierService signatureVerifierService,
+                                                IndividualOperatorRepository individualOperatorRepository,
+                                                OrganizationOperatorRepository organizationOperatorRepository,
+                                                OperatorDroneService operatorDroneService) {
+        return new DroneDeviceServiceImpl(droneRepository, signatureVerifierService,individualOperatorRepository, organizationOperatorRepository, operatorDroneService );
+    }
+
+    @Bean
+    SignatureVerifierService signatureVerifierService(ManufacturerService manufacturerService) {
+        return new SignatureVerifierServiceImpl(manufacturerService);
     }
 
     @Bean
