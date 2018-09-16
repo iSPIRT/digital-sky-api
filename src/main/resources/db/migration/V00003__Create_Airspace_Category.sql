@@ -1,0 +1,11 @@
+/*  References ds_organization,  id = ds_organization.id */
+CREATE TABLE ds_airspace_category (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    NAME VARCHAR(100),
+    CATEGORY_TYPE VARCHAR(10),
+    GEO_JSON MEDIUMTEXT,
+    CREATED_BY_ID INT,
+    MODIFIED_BY_ID INT,
+    CREATED_DATE TIMESTAMP,
+    MODIFIED_DATE TIMESTAMP
+);

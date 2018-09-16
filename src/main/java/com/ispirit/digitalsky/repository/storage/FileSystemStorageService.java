@@ -3,6 +3,7 @@ package com.ispirit.digitalsky.repository.storage;
 import com.ispirit.digitalsky.exception.StorageException;
 import com.ispirit.digitalsky.exception.StorageFileNotFoundException;
 import com.ispirit.digitalsky.util.FileStoreHelper;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -57,6 +58,24 @@ public class FileSystemStorageService implements StorageService {
                     throw new StorageException("Failed to store file " + filename, e);
                 }
             }
+        }
+    }
+
+    @Override
+    public void store(String fileName, String content, String directoryName) throws StorageException {
+        try {
+            File directory = new File(this.rootLocation.resolve(directoryName).toString());
+            if (!directory.exists()) {
+                directory.mkdir();
+            }
+            if (fileName.contains("..")) {
+                throw new StorageException("Cannot store file with relative path outside current directory " + fileName);
+            }
+
+            FileUtils.write(new File(directory, fileName), content, "UTF-8");
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

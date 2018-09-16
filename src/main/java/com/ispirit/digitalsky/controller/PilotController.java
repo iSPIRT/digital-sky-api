@@ -58,7 +58,7 @@ public class PilotController {
             pilot.setResourceOwnerId(userPrincipal.getId());
 
             Pilot savedPilotInstance = pilotService.createNewPilot(pilot);
-            return new ResponseEntity<>(savedPilotInstance, HttpStatus.OK);
+            return new ResponseEntity<>(savedPilotInstance, HttpStatus.CREATED);
         } catch (PilotProfileAlreadyExist e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.CONFLICT);
 
