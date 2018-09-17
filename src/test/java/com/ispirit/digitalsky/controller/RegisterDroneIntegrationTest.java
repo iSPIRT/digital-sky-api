@@ -67,10 +67,10 @@ public class RegisterDroneIntegrationTest {
         DroneDevice mockDrone = new DroneDevice();
 
         mockDrone.setVersion("1.0");
-        mockDrone.setDeviceId("RPA Beebop 7.0");
+        mockDrone.setDeviceId("Beebop 2.0");
         mockDrone.setDeviceModelId("1A29.0");
         mockDrone.setTxn("BeebopValidValue");
-        mockDrone.setOperatorCode("2");
+        mockDrone.setOperatorCode("1");
         mockDrone.setIdHash("some value");
         mockDrone.setRequestTimestamp(LocalDateTime.now());
         mockDronePayload.setDrone(mockDrone);

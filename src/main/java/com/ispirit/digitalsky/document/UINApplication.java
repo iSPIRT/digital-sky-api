@@ -189,7 +189,6 @@ public class UINApplication extends BasicApplication {
     private String opManualDocName;
 
 
-
     @JsonIgnore
     @Transient
     private MultipartFile opManualDoc;

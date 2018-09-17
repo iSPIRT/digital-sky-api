@@ -2,6 +2,7 @@ package com.ispirit.digitalsky.service;
 
 import com.ispirit.digitalsky.document.UINApplication;
 import com.ispirit.digitalsky.domain.*;
+import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.*;
 import com.ispirit.digitalsky.repository.DroneDeviceRepository;
 import com.ispirit.digitalsky.repository.IndividualOperatorRepository;
@@ -48,14 +49,16 @@ public class UINApplicationServiceImpl implements UINApplicationService {
     public UINApplication createApplication(UINApplication uinApplication) {
 
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
-        uinApplication.setApplicantId(userPrincipal.getId());
-        uinApplication.setApplicant(userPrincipal.getUsername());
-        UINApplication document = uinApplicationRepository.insert(uinApplication);
-        storageService.store(uinApplication.getAllDocs(), document.getId());
-
-        operatorDroneService.updateUINApplicationId(uinApplication.getOperatorDroneId(), uinApplication.getId(), OperatorDroneStatus.UIN_DRAFT);
-
-        return document;
+        if(isAuthorizedOperatorDrone(uinApplication.getOperatorDroneId())) {
+            uinApplication.setApplicantId(userPrincipal.getId());
+            uinApplication.setApplicant(userPrincipal.getUsername());
+            UINApplication document = uinApplicationRepository.insert(uinApplication);
+            storageService.store(uinApplication.getAllDocs(), document.getId());
+            operatorDroneService.updateUINApplicationId(uinApplication.getOperatorDroneId(), uinApplication.getId(), OperatorDroneStatus.UIN_DRAFT);
+            return document;
+        } else {
+            throw new UnAuthorizedAccessException();
+        }
     }
 
     @Override
@@ -63,69 +66,35 @@ public class UINApplicationServiceImpl implements UINApplicationService {
     public UINApplication updateApplication(String id, UINApplication uinApplication) throws ApplicationNotFoundException, UnAuthorizedAccessException, StorageException {
 
         UINApplication actualForm = uinApplicationRepository.findById(id);
-        if(validateApplication(id, uinApplication)) {
+        if(isAuthorizedOperatorDrone(uinApplication.getOperatorDroneId())) {
+            if (isValidDroneDevice(id, uinApplication)) {
+                if (actualForm == null) {
+                    throw new ApplicationNotFoundException();
+                }
 
+                long applicantId = actualForm.getApplicantId();
+                Date createdDate = actualForm.getCreatedDate();
+                setDocumentNames(uinApplication, actualForm);
+                BeanUtils.copyProperties(uinApplication, actualForm);
+                if (actualForm.getStatus() == ApplicationStatus.SUBMITTED) {
+                    actualForm.setSubmittedDate(new Date());
+                    operatorDroneService.updateStatus(uinApplication.getOperatorDroneId(), OperatorDroneStatus.UIN_SUBMITTED);
+                }
+                operatorDroneService.updateUniqueDeviceId(uinApplication.getOperatorDroneId(), uinApplication.getUniqueDeviceId());
+
+                actualForm.setLastModifiedDate(new Date());
+                actualForm.setCreatedDate(createdDate);
+                actualForm.setApplicantId(applicantId);
+                UINApplication savedForm = uinApplicationRepository.save(actualForm);
+                storageService.store(uinApplication.getAllDocs(), savedForm.getId());
+
+                return savedForm;
+            } else {
+                return null;
+            }
+        } else {
+            throw new UnAuthorizedAccessException();
         }
-        if (actualForm == null) {
-            throw new ApplicationNotFoundException();
-        }
-
-        long applicantId = actualForm.getApplicantId();
-        Date createdDate = actualForm.getCreatedDate();
-
-        if (uinApplication.getImportPermissionDoc() != null) {
-            actualForm.setImportPermissionDocName(uinApplication.getImportPermissionDocName());
-        }
-
-        if (uinApplication.getCinDoc() != null) {
-            actualForm.setCinDocName(uinApplication.getCinDocName());
-        }
-
-        if (uinApplication.getGstinDoc() != null) {
-            actualForm.setGstinDocName(uinApplication.getGstinDocName());
-        }
-
-        if (uinApplication.getPanCardDoc() != null) {
-            actualForm.setPanCardDocName(uinApplication.getPanCardDocName());
-        }
-
-        if (uinApplication.getSecurityClearanceDoc() != null) {
-            actualForm.setSecurityClearanceDocName(uinApplication.getSecurityClearanceDocName());
-        }
-
-        if (uinApplication.getDotPermissionDoc() != null) {
-            actualForm.setDotPermissionDocName(uinApplication.getDotPermissionDocName());
-        }
-
-        if (uinApplication.getEtaDoc() != null) {
-            actualForm.setEtaDocName(uinApplication.getEtaDocName());
-        }
-
-        if (uinApplication.getOpManualDoc() != null) {
-            actualForm.setOpManualDocName(uinApplication.getOpManualDocName());
-        }
-
-        if (uinApplication.getMaintenanceGuidelinesDoc() != null) {
-            actualForm.setMaintenanceGuidelinesDocName(uinApplication.getMaintenanceGuidelinesDocName());
-        }
-
-        BeanUtils.copyProperties(uinApplication, actualForm);
-
-        if (actualForm.getStatus() == ApplicationStatus.SUBMITTED) {
-            actualForm.setSubmittedDate(new Date());
-            operatorDroneService.updateStatus(uinApplication.getOperatorDroneId(), OperatorDroneStatus.UIN_SUBMITTED);
-        }
-        operatorDroneService.updateUniqueDeviceId(uinApplication.getOperatorDroneId(), uinApplication.getUniqueDeviceId());
-
-        actualForm.setLastModifiedDate(new Date());
-        actualForm.setCreatedDate(createdDate);
-        actualForm.setApplicantId(applicantId);
-
-        UINApplication savedForm = uinApplicationRepository.save(actualForm);
-
-        storageService.store(uinApplication.getAllDocs(), savedForm.getId());
-
-        return savedForm;
     }
 
     @Override
@@ -180,12 +149,81 @@ public class UINApplicationServiceImpl implements UINApplicationService {
         return storageService.loadAsResource(applicationId, fileName);
     }
 
-    private boolean validateApplication(String id, UINApplication uinApplication) throws DeviceUniqueIdMissingException, OperatorNotAuthorizedException, DeviceAlreadyUsedInAnotherUINApplicationException {
+    private boolean isValidDroneDevice(String id, UINApplication uinApplication) throws DeviceUniqueIdMissingException, OperatorNotAuthorizedException, DeviceAlreadyUsedInAnotherUINApplicationException {
 
         //form does not contain device unique id
-        if(uinApplication.getUniqueDeviceId() ==null ) {
+        if(uinApplication.getStatus() == ApplicationStatus.SUBMITTED && uinApplication.getUniqueDeviceId() == null ) {
             throw new DeviceUniqueIdMissingException();
         }
+        if(uinApplication.getUniqueDeviceId() != null) {
+
+            UserPrincipal userPrincipal = UserPrincipal.securityContext();
+            long userId = userPrincipal.getId();
+            long operatorId;
+            ApplicantType applicantType;
+            IndividualOperator individualOperator = individualOperatorRepository.loadByResourceOwner(userId);
+            if (individualOperator != null) {
+                operatorId = individualOperator.getId();
+                applicantType = ApplicantType.INDIVIDUAL;
+            } else {
+                operatorId = organizationOperatorRepository.loadByResourceOwner(userId).getId();
+                applicantType = ApplicantType.ORGANISATION;
+            }
+            DroneDevice device = droneDeviceRepository.findByDeviceId(uinApplication.getUniqueDeviceId());
+
+            //device belongs to another operator
+            if (!device.getOperatorCode().equals(String.valueOf(operatorId))) {
+                throw new OperatorNotAuthorizedException();
+            }
+
+            //device unique id already mapped to another drone as a part of UIN application
+            if (operatorDroneService.isMappedToDifferentUIN(uinApplication.getUniqueDeviceId(), uinApplication.getId(), operatorId, applicantType)) {
+                throw new DeviceAlreadyUsedInAnotherUINApplicationException();
+            }
+        }
+        return true;
+    }
+
+    private void setDocumentNames(UINApplication uinApplication, UINApplication actualForm) {
+
+        if (uinApplication.getImportPermissionDoc() != null) {
+            actualForm.setImportPermissionDocName(uinApplication.getImportPermissionDocName());
+        }
+
+        if (uinApplication.getCinDoc() != null) {
+            actualForm.setCinDocName(uinApplication.getCinDocName());
+        }
+
+        if (uinApplication.getGstinDoc() != null) {
+            actualForm.setGstinDocName(uinApplication.getGstinDocName());
+        }
+
+        if (uinApplication.getPanCardDoc() != null) {
+            actualForm.setPanCardDocName(uinApplication.getPanCardDocName());
+        }
+
+        if (uinApplication.getSecurityClearanceDoc() != null) {
+            actualForm.setSecurityClearanceDocName(uinApplication.getSecurityClearanceDocName());
+        }
+
+        if (uinApplication.getDotPermissionDoc() != null) {
+            actualForm.setDotPermissionDocName(uinApplication.getDotPermissionDocName());
+        }
+
+        if (uinApplication.getEtaDoc() != null) {
+            actualForm.setEtaDocName(uinApplication.getEtaDocName());
+        }
+
+        if (uinApplication.getOpManualDoc() != null) {
+            actualForm.setOpManualDocName(uinApplication.getOpManualDocName());
+        }
+
+        if (uinApplication.getMaintenanceGuidelinesDoc() != null) {
+            actualForm.setMaintenanceGuidelinesDocName(uinApplication.getMaintenanceGuidelinesDocName());
+        }
+    }
+
+    private boolean isAuthorizedOperatorDrone(long operatorDroneId) {
 
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         long userId = userPrincipal.getId();
@@ -200,18 +238,9 @@ public class UINApplicationServiceImpl implements UINApplicationService {
             operatorId = organizationOperatorRepository.loadByResourceOwner(userId).getId();
             applicantType = ApplicantType.ORGANISATION;
         }
-        DroneDevice device = droneDeviceRepository.findByDeviceId(uinApplication.getUniqueDeviceId());
 
-        //device belongs to another operator
-        if(!device.getOperatorCode().equals(String.valueOf(operatorId))) {
-            throw new OperatorNotAuthorizedException();
-        }
-
-        //device unique id already mapped to another drone as a part of UIN application
-        if(operatorDroneService.isMappedToDifferentUIN(uinApplication.getUniqueDeviceId(), uinApplication.getId(), operatorId, applicantType )) {
-            throw new DeviceAlreadyUsedInAnotherUINApplicationException();
-        }
-
-        return true;
+        OperatorDrone operatorDrone= operatorDroneService.find(operatorDroneId);
+        boolean isAuthorized = (operatorDrone.getOperatorId() == operatorId  && operatorDrone.getOperatorType() == applicantType);
+        return isAuthorized;
     }
 }
