@@ -29,17 +29,17 @@ import static com.ispirit.digitalsky.controller.DroneDeviceController.DRONEDEVIC
 public class DroneDeviceController {
     public static final String DRONEDEVICE_RESOURCE_BASE_PATH = "/api/droneDevice";
 
-    DroneDeviceService droneRegistrationService;
+    DroneDeviceService droneDeviceService;
 
-    public DroneDeviceController(DroneDeviceService droneRegistrationService) {
-        this.droneRegistrationService = droneRegistrationService;
+    public DroneDeviceController(DroneDeviceService droneDeviceService) {
+        this.droneDeviceService = droneDeviceService;
     }
 
     @RequestMapping(value = "/register/{manufacturerId}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> registerDrone(@PathVariable String manufacturerId, @Valid @RequestBody RegisterDroneRequestPayload payload) {
         RegisterDroneResponsePayload responsePayload = new RegisterDroneResponsePayload(payload.getDrone().getTxn(), LocalDateTime.now());
         try {
-            droneRegistrationService.register(manufacturerId, payload);
+            droneDeviceService.register(manufacturerId, payload);
             responsePayload.setCode(RegisterDroneResponseCode.REGISTERED);
             return new ResponseEntity<>(responsePayload, HttpStatus.CREATED);
         } catch(InvalidDigitalSignatureException e){
@@ -62,7 +62,7 @@ public class DroneDeviceController {
     public ResponseEntity<?> deregisterDrone(@PathVariable String manufacturerId, @Valid @RequestBody RegisterDroneRequestPayload payload) {
         RegisterDroneResponsePayload responsePayload = new RegisterDroneResponsePayload(payload.getDrone().getTxn(), LocalDateTime.now());
         try {
-            droneRegistrationService.deregister(manufacturerId, payload);
+            droneDeviceService.deregister(manufacturerId, payload);
             responsePayload.setCode(RegisterDroneResponseCode.DEREGISTERED);
             return new ResponseEntity<>(responsePayload, HttpStatus.OK);
         } catch(InvalidDigitalSignatureException e){
@@ -80,7 +80,7 @@ public class DroneDeviceController {
 
     @RequestMapping(value = "/list", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> list(@RequestParam(value = "operatorCode", required = true) String operatorCode) {
-        Collection<String> operatorDrones= droneRegistrationService.getNotRegisteredOperatorDroneDeviceIds(operatorCode);
+        Collection<String> operatorDrones= droneDeviceService.getRegisteredDroneDeviceIds(operatorCode);
         return new ResponseEntity<>(operatorDrones, HttpStatus.OK);
     }
 }

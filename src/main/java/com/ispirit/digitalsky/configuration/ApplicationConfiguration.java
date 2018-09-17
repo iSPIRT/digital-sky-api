@@ -193,8 +193,13 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    UINApplicationService uinApplicationService(StorageService storageService, UINApplicationRepository uinApplicationRepository, OperatorDroneService operatorDroneService) {
-        return new UINApplicationServiceImpl(uinApplicationRepository, storageService, operatorDroneService);
+    UINApplicationService uinApplicationService(StorageService storageService,
+                                                UINApplicationRepository uinApplicationRepository,
+                                                OperatorDroneService operatorDroneService,
+                                                IndividualOperatorRepository individualOperatorRepository,
+                                                OrganizationOperatorRepository organizationOperatorRepository,
+                                                DroneDeviceRepository droneDeviceRepository) {
+        return new UINApplicationServiceImpl(uinApplicationRepository, storageService, operatorDroneService, individualOperatorRepository, organizationOperatorRepository, droneDeviceRepository);
     }
 
     @Bean
@@ -206,8 +211,9 @@ public class ApplicationConfiguration {
     DroneDeviceService droneDeviceService(DroneDeviceRepository droneRepository, SignatureVerifierService signatureVerifierService,
                                                 IndividualOperatorRepository individualOperatorRepository,
                                                 OrganizationOperatorRepository organizationOperatorRepository,
+                                                ManufacturerRepository manufacturerRepository,
                                                 OperatorDroneService operatorDroneService) {
-        return new DroneDeviceServiceImpl(droneRepository, signatureVerifierService,individualOperatorRepository, organizationOperatorRepository, operatorDroneService );
+        return new DroneDeviceServiceImpl(droneRepository, signatureVerifierService,individualOperatorRepository, organizationOperatorRepository, manufacturerRepository, operatorDroneService );
     }
 
     @Bean

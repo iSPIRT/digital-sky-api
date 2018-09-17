@@ -59,7 +59,7 @@ public class DroneDevice implements Serializable {
     @JsonDeserialize(using = CustomLocalDateTimeDeSerializer.class)
     private LocalDateTime requestTimestamp;
 
-    @Column(name = "ID_HASH", nullable = false)
+    @Column(name = "ID_HASH")
     private String idHash;
 
     @Column(name = "REGISTRATION_STATUS", nullable = false)
@@ -124,9 +124,7 @@ public class DroneDevice implements Serializable {
         this.deviceModelId = deviceModelId;
     }
 
-    public String getOperatorCode() {
-        return operatorCode;
-    }
+    public String getOperatorCode() { return operatorCode; }
 
     public void setOperatorCode(String operatorCode) {
         this.operatorCode = operatorCode;

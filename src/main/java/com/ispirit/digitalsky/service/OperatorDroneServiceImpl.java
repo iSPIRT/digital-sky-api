@@ -2,6 +2,7 @@ package com.ispirit.digitalsky.service;
 
 import com.ispirit.digitalsky.domain.*;
 
+import com.ispirit.digitalsky.exception.OperatorNotAuthorizedException;
 import com.ispirit.digitalsky.repository.IndividualOperatorRepository;
 import com.ispirit.digitalsky.repository.OperatorDroneRepository;
 import com.ispirit.digitalsky.repository.OrganizationOperatorRepository;
@@ -50,20 +51,25 @@ public class OperatorDroneServiceImpl implements OperatorDroneService {
     }
 
     @Override
-    public List<OperatorDrone> loadByOperator() {
+    public List<OperatorDrone> loadByOperator() throws OperatorNotAuthorizedException{
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         long userId = userPrincipal.getId();
-        long operatorId ;
+        long operatorId = 0 ;
+        ApplicantType operatorType = ApplicantType.ORGANISATION;
         IndividualOperator individualOperator = individualOperatorRepository.loadByResourceOwner(userId);
         if(individualOperator != null) {
             operatorId = individualOperator.getId();
+            operatorType = ApplicantType.INDIVIDUAL;
         }
         else {
-            operatorId = organizationOperatorRepository.loadByResourceOwner(userId).getId();
+            OrganizationOperator organizationOperator =  organizationOperatorRepository.loadByResourceOwner(userId);
+            if(organizationOperator !=null ) {
+                operatorId = organizationOperator.getId();
+            }
         }
-
-        ApplicantType operatorType = (individualOperator != null) ? ApplicantType.INDIVIDUAL : ApplicantType.ORGANISATION;
-        return operatorDroneRepository.loadByOperator(operatorId, operatorType);
+        if(operatorId != 0) {
+            return operatorDroneRepository.loadByOperator(operatorId, operatorType);
+        } else return null;
     }
 
     @Override
@@ -105,7 +111,15 @@ public class OperatorDroneServiceImpl implements OperatorDroneService {
             }
         }
 
-            return availableDroneDeviceIds;
+        return availableDroneDeviceIds;
+    }
+
+    @Override
+    public boolean isMappedToDifferentUIN(String deviceUniqueDeviceId, String uinId, long operatorId, ApplicantType applicantType) {
+        List<OperatorDrone> operatorDrones = operatorDroneRepository.loadByOperator(operatorId, applicantType );
+        boolean anyMatchExists =  operatorDrones.stream()
+                .anyMatch(opDrone -> (opDrone.getUinApplicationId() != null && !opDrone.getUinApplicationId().equals(uinId) && opDrone.getDeviceId() != null  && opDrone.getDeviceId().equals(deviceUniqueDeviceId)));
+        return anyMatchExists;
     }
 
 }

@@ -1,7 +1,9 @@
 package com.ispirit.digitalsky.service.api;
 
+import com.ispirit.digitalsky.domain.ApplicantType;
 import com.ispirit.digitalsky.domain.OperatorDrone;
 import com.ispirit.digitalsky.domain.OperatorDroneStatus;
+import com.ispirit.digitalsky.exception.OperatorNotAuthorizedException;
 
 import java.util.Collection;
 import java.util.List;
@@ -14,12 +16,14 @@ public interface OperatorDroneService {
 
     OperatorDrone find(long id);
 
-    Collection<?> loadByOperator();
+    Collection<?> loadByOperator() throws OperatorNotAuthorizedException;
 
     OperatorDrone updateStatus(long id, OperatorDroneStatus operatorDroneStatus);
 
     OperatorDrone updateUniqueDeviceId(long id, String uniqueOperatorCode);
     
     Collection<String> getAvailableDroneDeviceIds(Collection<String> droneDeviceIds);
+
+    boolean isMappedToDifferentUIN(String deviceUniqueDeviceId, String uinId, long operatorId, ApplicantType applicantType);
 
 }

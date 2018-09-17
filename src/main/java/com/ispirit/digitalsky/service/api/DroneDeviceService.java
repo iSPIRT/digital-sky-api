@@ -12,5 +12,5 @@ import java.util.Collection;
 public interface DroneDeviceService {
     DroneDevice register(String manufacturerId, RegisterDroneRequestPayload drone) throws InvalidOperatorCodeException, DroneDeviceAlreadyExistException, InvalidDigitalSignatureException;
     DroneDevice deregister(String manufacturerId, RegisterDroneRequestPayload drone) throws DroneDeviceNotFoundException, InvalidDigitalSignatureException;
-    Collection<String> getNotRegisteredOperatorDroneDeviceIds(String operatorCode);
+    Collection<String> getRegisteredDroneDeviceIds(String operatorCode);
 }

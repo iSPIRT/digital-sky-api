@@ -3,6 +3,9 @@ package com.ispirit.digitalsky.service;
 import com.ispirit.digitalsky.document.UINApplication;
 import com.ispirit.digitalsky.domain.*;
 import com.ispirit.digitalsky.exception.*;
+import com.ispirit.digitalsky.repository.DroneDeviceRepository;
+import com.ispirit.digitalsky.repository.IndividualOperatorRepository;
+import com.ispirit.digitalsky.repository.OrganizationOperatorRepository;
 import com.ispirit.digitalsky.repository.UINApplicationRepository;
 import com.ispirit.digitalsky.repository.storage.StorageService;
 import com.ispirit.digitalsky.service.api.OperatorDroneService;
@@ -19,14 +22,25 @@ public class UINApplicationServiceImpl implements UINApplicationService {
 
     private UINApplicationRepository uinApplicationRepository;
     private OperatorDroneService operatorDroneService;
+    private IndividualOperatorRepository individualOperatorRepository;
+    private OrganizationOperatorRepository organizationOperatorRepository;
+    private DroneDeviceRepository droneDeviceRepository;
 
     private StorageService storageService;
 
-    public UINApplicationServiceImpl(UINApplicationRepository uinApplicationRepository, StorageService storageService, OperatorDroneService operatorDroneService ) {
+    public UINApplicationServiceImpl(UINApplicationRepository uinApplicationRepository,
+                                     StorageService storageService,
+                                     OperatorDroneService operatorDroneService,
+                                     IndividualOperatorRepository individualOperatorRepository,
+                                     OrganizationOperatorRepository organizationOperatorRepository,
+                                     DroneDeviceRepository droneDeviceRepository
+                                     ) {
 
         this.uinApplicationRepository = uinApplicationRepository;
         this.storageService = storageService;
         this.operatorDroneService = operatorDroneService;
+        this.individualOperatorRepository = individualOperatorRepository;
+        this.droneDeviceRepository = droneDeviceRepository;
     }
 
     @Override
@@ -49,6 +63,9 @@ public class UINApplicationServiceImpl implements UINApplicationService {
     public UINApplication updateApplication(String id, UINApplication uinApplication) throws ApplicationNotFoundException, UnAuthorizedAccessException, StorageException {
 
         UINApplication actualForm = uinApplicationRepository.findById(id);
+        if(validateApplication(id, uinApplication)) {
+
+        }
         if (actualForm == null) {
             throw new ApplicationNotFoundException();
         }
@@ -98,10 +115,7 @@ public class UINApplicationServiceImpl implements UINApplicationService {
             actualForm.setSubmittedDate(new Date());
             operatorDroneService.updateStatus(uinApplication.getOperatorDroneId(), OperatorDroneStatus.UIN_SUBMITTED);
         }
-
-        if(actualForm.getUniqueDeviceId() !=null) {
-            operatorDroneService.updateUniqueDeviceId(uinApplication.getOperatorDroneId(), actualForm.getUniqueDeviceId());
-        }
+        operatorDroneService.updateUniqueDeviceId(uinApplication.getOperatorDroneId(), uinApplication.getUniqueDeviceId());
 
         actualForm.setLastModifiedDate(new Date());
         actualForm.setCreatedDate(createdDate);
@@ -164,5 +178,40 @@ public class UINApplicationServiceImpl implements UINApplicationService {
     @Override
     public Resource getFile(String applicationId, String fileName) throws StorageFileNotFoundException {
         return storageService.loadAsResource(applicationId, fileName);
+    }
+
+    private boolean validateApplication(String id, UINApplication uinApplication) throws DeviceUniqueIdMissingException, OperatorNotAuthorizedException, DeviceAlreadyUsedInAnotherUINApplicationException {
+
+        //form does not contain device unique id
+        if(uinApplication.getUniqueDeviceId() ==null ) {
+            throw new DeviceUniqueIdMissingException();
+        }
+
+        UserPrincipal userPrincipal = UserPrincipal.securityContext();
+        long userId = userPrincipal.getId();
+        long operatorId ;
+        ApplicantType applicantType;
+        IndividualOperator individualOperator = individualOperatorRepository.loadByResourceOwner(userId);
+        if(individualOperator != null) {
+            operatorId = individualOperator.getId();
+            applicantType = ApplicantType.INDIVIDUAL;
+        }
+        else {
+            operatorId = organizationOperatorRepository.loadByResourceOwner(userId).getId();
+            applicantType = ApplicantType.ORGANISATION;
+        }
+        DroneDevice device = droneDeviceRepository.findByDeviceId(uinApplication.getUniqueDeviceId());
+
+        //device belongs to another operator
+        if(!device.getOperatorCode().equals(String.valueOf(operatorId))) {
+            throw new OperatorNotAuthorizedException();
+        }
+
+        //device unique id already mapped to another drone as a part of UIN application
+        if(operatorDroneService.isMappedToDifferentUIN(uinApplication.getUniqueDeviceId(), uinApplication.getId(), operatorId, applicantType )) {
+            throw new DeviceAlreadyUsedInAnotherUINApplicationException();
+        }
+
+        return true;
     }
 }

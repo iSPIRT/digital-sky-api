@@ -44,6 +44,9 @@ public class ManufacturerServiceImpl implements ManufacturerService {
     @Override
     public Manufacturer findByName(String fullName) {
          User user = userService.findUserByName(fullName);
+         if(user == null) {
+             return null;
+         }
          Manufacturer manufacturer = manufacturerRepository.loadByResourceOwner(user.getId());
          return manufacturer;
     }

@@ -13,5 +13,8 @@ public interface DroneDeviceRepository extends CrudRepository<DroneDevice, Long>
     DroneDevice findByDeviceId(@Param("uniqueDeviceCode") String uniqueDeviceCode);
 
     @Query("SELECT d.deviceId FROM DroneDevice d WHERE LOWER(d.operatorCode) = LOWER(:operatorCode) AND d.registrationStatus = 'REGISTERED'")
-    Collection<String> findNotRegisteredOperatorDroneDevices(@Param("operatorCode") String operatorCode);
+    Collection<String> findRegisteredDroneDeviceIds(@Param("operatorCode") String operatorCode);
+
+    @Query("SELECT d.deviceId FROM DroneDevice d WHERE LOWER(d.operatorCode) = LOWER(:operatorCode)")
+    Collection<String> findDroneDeviceIds(@Param("operatorCode") String operatorCode);
 }
