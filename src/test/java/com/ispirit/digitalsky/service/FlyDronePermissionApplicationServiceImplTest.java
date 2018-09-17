@@ -9,7 +9,7 @@ import com.ispirit.digitalsky.domain.ApproveRequestBody;
 import com.ispirit.digitalsky.domain.UserPrincipal;
 import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.ApplicationNotFoundException;
-import com.ispirit.digitalsky.exception.ApplicationNotInSubmittedStatus;
+import com.ispirit.digitalsky.exception.ApplicationNotInSubmittedStatusException;
 import com.ispirit.digitalsky.exception.StorageFileNotFoundException;
 import com.ispirit.digitalsky.exception.ValidationException;
 import com.ispirit.digitalsky.repository.FlyDronePermissionApplicationRepository;
@@ -32,6 +32,7 @@ import java.time.Month;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Date;
+
 import java.util.HashMap;
 import java.util.List;
 
@@ -48,6 +49,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
     private FlyDronePermissionApplicationRepository repository;
     private StorageService storageService;
     private FlyDronePermissionApplicationServiceImpl service;
+
     private AirspaceCategoryService airspaceCategoryService;
     private UserPrincipal userPrincipal;
     private DigitalSignService digitalSignService;
@@ -64,7 +66,6 @@ public class FlyDronePermissionApplicationServiceImplTest {
         freemarkerConfiguration = mock(Configuration.class);
         service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, freemarkerConfiguration));
         userPrincipal = SecurityContextHelper.setUserSecurityContext();
-
     }
 
     @Test
@@ -74,7 +75,6 @@ public class FlyDronePermissionApplicationServiceImplTest {
         application.setPilotId("1");
         application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
         doNothing().when(service).validateFlyArea(application);
-
 
         //when
         service.createApplication(application);
@@ -133,7 +133,6 @@ public class FlyDronePermissionApplicationServiceImplTest {
         application.setApplicantId(1);
 
         when(repository.findById("1")).thenReturn(application);
-        doNothing().when(service).validateFlyArea(application);
 
         //when
         service.updateApplication("1", applicationPayload);
@@ -196,7 +195,6 @@ public class FlyDronePermissionApplicationServiceImplTest {
         verify(service).generatePermissionArtifact(application);
 
     }
-
 
     @Test
     public void shouldThrowExceptionIfApplicationNotFoundDuringUpdate() throws Exception {
@@ -271,7 +269,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
         try {
             service.approveApplication(approveRequestBody);
             fail("should have thrown ApplicationNotFoundException");
-        } catch (ApplicationNotInSubmittedStatus e) {
+        } catch (ApplicationNotInSubmittedStatusException e) {
 
         }
     }

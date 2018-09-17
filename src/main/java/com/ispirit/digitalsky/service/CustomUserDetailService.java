@@ -47,7 +47,6 @@ public class CustomUserDetailService implements UserService {
         this.accountVerificationBasePath = accountVerificationBasePath;
     }
 
-
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.loadByEmail(email);
@@ -132,6 +131,11 @@ public class CustomUserDetailService implements UserService {
         user.setAccountVerificationToken(null);
         user.setAccountVerified(true);
         return userRepository.save(user);
+    }
+
+    @Override
+    public User findUserByName(String fullName) {
+        return userRepository.findUserByName(fullName);
     }
 
 }

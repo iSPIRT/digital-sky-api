@@ -5,7 +5,7 @@ import com.ispirit.digitalsky.domain.UserPrincipal;
 import com.ispirit.digitalsky.exception.StorageFileNotFoundException;
 import com.ispirit.digitalsky.repository.DroneTypeRepository;
 import com.ispirit.digitalsky.repository.storage.StorageService;
-import com.ispirit.digitalsky.service.api.DroneService;
+import com.ispirit.digitalsky.service.api.DroneTypeService;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.io.Resource;
@@ -16,12 +16,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class DroneServiceImpl implements DroneService {
+public class DroneTypeServiceImpl implements DroneTypeService {
 
     private final StorageService storageService;
     private final DroneTypeRepository droneTypeRepository;
 
-    public DroneServiceImpl(DroneTypeRepository droneTypeRepository, StorageService storageService) {
+    public DroneTypeServiceImpl(DroneTypeRepository droneTypeRepository, StorageService storageService) {
 
         this.droneTypeRepository = droneTypeRepository;
         this.storageService = storageService;

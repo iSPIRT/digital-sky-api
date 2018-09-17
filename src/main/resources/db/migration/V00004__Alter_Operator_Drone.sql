@@ -1,0 +1,1 @@
+ALTER TABLE ds_operator_drone ADD UNIQUE_DEVICE_ID VARCHAR(50);

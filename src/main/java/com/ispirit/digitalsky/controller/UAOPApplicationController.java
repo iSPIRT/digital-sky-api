@@ -110,7 +110,7 @@ public class UAOPApplicationController {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.NOT_FOUND);
         } catch (UnAuthorizedAccessException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.UNAUTHORIZED);
-        }catch (ApplicationNotInSubmittedStatus e) {
+        }catch (ApplicationNotInSubmittedStatusException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }

@@ -67,6 +67,7 @@ public class AirspaceCategoryServiceImpl implements AirspaceCategoryService {
             category.setGeoJsonFromString();
             result.add(category);
         }
+
         result.sort((o1, o2) -> o2.getModifiedDate().compareTo(o1.getModifiedDate()));
         return result;
     }
@@ -83,6 +84,7 @@ public class AirspaceCategoryServiceImpl implements AirspaceCategoryService {
                 result.put(airspaceCategory.getType(),airspaceCategory.getGeoJson());
             }
         }
+
         return result;
     }
 

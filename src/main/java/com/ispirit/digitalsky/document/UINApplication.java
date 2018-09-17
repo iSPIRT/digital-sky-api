@@ -83,6 +83,9 @@ public class UINApplication extends BasicApplication {
     @Field("operatorDroneId")
     private long operatorDroneId;
 
+    @Field("uniqueDeviceId")
+    private String uniqueDeviceId;
+
     @Field("manufacturer")
     private String manufacturer;
 
@@ -184,7 +187,6 @@ public class UINApplication extends BasicApplication {
 
     @Field("opManualDocName")
     private String opManualDocName;
-
 
 
     @JsonIgnore
@@ -420,6 +422,10 @@ public class UINApplication extends BasicApplication {
     public String getIncidentHistory() { return incidentHistory; }
 
     public void setIncidentHistory(String incidentHistory) { this.incidentHistory = incidentHistory; }
+
+    public String getUniqueDeviceId() { return uniqueDeviceId; }
+
+    public void setUniqueDeviceId(String uniqueDeviceId) { this.uniqueDeviceId = uniqueDeviceId; }
 
     public List<MultipartFile> getAllDocs() {
 

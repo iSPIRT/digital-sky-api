@@ -6,7 +6,7 @@ import org.springframework.core.io.Resource;
 
 import java.util.Collection;
 
-public interface DroneService {
+public interface DroneTypeService {
 
     DroneType createDroneType(DroneType droneType);
 

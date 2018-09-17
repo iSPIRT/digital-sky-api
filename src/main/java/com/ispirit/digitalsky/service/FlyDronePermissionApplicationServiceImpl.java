@@ -125,7 +125,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         }
 
         if (actualForm.getStatus() != ApplicationStatus.SUBMITTED) {
-            throw new ApplicationNotInSubmittedStatus();
+            throw new ApplicationNotInSubmittedStatusException();
         }
 
         actualForm.setApproverId(userPrincipal.getId());
@@ -158,6 +158,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
     }
 
     @Override
+
     public Resource getPermissionArtifact(String applicationId) throws StorageFileNotFoundException {
         try {
             return storageService.loadAsResource(applicationId, PERMISSION_ARTIFACT_XML);

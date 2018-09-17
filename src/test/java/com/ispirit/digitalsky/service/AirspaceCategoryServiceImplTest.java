@@ -16,7 +16,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -204,5 +203,6 @@ public class AirspaceCategoryServiceImplTest {
         assertThat(((FeatureCollection) geoJsonMapByType.get(AirspaceCategory.Type.GREEN)).getFeatures().size(),is(2));
         assertThat(((FeatureCollection) geoJsonMapByType.get(AirspaceCategory.Type.AMBER)).getFeatures().size(),is(2));
         assertThat(((FeatureCollection) geoJsonMapByType.get(AirspaceCategory.Type.RED)).getFeatures().size(),is(1));
+
     }
 }
