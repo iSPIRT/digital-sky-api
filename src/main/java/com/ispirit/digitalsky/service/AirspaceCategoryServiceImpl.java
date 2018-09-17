@@ -9,11 +9,14 @@ import com.ispirit.digitalsky.repository.AirspaceCategoryRepository;
 import com.ispirit.digitalsky.service.api.AirspaceCategoryService;
 import org.geojson.Feature;
 import org.geojson.FeatureCollection;
+import org.geojson.GeoJsonObject;
 import org.geojson.Polygon;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AirspaceCategoryServiceImpl implements AirspaceCategoryService {
 
@@ -64,7 +67,24 @@ public class AirspaceCategoryServiceImpl implements AirspaceCategoryService {
             category.setGeoJsonFromString();
             result.add(category);
         }
+
         result.sort((o1, o2) -> o2.getModifiedDate().compareTo(o1.getModifiedDate()));
+        return result;
+    }
+
+    @Override
+    public Map<AirspaceCategory.Type, GeoJsonObject> findGeoJsonMapByType() {
+        HashMap<AirspaceCategory.Type, GeoJsonObject> result = new HashMap<>();
+        List<AirspaceCategory> airspaceCategories = findAll();
+        for (AirspaceCategory airspaceCategory : airspaceCategories) {
+            if (result.containsKey(airspaceCategory.getType())) {
+                FeatureCollection featureCollection = (FeatureCollection) result.get(airspaceCategory.getType());
+                featureCollection.getFeatures().addAll(((FeatureCollection) airspaceCategory.getGeoJson()).getFeatures());
+            } else {
+                result.put(airspaceCategory.getType(),airspaceCategory.getGeoJson());
+            }
+        }
+
         return result;
     }
 

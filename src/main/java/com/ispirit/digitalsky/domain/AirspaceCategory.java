@@ -85,6 +85,8 @@ public class AirspaceCategory {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
+        createdDate = LocalDateTime.now();
+        modifiedDate = LocalDateTime.now();
     }
 
     public AirspaceCategory(String name, Type type, String geoJsonString) {
@@ -96,6 +98,8 @@ public class AirspaceCategory {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        createdDate = LocalDateTime.now();
+        modifiedDate = LocalDateTime.now();
     }
 
     public long getId() {

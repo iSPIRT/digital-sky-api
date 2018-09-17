@@ -1,10 +1,7 @@
 package com.ispirit.digitalsky.controller;
 
 import com.ispirit.digitalsky.document.FlyDronePermissionApplication;
-import com.ispirit.digitalsky.domain.ApproveRequestBody;
-import com.ispirit.digitalsky.domain.OperatorDrone;
-import com.ispirit.digitalsky.domain.UserPrincipal;
-import com.ispirit.digitalsky.domain.UserProfile;
+import com.ispirit.digitalsky.domain.*;
 import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.*;
 import com.ispirit.digitalsky.service.api.FlyDronePermissionApplicationService;
@@ -12,6 +9,8 @@ import com.ispirit.digitalsky.service.api.OperatorDroneService;
 import com.ispirit.digitalsky.service.api.UserProfileService;
 import com.ispirit.digitalsky.util.CustomValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -61,7 +60,7 @@ public class FlyDronePermissionApplicationController {
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         FlyDronePermissionApplication currentApplication = service.get(id);
 
-        if(currentApplication == null) throw new EntityNotFoundException("FlyDronePermissionApplication", id);
+        if (currentApplication == null) throw new EntityNotFoundException("FlyDronePermissionApplication", id);
 
         if (userPrincipal.getId() != currentApplication.getApplicantId()) {
             return new ResponseEntity<>(new Errors("UnAuthorized Access"), HttpStatus.UNAUTHORIZED);
@@ -114,7 +113,29 @@ public class FlyDronePermissionApplicationController {
         return new ResponseEntity<>(new Errors("Invalid Drone Id"), HttpStatus.BAD_REQUEST);
     }
 
-     private void validateDroneId(long droneId) {
+    @RequestMapping(value = "/{applicationId}/document/permissionArtifact", method = RequestMethod.GET)
+    public ResponseEntity<?> getFile(@PathVariable String applicationId) {
+
+        try {
+            FlyDronePermissionApplication application = service.get(applicationId);
+
+            UserPrincipal userPrincipal = UserPrincipal.securityContext();
+            if (!userPrincipal.isAdmin() && userPrincipal.getId() != application.getApplicantId()) {
+                return new ResponseEntity<>(new Errors("UnAuthorized Access"), HttpStatus.UNAUTHORIZED);
+            }
+            if (!application.getStatus().equals(ApplicationStatus.APPROVED)) {
+                return new ResponseEntity<>(new Errors("Application Not Approved Yet"), HttpStatus.BAD_REQUEST);
+            }
+            Resource resourceFile = service.getPermissionArtifact(applicationId);
+
+            return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+                    "attachment; filename=\"" + resourceFile.getFilename() + "\"").body(resourceFile);
+        } catch (StorageFileNotFoundException e) {
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    private void validateDroneId(long droneId) {
         OperatorDrone operatorDrone = operatorDroneService.find(droneId);
         if (operatorDrone == null) {
             throw new ValidationException(new Errors("Invalid Drone Id"));
@@ -123,6 +144,10 @@ public class FlyDronePermissionApplicationController {
         UserProfile profile = userProfileService.profile(UserPrincipal.securityContext().getId());
         if (!profile.owns(operatorDrone)) {
             throw new UnAuthorizedAccessException();
+        }
+
+        if (!operatorDrone.getOperatorDroneStatus().equals(OperatorDroneStatus.UIN_APPROVED)) {
+            throw new ValidationException(new Errors("UIN not approved for drone"));
         }
     }
 

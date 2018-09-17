@@ -24,6 +24,6 @@ public interface FlyDronePermissionApplicationService {
 
     Collection<FlyDronePermissionApplication> getAllApplications();
 
-    Resource getFile(String applicationId, String fileName) throws StorageFileNotFoundException;
+    Resource getPermissionArtifact(String applicationId) throws StorageFileNotFoundException;
 
 }

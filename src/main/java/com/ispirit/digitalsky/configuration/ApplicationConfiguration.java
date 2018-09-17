@@ -69,6 +69,14 @@ public class ApplicationConfiguration {
     @Value("${RE_CAPTCHA_SITE_SECRET:secret}")
     private String reCaptchaSiteSecret;
 
+    @Value("${DS_CERT_PATH:classpath:cert.pem}")
+    private String digitalSkyCertificatePath;
+
+    @Value("${DS_CERT_PRIVATE_KEY_PATH:classpath:key.pem}")
+    private String digitalSkyPrivateKeyPath;
+
+
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -252,8 +260,13 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    FlyDronePermissionApplicationService flyDronePermissionApplicationService(FlyDronePermissionApplicationRepository repository, StorageService storageService){
-        return new FlyDronePermissionApplicationServiceImpl(repository, storageService);
+    FlyDronePermissionApplicationService flyDronePermissionApplicationService(FlyDronePermissionApplicationRepository repository, StorageService storageService, AirspaceCategoryService airspaceCategoryService, freemarker.template.Configuration freemarkerConfiguration, DigitalSignService digitalSignService, OperatorDroneService operatorDroneService){
+        return new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, freemarkerConfiguration);
+    }
+
+    @Bean
+    DigitalSignService digitalSignService(ResourceLoader resourceLoader){
+        return new DigitalSignServiceImpl(resourceLoader, digitalSkyPrivateKeyPath, digitalSkyCertificatePath);
     }
 
     @Bean

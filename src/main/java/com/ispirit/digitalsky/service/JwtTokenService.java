@@ -5,12 +5,9 @@ import com.ispirit.digitalsky.service.api.SecurityTokenService;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.core.Authentication;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.security.Key;
 import java.security.KeyStore;
 import java.util.Calendar;
@@ -29,6 +26,7 @@ public class JwtTokenService implements SecurityTokenService {
             KeyStore keyStore = KeyStore.getInstance(jwtKeyStoreType);
             keyStore.load(resourceLoader.getResource(jwtKeyStorePath).getInputStream(), jwtKeyStorePassword.toCharArray());
             key = keyStore.getKey(jwtKeyAlias, jwtKeyPassword.toCharArray());
+
 
         } catch (Exception e) {
             throw new RuntimeException(e);

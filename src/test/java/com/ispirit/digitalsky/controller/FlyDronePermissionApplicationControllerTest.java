@@ -139,6 +139,7 @@ public class FlyDronePermissionApplicationControllerTest {
         application.setDroneId(droneId);
 
         OperatorDrone operatorDrone = new OperatorDrone(droneOperatorId, ApplicantType.INDIVIDUAL, "", false);
+
         when(operatorDroneService.find(droneId)).thenReturn(operatorDrone);
 
         UserProfile userProfile = new UserProfile(userPrincipal.getId(), 0, droneOperatorId, 0, 0);
@@ -216,6 +217,7 @@ public class FlyDronePermissionApplicationControllerTest {
         application.setStatus(ApplicationStatus.SUBMITTED);
 
         OperatorDrone operatorDrone = new OperatorDrone(droneOperatorId, ApplicantType.INDIVIDUAL, "", false);
+
         when(operatorDroneService.find(droneId)).thenReturn(operatorDrone);
 
         UserProfile userProfile = new UserProfile(userPrincipal.getId(), 0, droneOperatorId, 0, 0);
@@ -244,6 +246,7 @@ public class FlyDronePermissionApplicationControllerTest {
         application.setStatus(ApplicationStatus.SUBMITTED);
 
         OperatorDrone operatorDrone = new OperatorDrone(droneOperatorId, ApplicantType.INDIVIDUAL, "", false);
+
         when(operatorDroneService.find(droneId)).thenReturn(operatorDrone);
 
         UserProfile userProfile = new UserProfile(userPrincipal.getId(), 0, droneOperatorId, 0, 0);
@@ -275,6 +278,7 @@ public class FlyDronePermissionApplicationControllerTest {
         application.setStatus(ApplicationStatus.SUBMITTED);
 
         OperatorDrone operatorDrone = new OperatorDrone(droneOperatorId, ApplicantType.INDIVIDUAL, "", false);
+
         when(operatorDroneService.find(droneId)).thenReturn(operatorDrone);
 
         UserProfile userProfile = new UserProfile(userPrincipal.getId(), 0, droneOperatorId, 0, 0);
@@ -335,6 +339,7 @@ public class FlyDronePermissionApplicationControllerTest {
         application.setDroneId(droneId);
 
         OperatorDrone operatorDrone = new OperatorDrone(droneOperatorId, ApplicantType.INDIVIDUAL, "", false);
+
         when(operatorDroneService.find(droneId)).thenReturn(operatorDrone);
 
         UserProfile userProfile = new UserProfile(userPrincipal.getId(), 0, droneOperatorId, 0, 0);
@@ -423,6 +428,7 @@ public class FlyDronePermissionApplicationControllerTest {
         long droneOperatorId = 2L;
 
         OperatorDrone operatorDrone = new OperatorDrone(droneOperatorId, ApplicantType.INDIVIDUAL, "", false);
+
         when(operatorDroneService.find(droneId)).thenReturn(operatorDrone);
 
         UserProfile userProfile = new UserProfile(userPrincipal.getId(), 0, droneOperatorId, 0, 0);

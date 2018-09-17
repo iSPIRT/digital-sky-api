@@ -6,9 +6,7 @@ import com.ispirit.digitalsky.domain.ApplicationStatus;
 import com.ispirit.digitalsky.domain.ApproveRequestBody;
 import com.ispirit.digitalsky.domain.UserPrincipal;
 import com.ispirit.digitalsky.dto.Errors;
-
 import com.ispirit.digitalsky.exception.*;
-
 import com.ispirit.digitalsky.service.api.UAOPApplicationService;
 import com.ispirit.digitalsky.util.CustomValidator;
 import org.springframework.beans.factory.annotation.Autowired;
