@@ -2,25 +2,21 @@
 package com.ispirit.digitalsky.service;
 
 import com.ispirit.digitalsky.domain.DroneDevice;
-import com.ispirit.digitalsky.domain.RegisterDroneRequestPayload;
 import com.ispirit.digitalsky.domain.Manufacturer;
-import com.ispirit.digitalsky.exception.CertificateVerificationException;
+import com.ispirit.digitalsky.domain.RegisterDroneRequestPayload;
 import com.ispirit.digitalsky.service.api.ManufacturerService;
 import com.ispirit.digitalsky.service.api.SignatureVerifierService;
 import com.ispirit.digitalsky.util.CertChainValidator;
-import com.ispirit.digitalsky.util.CertificateVerificationResult;
-import com.ispirit.digitalsky.util.CertificateVerifier;
-import org.bouncycastle.jce.provider.X509CertificateObject;
 import org.springframework.util.Base64Utils;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
-import java.security.cert.PKIXCertPathBuilderResult;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
