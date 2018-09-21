@@ -38,7 +38,8 @@ public class IndividualOperatorController {
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
 
         individualOperator.setResourceOwnerId(userPrincipal.getId());
-
+        individualOperator.setName(userPrincipal.getUsername());
+        individualOperator.setEmail(userPrincipal.getEmail());
         try {
             IndividualOperator savedEntity = individualOperatorService.createNewOperator(individualOperator);
 
@@ -76,7 +77,7 @@ public class IndividualOperatorController {
         }
 
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
-        if (userPrincipal.getId() != individualOperator.getResourceOwnerId()) {
+        if (!userPrincipal.isAdmin() && userPrincipal.getId() != individualOperator.getResourceOwnerId()) {
             return new ResponseEntity<>(new Errors("UnAuthorized Access"), HttpStatus.UNAUTHORIZED);
         }
 

@@ -79,7 +79,7 @@ public class OrganizationOperatorController {
         }
 
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
-        if (userPrincipal.getId() != organizationOperator.getResourceOwnerId()) {
+        if (!userPrincipal.isAdmin() && userPrincipal.getId() != organizationOperator.getResourceOwnerId()) {
             return new ResponseEntity<>(new Errors("UnAuthorized Access"), HttpStatus.UNAUTHORIZED);
         }
 
