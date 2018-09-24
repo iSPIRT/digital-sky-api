@@ -84,6 +84,7 @@ public class ImportDroneApplicationController {
     }
 
     @RequestMapping(value = "/approve/{id}", method = RequestMethod.PATCH, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> approveAcquisitionForm(@PathVariable String id, @Valid @RequestBody ApproveRequestBody approveRequestBody) {
 
         try {

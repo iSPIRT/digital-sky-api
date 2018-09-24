@@ -67,7 +67,9 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         application.setApplicantId(userPrincipal.getId());
         application.setApplicant(userPrincipal.getUsername());
-
+        OperatorDrone operatorDrone = operatorDroneService.find(application.getDroneId());
+        application.setApplicantType(operatorDrone.getOperatorType());
+        application.setOperatorId(operatorDrone.getOperatorId());
         validateFlyArea(application);
 
         if (application.getStatus() == ApplicationStatus.SUBMITTED) {

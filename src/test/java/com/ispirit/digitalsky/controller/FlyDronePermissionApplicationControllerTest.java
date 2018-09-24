@@ -1,5 +1,6 @@
 package com.ispirit.digitalsky.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.TestContext;
 import com.ispirit.digitalsky.document.FlyDronePermissionApplication;
@@ -21,8 +22,12 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static com.ispirit.digitalsky.SecurityContextHelper.setUserSecurityContext;
 import static com.ispirit.digitalsky.controller.FlyDronePermissionApplicationController.APPLICATION_RESOURCE_BASE_PATH;
+import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -378,7 +383,7 @@ public class FlyDronePermissionApplicationControllerTest {
         //then
         ArgumentCaptor<ApproveRequestBody> argumentCaptor = ArgumentCaptor.forClass(ApproveRequestBody.class);
         verify(service).approveApplication(argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().getApplicationFormId(),is(applicationId));
+        assertThat(argumentCaptor.getValue().getApplicationFormId(), is(applicationId));
     }
 
     @Test
@@ -444,4 +449,35 @@ public class FlyDronePermissionApplicationControllerTest {
         assertThat(response.getStatus(), is(HttpStatus.OK.value()));
         verify(service).getApplicationsOfDrone(droneId);
     }
+
+    @Test
+    public void shouldGetAllApplications() throws Exception {
+        //given
+
+        FlyDronePermissionApplication applicationOne = new FlyDronePermissionApplication();
+        applicationOne.setStatus(ApplicationStatus.SUBMITTED);
+
+        FlyDronePermissionApplication applicationTwo = new FlyDronePermissionApplication();
+        applicationTwo.setStatus(ApplicationStatus.SUBMITTED);
+
+        FlyDronePermissionApplication applicationThree = new FlyDronePermissionApplication();
+        applicationThree.setStatus(ApplicationStatus.SUBMITTED);
+
+        FlyDronePermissionApplication applicationFour = new FlyDronePermissionApplication();
+        applicationFour.setStatus(ApplicationStatus.DRAFT);
+
+        when(service.getAllApplications()).thenReturn(asList(applicationOne, applicationTwo, applicationThree, applicationFour));
+
+        //when
+        MockHttpServletResponse response = mvc.perform(
+                get(APPLICATION_RESOURCE_BASE_PATH + "/getAll")
+        ).andReturn().getResponse();
+
+        //then
+        assertThat(response.getStatus(), is(HttpStatus.OK.value()));
+        List list = objectMapper.readValue(response.getContentAsString(), new TypeReference<List<FlyDronePermissionApplication>>() {
+        });
+        assertThat(list.size(), is(3));
+    }
+
 }

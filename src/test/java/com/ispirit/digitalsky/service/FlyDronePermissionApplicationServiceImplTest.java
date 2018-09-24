@@ -3,10 +3,7 @@ package com.ispirit.digitalsky.service;
 import com.ispirit.digitalsky.SecurityContextHelper;
 import com.ispirit.digitalsky.document.FlyDronePermissionApplication;
 import com.ispirit.digitalsky.document.LatLong;
-import com.ispirit.digitalsky.domain.AirspaceCategory;
-import com.ispirit.digitalsky.domain.ApplicationStatus;
-import com.ispirit.digitalsky.domain.ApproveRequestBody;
-import com.ispirit.digitalsky.domain.UserPrincipal;
+import com.ispirit.digitalsky.domain.*;
 import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.ApplicationNotFoundException;
 import com.ispirit.digitalsky.exception.ApplicationNotInSubmittedStatusException;
@@ -73,9 +70,10 @@ public class FlyDronePermissionApplicationServiceImplTest {
         //given
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
         application.setPilotId("1");
+        application.setDroneId(1);
         application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
         doNothing().when(service).validateFlyArea(application);
-
+        when(operatorDroneService.find(application.getDroneId())).thenReturn(new OperatorDrone());
         //when
         service.createApplication(application);
 
@@ -94,12 +92,13 @@ public class FlyDronePermissionApplicationServiceImplTest {
         //given
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
         application.setPilotId("1");
+        application.setDroneId(1);
         application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
         application.setStatus(ApplicationStatus.SUBMITTED);
         doNothing().when(service).validateFlyArea(application);
         doNothing().when(service).handleSubmit(application);
         doNothing().when(service).generatePermissionArtifact(any());
-
+        when(operatorDroneService.find(application.getDroneId())).thenReturn(new OperatorDrone());
         //when
         service.createApplication(application);
 
@@ -133,7 +132,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
         application.setApplicantId(1);
 
         when(repository.findById("1")).thenReturn(application);
-
+        doNothing().when(service).validateFlyArea(application);
         //when
         service.updateApplication("1", applicationPayload);
 

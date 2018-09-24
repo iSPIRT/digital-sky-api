@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.ispirit.digitalsky.controller.FlyDronePermissionApplicationController.APPLICATION_RESOURCE_BASE_PATH;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
@@ -133,6 +135,19 @@ public class FlyDronePermissionApplicationController {
         } catch (StorageFileNotFoundException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.NOT_FOUND);
         }
+    }
+
+    @RequestMapping(value = "/getAll", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> listAll() {
+
+        Collection<?> applicationForms = service.getAllApplications();
+        List<?> submittedApplications = applicationForms.stream().filter(applicationForm -> {
+            ApplicationStatus status = ((FlyDronePermissionApplication) applicationForm).getStatus();
+            return status != null && status != ApplicationStatus.DRAFT;
+        }).collect(Collectors.toList());
+
+        return new ResponseEntity<>(submittedApplications, HttpStatus.OK);
     }
 
     private void validateDroneId(long droneId) {

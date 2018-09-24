@@ -94,4 +94,12 @@ public class Pilot extends Person {
     public MultipartFile getTrainingCertificate() {
         return trainingCertificate;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }

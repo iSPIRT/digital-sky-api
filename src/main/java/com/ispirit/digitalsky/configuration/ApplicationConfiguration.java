@@ -173,26 +173,23 @@ public class ApplicationConfiguration {
 
     @Bean
     DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneAcquisitionService(
-                LocalDroneAcquisitionApplicationRepository droneAcquisitionRepository,
-                StorageService storageService,
-                DroneTypeService droneService,
-                OperatorDroneService operatorDroneService,
-                IndividualOperatorRepository individualOperatorRepository,
-                OrganizationOperatorRepository organizationOperatorRepository) {
+            LocalDroneAcquisitionApplicationRepository droneAcquisitionRepository,
+            StorageService storageService,
+            DroneTypeService droneService,
+            OperatorDroneService operatorDroneService, UserProfileService userProfileService) {
 
-        return new DroneAcquisitionApplicationServiceImpl<LocalDroneAcquisitionApplication>(droneAcquisitionRepository, storageService, droneService, operatorDroneService, individualOperatorRepository, organizationOperatorRepository);
+        return new DroneAcquisitionApplicationServiceImpl<LocalDroneAcquisitionApplication>(droneAcquisitionRepository, storageService, droneService, operatorDroneService, userProfileService);
     }
 
     @Bean
     DroneAcquisitionApplicationService<ImportDroneApplication> importedDroneAcquisitionService(
-                ImportDroneApplicationRepository droneAcquisitionRepository,
-                StorageService storageService,
-                DroneTypeService droneService,
-                OperatorDroneService operatorDroneService,
-                IndividualOperatorRepository individualOperatorRepository,
-                OrganizationOperatorRepository organizationOperatorRepository) {
+            ImportDroneApplicationRepository droneAcquisitionRepository,
+            StorageService storageService,
+            DroneTypeService droneService,
+            OperatorDroneService operatorDroneService,
+            UserProfileService userProfileService) {
 
-        return new DroneAcquisitionApplicationServiceImpl<ImportDroneApplication>(droneAcquisitionRepository, storageService, droneService, operatorDroneService, individualOperatorRepository, organizationOperatorRepository);
+        return new DroneAcquisitionApplicationServiceImpl<ImportDroneApplication>(droneAcquisitionRepository, storageService, droneService, operatorDroneService, userProfileService);
     }
 
     @Bean
