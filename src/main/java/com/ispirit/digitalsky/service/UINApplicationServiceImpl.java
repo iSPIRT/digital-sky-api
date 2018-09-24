@@ -40,6 +40,7 @@ public class UINApplicationServiceImpl implements UINApplicationService {
         this.storageService = storageService;
         this.operatorDroneService = operatorDroneService;
         this.individualOperatorRepository = individualOperatorRepository;
+        this.organizationOperatorRepository = organizationOperatorRepository;
         this.droneDeviceRepository = droneDeviceRepository;
     }
 
@@ -165,7 +166,7 @@ public class UINApplicationServiceImpl implements UINApplicationService {
                 operatorId = organizationOperatorRepository.loadByResourceOwner(userId).getId();
                 applicantType = ApplicantType.ORGANISATION;
             }
-            DroneDevice device = droneDeviceRepository.findByDeviceId(uinApplication.getUniqueDeviceId());
+                DroneDevice device = droneDeviceRepository.findByDeviceId(uinApplication.getUniqueDeviceId());
 
             if (!device.getOperatorCode().equals(String.valueOf(operatorId))) {
                 throw new OperatorNotAuthorizedException();

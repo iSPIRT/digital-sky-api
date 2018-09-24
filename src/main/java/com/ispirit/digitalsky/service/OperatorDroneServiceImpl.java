@@ -11,7 +11,6 @@ import com.ispirit.digitalsky.service.api.OperatorDroneService;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 

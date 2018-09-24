@@ -2,6 +2,7 @@ package com.ispirit.digitalsky.document;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.ispirit.digitalsky.domain.ApplicantType;
 import com.ispirit.digitalsky.util.*;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -29,6 +30,11 @@ public class FlyDronePermissionApplication extends BasicApplication {
     @Field("droneId")
     @NotNull
     private long droneId;
+
+    @Field("operatorId")
+    @NotNull
+    private long operatorId;
+
 
     @Field("payloadWeightInKg")
     @NotNull
@@ -128,5 +134,13 @@ public class FlyDronePermissionApplication extends BasicApplication {
 
     public void setEndDateTime(LocalDateTime endDateTime) {
         this.endDateTime = endDateTime;
+    }
+
+    public long getOperatorId() {
+        return operatorId;
+    }
+
+    public void setOperatorId(long operatorId) {
+        this.operatorId = operatorId;
     }
 }

@@ -43,5 +43,19 @@ public class UserProfile {
         return orgOperatorId;
     }
 
-    public long getManufacturerId() { return manufacturerId; }
+    public long getManufacturerId() {
+        return manufacturerId;
+    }
+
+    public boolean isOperator() {
+        return individualOperatorId != 0 || orgOperatorId != 0;
+    }
+
+    public boolean isIndividualOperator() {
+        return isOperator() && individualOperatorId != 0;
+    }
+
+    public boolean isOrganizationOperator() {
+        return isOperator() && orgOperatorId != 0;
+    }
 }

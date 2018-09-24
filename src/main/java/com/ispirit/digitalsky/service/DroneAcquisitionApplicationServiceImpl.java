@@ -1,11 +1,11 @@
 package com.ispirit.digitalsky.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ispirit.digitalsky.document.BasicApplication;
 import com.ispirit.digitalsky.document.DroneAcquisitionApplication;
 import com.ispirit.digitalsky.document.ImportDroneApplication;
 
 import com.ispirit.digitalsky.domain.*;
+import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.*;
 
 import com.ispirit.digitalsky.repository.DroneAcquisitionApplicationRepository;
@@ -14,11 +14,8 @@ import com.ispirit.digitalsky.repository.OrganizationOperatorRepository;
 import com.ispirit.digitalsky.repository.storage.StorageService;
 
 
-import com.ispirit.digitalsky.service.api.DroneAcquisitionApplicationService;
-import com.ispirit.digitalsky.service.api.DroneTypeService;
-import com.ispirit.digitalsky.service.api.OperatorDroneService;
+import com.ispirit.digitalsky.service.api.*;
 
-import com.ispirit.digitalsky.service.api.OrganizationOperatorService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,22 +32,19 @@ public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionAp
 
     private final StorageService storageService;
     private final OperatorDroneService operatorDroneService;
-    private final IndividualOperatorRepository individualOperatorRepository;
-    private final OrganizationOperatorRepository organizationOperatorRepository;
     private final DroneTypeService droneService;
+    private final UserProfileService userProfileService;
 
     public DroneAcquisitionApplicationServiceImpl(DroneAcquisitionApplicationRepository<T> droneAcquisitionFormRepository,
-              StorageService storageService,
-              DroneTypeService droneService,
-              OperatorDroneService operatorDroneService,
-              IndividualOperatorRepository individualOperatorRepository,
-              OrganizationOperatorRepository organizationOperatorRepository) {
+                                                  StorageService storageService,
+                                                  DroneTypeService droneService,
+                                                  OperatorDroneService operatorDroneService,
+                                                  UserProfileService userProfileService) {
         this.droneAcquisitionFormRepository = droneAcquisitionFormRepository;
         this.storageService = storageService;
         this.droneService = droneService;
         this.operatorDroneService = operatorDroneService;
-        this.individualOperatorRepository = individualOperatorRepository;
-        this.organizationOperatorRepository = organizationOperatorRepository;
+        this.userProfileService = userProfileService;
     }
 
     @Override
@@ -123,19 +117,26 @@ public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionAp
         actualForm.setStatus(approveRequestBody.getStatus());
 
         T savedForm = droneAcquisitionFormRepository.save(actualForm);
-        if(((BasicApplication)savedForm).getStatus() == ApplicationStatus.APPROVED) {
+        if(savedForm.getStatus() == ApplicationStatus.APPROVED) {
 
             boolean isImported = actualForm instanceof ImportDroneApplication;
-            long operatorId ;
-            IndividualOperator individualOperator = individualOperatorRepository.loadByResourceOwner(actualForm.getApplicantId());
-            if(individualOperator != null) {
-                operatorId = individualOperator.getId();
-            }
-            else {
-                operatorId = organizationOperatorRepository.loadByResourceOwner(userPrincipal.getId()).getId();
+
+            long operatorId;
+
+            ApplicantType operatorType;
+
+            UserProfile userProfile = userProfileService.profile(actualForm.getApplicantId());
+
+            if (userProfile.isIndividualOperator()) {
+                operatorId = userProfile.getIndividualOperatorId();
+                operatorType = ApplicantType.INDIVIDUAL;
+            } else if (userProfile.isOrganizationOperator()) {
+                operatorId = userProfile.getOrgOperatorId();
+                operatorType = ApplicantType.ORGANISATION;
+            } else {
+                throw new ValidationException(new Errors("Applicant not operator"));
             }
 
-            ApplicantType operatorType = (individualOperator != null) ? ApplicantType.INDIVIDUAL : ApplicantType.ORGANISATION;
             DroneType actualDroneType = droneService.get(actualForm.getDroneTypeId());
 
             OperatorDrone opDrone = new OperatorDrone(operatorId, operatorType, actualForm.getId(), isImported);

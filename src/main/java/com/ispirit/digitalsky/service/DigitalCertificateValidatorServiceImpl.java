@@ -19,60 +19,6 @@ public class DigitalCertificateValidatorServiceImpl implements DigitalCertificat
 
     }
 
-//    public static boolean isValidCertificate(X509Certificate clientCertificate, String keyStorePath) {
-//        boolean found = false;
-//        try {
-//            KeyStore keyStore = KeyStore.getInstance("JKS");
-//            keyStore.load(new FileInputStream(keyStorePath), null);
-//            Enumeration<String> alias = keyStore.aliases();
-//            Certificate[] certificateChain = keyStore.getCertificateChain(alias.nextElement());
-//            CertificateFactory cf = CertificateFactory.getInstance("X.509");
-//            CertPathValidator validator = CertPathValidator.getInstance("PKIX");
-//
-//            Set<TrustAnchor> anchors = new HashSet<>();
-//            for (Certificate cert : certificateChain) {
-//                anchors.add(new TrustAnchor((X509Certificate) cert, null));
-//            }
-//            CertPath path = cf.generateCertPath(Arrays.asList(certificateChain));
-//
-//            PKIXParameters params = new PKIXParameters(anchors);
-//            params.setRevocationEnabled(false);
-//
-//            for (int i = 0; i < certificateChain.length; i++) {
-//                X509Certificate trustedCertificate = (X509Certificate) certificateChain[i];
-//                if (clientCertificate.getIssuerDN().equals(trustedCertificate.getSubjectDN())) {
-//                    try {
-//                        validator.validate(path, params);
-//                        try {
-//                            if (isSelfSigned(trustedCertificate)) {
-//                                found = true;
-//                            } else if (!clientCertificate.equals(trustedCertificate)) {
-//                                clientCertificate = trustedCertificate;
-//                            }
-//                        } catch (NoSuchProviderException e) {
-//                            throw new InvalidDigitalCertificateException();
-//                        }
-//                    } catch (CertPathValidatorException e) {
-//                       throw new InvalidDigitalCertificateException();
-//                    }
-//                }
-//            }
-//        } catch (KeyStoreException e) {
-//            e.printStackTrace();
-//        } catch (NoSuchAlgorithmException e) {
-//            e.printStackTrace();
-//        } catch (CertificateException e) {
-//            e.printStackTrace();
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } catch (InvalidAlgorithmParameterException e) {
-//            e.printStackTrace();
-//        }
-//        return found;
-//    }
-
     @Override
     public boolean isValidCertificate(X509Certificate clientCertificate, String manufacturerCertificateChainPath) throws InvalidDigitalCertificateException {
 

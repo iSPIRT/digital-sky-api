@@ -56,7 +56,8 @@ public class PilotController {
             UserPrincipal userPrincipal = UserPrincipal.securityContext();
 
             pilot.setResourceOwnerId(userPrincipal.getId());
-
+            pilot.setName(userPrincipal.getUsername());
+            pilot.setEmail(userPrincipal.getEmail());
             Pilot savedPilotInstance = pilotService.createNewPilot(pilot);
             return new ResponseEntity<>(savedPilotInstance, HttpStatus.CREATED);
         } catch (PilotProfileAlreadyExist e) {
@@ -111,7 +112,7 @@ public class PilotController {
         }
 
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
-        if (userPrincipal.getId() != pilot.getResourceOwnerId()) {
+        if (!userPrincipal.isAdmin() && userPrincipal.getId() != pilot.getResourceOwnerId()) {
             return new ResponseEntity<>(new Errors("UnAuthorized Access"), HttpStatus.UNAUTHORIZED);
         }
 
