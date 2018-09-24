@@ -7,7 +7,10 @@ import org.springframework.data.repository.query.Param;
 
 public interface ManufacturerRepository extends CrudRepository<Manufacturer, Long> {
 
-    @Query("SELECT p FROM Manufacturer p WHERE  p.resourceOwnerId = :resourceOwnerId")
+    @Query("SELECT m FROM Manufacturer m WHERE  m.resourceOwnerId = :resourceOwnerId")
     Manufacturer loadByResourceOwner(@Param("resourceOwnerId") long resourceOwnerId);
+
+    @Query("SELECT m FROM Manufacturer m WHERE LOWER(m.name) = LOWER(:organizationName)")
+    Manufacturer findByName(@Param("organizationName") String organizationName);
 
 }

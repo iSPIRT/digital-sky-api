@@ -13,4 +13,6 @@ public interface ManufacturerService {
 
     Manufacturer findByName(String fullName);
 
+    String getDigitalCertificatePath(long id);
+
 }

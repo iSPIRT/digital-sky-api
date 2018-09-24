@@ -133,9 +133,4 @@ public class CustomUserDetailService implements UserService {
         return userRepository.save(user);
     }
 
-    @Override
-    public User findUserByName(String fullName) {
-        return userRepository.findUserByName(fullName);
-    }
-
 }

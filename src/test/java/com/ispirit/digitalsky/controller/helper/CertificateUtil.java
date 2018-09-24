@@ -1,65 +1,56 @@
 package com.ispirit.digitalsky.controller.helper;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.UnrecoverableEntryException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
+import org.springframework.util.Base64Utils;
 
+import java.io.*;
+import java.security.*;
+import java.security.cert.*;
+import java.security.cert.Certificate;
+import java.util.*;
 
 public class CertificateUtil {
+    private static final String keyStorePath = "/Users/archana/certchain.jks";
+    private static final String keyStorePassword = "password";
+    private static final String keyStoreAlias = "digitalsky";
 
-    public static X509Certificate getCertificateDetails(String jksPath, String jksPassword) {
+//    public static String getBase64EncodedCertificateChain() {
+//        try {
+//            KeyStore keyStore = KeyStore.getInstance("JKS");
+//            keyStore.load(new FileInputStream(keyStorePath), keyStorePassword.toCharArray());
+//            Enumeration<String> es = keyStore.aliases();
+//            Certificate[] chain = keyStore.getCertificateChain(keyStoreAlias);
+//            ArrayList<Certificate> certificates = new ArrayList<Certificate>();
+//            for (int i = 0; i < chain.length; i++) {
+//                certificates.add(chain[i]);
+//            }
+//
+//            ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+//            for(Certificate certificate : certificates){
+//                    outputStream.write(certificate.getEncoded());
+//                }
+//
+//            return Base64Utils.encodeToString(outputStream.toByteArray());
+//        } catch (KeyStoreException e) {
+//            e.printStackTrace();
+//        } catch (NoSuchAlgorithmException e) {
+//            e.printStackTrace();
+//        } catch (CertificateException e) {
+//            e.printStackTrace();
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//     return  null;
+//    }
 
-        X509Certificate certificate = null;
-
+    public static String getBase64EncodedCertificate() {
         try {
-
-            boolean isAliasWithPrivateKey = false;
             KeyStore keyStore = KeyStore.getInstance("JKS");
-
-            // Provide location of Java Keystore and password for access
-            keyStore.load(new FileInputStream(jksPath), jksPassword.toCharArray());
-
-            // iterate over all aliases
-            Enumeration<String> es = keyStore.aliases();
-            String alias = "";
-            while (es.hasMoreElements()) {
-                alias = (String) es.nextElement();
-                // if alias refers to a private key break at that point
-                // as we want to use that certificate
-                if (isAliasWithPrivateKey = keyStore.isKeyEntry(alias)) {
-                    break;
-                }
-            }
-
-            if (isAliasWithPrivateKey) {
-
-                KeyStore.PrivateKeyEntry pkEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry(alias,
-                        new KeyStore.PasswordProtection(jksPassword.toCharArray()));
-
-                PrivateKey myPrivateKey = pkEntry.getPrivateKey();
-
-                // Load certificate chain
-                Certificate[] chain = keyStore.getCertificateChain(alias);
-                List mylist = new ArrayList();
-                for (int i = 0; i < chain.length; i++) {
-                    mylist.add(chain[i]);
-                }
-                certificate = ((X509Certificate) chain[0]);
-                //CertPath cp = cf.generateCertPath(mylist);
-
-            }
-
+            keyStore.load(new FileInputStream(keyStorePath), keyStorePassword.toCharArray());
+            X509Certificate certificate = (X509Certificate) keyStore.getCertificate(keyStoreAlias);
+            return Base64Utils.encodeToString(certificate.getEncoded());
         } catch (KeyStoreException e) {
             e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
@@ -70,11 +61,9 @@ public class CertificateUtil {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (UnrecoverableEntryException e) {
-            e.printStackTrace();
         }
 
-        return certificate;
+        return  null;
     }
 
 }

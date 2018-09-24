@@ -1,6 +1,5 @@
 package com.ispirit.digitalsky.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.TestContext;
 import com.ispirit.digitalsky.controller.helper.CertificateUtil;
 import com.ispirit.digitalsky.controller.helper.DigitalSigner;
@@ -21,16 +20,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.Base64Utils;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
-import java.time.LocalDateTime;
+import java.security.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -42,14 +35,11 @@ public class RegisterDroneIntegrationTest {
     @Autowired
     private TestRestTemplate restTemplate;
     private RestTemplate patchRestTemplate;
-    private final String keyStorePath = "/Users/archana/keystore.jks";
-    private final String keyStorePassword = "changeit";
+    private final String keyStorePath = "/Users/archana/digitalsky.jks";
+    private final String keyStorePassword = "password";
     private final String alias = "digitalsky";
 
     private DigitalSigner digitalSigner;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Before
     public void setup() {
@@ -67,20 +57,16 @@ public class RegisterDroneIntegrationTest {
         DroneDevice mockDrone = new DroneDevice();
 
         mockDrone.setVersion("1.0");
-        mockDrone.setDeviceId("Beebop 2.0");
+        mockDrone.setDeviceId("Beebop 7.0");
         mockDrone.setDeviceModelId("1A29.0");
-        mockDrone.setTxn("BeebopValidValue");
+        mockDrone.setTxn("From manufacturer ");
         mockDrone.setOperatorCode("1");
         mockDrone.setIdHash("some value");
-        mockDrone.setRequestTimestamp(LocalDateTime.now());
-        mockDronePayload.setDrone(mockDrone);
 
-        X509Certificate certificate = CertificateUtil.getCertificateDetails(keyStorePath,keyStorePassword);
-        try {
-            mockDronePayload.setDigitalCertificate(Base64Utils.encodeToString(certificate.getEncoded()));
-        } catch (CertificateEncodingException e) {
-            e.printStackTrace();
-        }
+        mockDronePayload.setDrone(mockDrone);
+        String certificate = CertificateUtil.getBase64EncodedCertificate();
+        mockDronePayload.setDigitalCertificate(certificate);
+
         try {
             mockDronePayload.setSignature(digitalSigner.sign(mockDrone));
         } catch (InvalidKeyException e) {
@@ -96,42 +82,34 @@ public class RegisterDroneIntegrationTest {
         }
 
         ResponseEntity<RegisterDroneResponsePayload> responseEntity =
-                restTemplate.postForEntity("/api/droneDevice/register/4",  mockDronePayload, RegisterDroneResponsePayload.class);
-//        try {
-//            digitalSigner.verify(mockDronePayload.getSignature(),mockDrone, mockDronePayload.getDigitalCertificate());
-//        } catch (NoSuchAlgorithmException e) {
-//            e.printStackTrace();
-//        } catch (InvalidKeyException e) {
-//            e.printStackTrace();
-//        } catch (SignatureException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+                restTemplate.postForEntity("/api/droneDevice/register/11",  mockDronePayload, RegisterDroneResponsePayload.class);
+
         String txn = responseEntity.getBody().getTxn();
 
         assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
-        assertEquals(txn, "BeebopValidValue");
+        assertEquals(txn, "From manufacturer ");
         assertEquals(responseEntity.getBody().getCode(), RegisterDroneResponseCode.REGISTERED);
         assertEquals(responseEntity.getBody().getError(), null);
     }
 
 
+    @Test
     public void deregisterDrone()  {
 
         RegisterDroneRequestPayload mockDronePayload = new RegisterDroneRequestPayload();
         DroneDevice mockDrone = new DroneDevice();
 
         mockDrone.setVersion("1.0");
-        mockDrone.setDeviceId("RPA Beebop 4.0");
+        mockDrone.setDeviceId("Beebop 7.0");
         mockDrone.setDeviceModelId("1A29.0");
-        mockDrone.setTxn("BeebopValidValue");
+        mockDrone.setTxn("From manufacturer ");
         mockDrone.setOperatorCode("1");
         mockDrone.setIdHash("some value");
-        mockDrone.setRequestTimestamp(LocalDateTime.now());
 
         mockDronePayload.setDrone(mockDrone);
-       // mockDronePayload.setDigitalCertificate(digitalSigner.getCertificate());
+        String certificate = CertificateUtil.getBase64EncodedCertificate();
+        mockDronePayload.setDigitalCertificate(certificate);
+
         try {
             mockDronePayload.setSignature(digitalSigner.sign(mockDrone));
         } catch (InvalidKeyException e) {
@@ -147,10 +125,10 @@ public class RegisterDroneIntegrationTest {
         }
 
         RegisterDroneResponsePayload responsePayload =
-                patchRestTemplate.patchForObject("/api/droneDevice/deregister/4", mockDronePayload, RegisterDroneResponsePayload.class);
+                patchRestTemplate.patchForObject("/api/droneDevice/deregister/11", mockDronePayload, RegisterDroneResponsePayload.class);
         String txn = responsePayload.getTxn();
 
-        assertEquals(txn, "BeebopValidValue");
+        assertEquals(txn, "From manufacturer ");
         assertEquals(responsePayload.getCode(), RegisterDroneResponseCode.DEREGISTERED);
         assertEquals(responsePayload.getError(), null);
     }

@@ -14,19 +14,23 @@ import java.time.LocalDateTime;
 @Table(name = "ds_drone_device")
 public class DroneDevice implements Serializable {
 
+    @JsonIgnore
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
+    @JsonIgnore
     @Column(name = "DRONE_TYPE_ID")
     private long droneTypeId;
 
+    @JsonIgnore
     @Column(name = "CREATED_DATE")
     @JsonSerialize(using = CustomLocalDateSerializer.class)
     @JsonDeserialize(using = CustomLocalDateDeSerializer.class)
     @Convert(converter = LocalDateAttributeConverter.class)
     private LocalDate createdDate;
 
+    @JsonIgnore
     @Column(name = "LAST_MODIFIED_DATE")
     @JsonSerialize(using = CustomLocalDateSerializer.class)
     @JsonDeserialize(using = CustomLocalDateDeSerializer.class)
@@ -37,7 +41,11 @@ public class DroneDevice implements Serializable {
     @JsonIgnore
     private String manufacturerId;
 
-    /* attributes copied from request */
+    @JsonIgnore
+    @Column(name = "REGISTRATION_STATUS", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private DroneDeviceRegistrationStatus registrationStatus  = DroneDeviceRegistrationStatus.NOT_REGISTERED;
+
     @Column(name = "VERSION", nullable = false)
     private String version;
 
@@ -53,18 +61,8 @@ public class DroneDevice implements Serializable {
     @Column(name = "OPERATOR_CODE", nullable = false)
     private String operatorCode;
 
-    @Column(name = "REQUEST_TIMESTAMP", nullable = false)
-    @Convert(converter = LocalDateTimeAttributeConverter.class)
-    @JsonSerialize(using = CustomLocalDateTimeSerializer.class)
-    @JsonDeserialize(using = CustomLocalDateTimeDeSerializer.class)
-    private LocalDateTime requestTimestamp;
-
     @Column(name = "ID_HASH")
     private String idHash;
-
-    @Column(name = "REGISTRATION_STATUS", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private DroneDeviceRegistrationStatus registrationStatus  = DroneDeviceRegistrationStatus.NOT_REGISTERED;
 
     public DroneDevice() {
 
@@ -133,12 +131,6 @@ public class DroneDevice implements Serializable {
     public String getManufacturerId() { return manufacturerId; }
 
     public void setManufacturerId(String manufacturerId) { this.manufacturerId = manufacturerId; }
-
-    public LocalDateTime getRequestTimestamp() {
-        return requestTimestamp;
-    }
-
-    public void setRequestTimestamp(LocalDateTime requestTimestamp) { this.requestTimestamp = requestTimestamp; }
 
     public String getIdHash() {
         return idHash;

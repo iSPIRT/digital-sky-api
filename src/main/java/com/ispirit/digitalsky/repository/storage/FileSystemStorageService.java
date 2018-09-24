@@ -62,6 +62,16 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @Override
+    public void storeUnderSection(List<MultipartFile> files, String newDirectory, String section) {
+        File directory = new File(this.rootLocation.resolve(section).toString());
+        if (!directory.exists()) {
+            directory.mkdir();
+        }
+        String newDirectoryPath = section + "//" + newDirectory;
+        store(files,newDirectoryPath);
+    }
+
+    @Override
     public void store(String fileName, String content, String directoryName) throws StorageException {
         try {
             File directory = new File(this.rootLocation.resolve(directoryName).toString());

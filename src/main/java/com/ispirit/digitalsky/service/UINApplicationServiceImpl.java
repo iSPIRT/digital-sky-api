@@ -2,7 +2,6 @@ package com.ispirit.digitalsky.service;
 
 import com.ispirit.digitalsky.document.UINApplication;
 import com.ispirit.digitalsky.domain.*;
-import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.*;
 import com.ispirit.digitalsky.repository.DroneDeviceRepository;
 import com.ispirit.digitalsky.repository.IndividualOperatorRepository;
@@ -130,13 +129,11 @@ public class UINApplicationServiceImpl implements UINApplicationService {
     @Override
     public UINApplication get(String id) {
         return uinApplicationRepository.findById(id);
-
     }
 
     @Override
     public Collection<UINApplication> getApplicationsOfApplicant(long applicantId) {
         return uinApplicationRepository.findByApplicantId(applicantId);
-
     }
 
     @Override
@@ -151,7 +148,6 @@ public class UINApplicationServiceImpl implements UINApplicationService {
 
     private boolean isValidDroneDevice(String id, UINApplication uinApplication) throws DeviceUniqueIdMissingException, OperatorNotAuthorizedException, DeviceAlreadyUsedInAnotherUINApplicationException {
 
-        //form does not contain device unique id
         if(uinApplication.getStatus() == ApplicationStatus.SUBMITTED && uinApplication.getUniqueDeviceId() == null ) {
             throw new DeviceUniqueIdMissingException();
         }
@@ -171,12 +167,10 @@ public class UINApplicationServiceImpl implements UINApplicationService {
             }
             DroneDevice device = droneDeviceRepository.findByDeviceId(uinApplication.getUniqueDeviceId());
 
-            //device belongs to another operator
             if (!device.getOperatorCode().equals(String.valueOf(operatorId))) {
                 throw new OperatorNotAuthorizedException();
             }
 
-            //device unique id already mapped to another drone as a part of UIN application
             if (operatorDroneService.isMappedToDifferentUIN(uinApplication.getUniqueDeviceId(), uinApplication.getId(), operatorId, applicantType)) {
                 throw new DeviceAlreadyUsedInAnotherUINApplicationException();
             }

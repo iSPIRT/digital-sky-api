@@ -1,6 +1,7 @@
 package com.ispirit.digitalsky.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
 import java.util.List;
@@ -20,6 +21,13 @@ public class Manufacturer extends Organisation {
     @Column(name = "STATUS")
     @JsonIgnore
     private String status = "DEFAULT";
+
+    @Column(name = "TRUSTED_CERTIFICATE_DOC_NAME")
+    private String trustedCertificateDocName;
+
+    @JsonIgnore
+    @Transient
+    private MultipartFile trustedCertificateDoc;
 
     private Manufacturer() {
         //for serialization and de-serialization
@@ -56,4 +64,12 @@ public class Manufacturer extends Organisation {
     public String getStatus() {
         return status;
     }
+
+    public String getTrustedCertificateDocName() { return trustedCertificateDocName; }
+
+    public void setTrustedCertificateDocName(String trustedCertificateDocName) { this.trustedCertificateDocName = trustedCertificateDocName; }
+
+    public MultipartFile getTrustedCertificateDoc() { return trustedCertificateDoc; }
+
+    public void setTrustedCertificateDoc(MultipartFile trustedCertificateDoc) { this.trustedCertificateDoc = trustedCertificateDoc; }
 }

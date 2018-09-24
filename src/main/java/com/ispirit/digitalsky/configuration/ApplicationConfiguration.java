@@ -75,7 +75,8 @@ public class ApplicationConfiguration {
     @Value("${DS_CERT_PRIVATE_KEY_PATH:classpath:key.pem}")
     private String digitalSkyPrivateKeyPath;
 
-
+    @Value("${DIGITAL_CERT_MANUFACTURER_ATTRIBUTE_NAME:cn}")
+    private String digitalCertificateManufacturerAttributeName;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -157,8 +158,8 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    ManufacturerService manufacturerService(ManufacturerRepository manufacturerRepository, UserService userService) {
-        return new ManufacturerServiceImpl(manufacturerRepository, userService);
+    ManufacturerService manufacturerService(ManufacturerRepository manufacturerRepository, StorageService storageService) {
+        return new ManufacturerServiceImpl(manufacturerRepository, storageService);
     }
 
     @Bean
@@ -216,17 +217,21 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    DroneDeviceService droneDeviceService(DroneDeviceRepository droneRepository, SignatureVerifierService signatureVerifierService,
+    DroneDeviceService droneDeviceService(DroneDeviceRepository droneRepository, DigitalSignatureVerifierService signatureVerifierService,
                                                 IndividualOperatorRepository individualOperatorRepository,
                                                 OrganizationOperatorRepository organizationOperatorRepository,
-                                                ManufacturerRepository manufacturerRepository,
                                                 OperatorDroneService operatorDroneService) {
-        return new DroneDeviceServiceImpl(droneRepository, signatureVerifierService,individualOperatorRepository, organizationOperatorRepository, manufacturerRepository, operatorDroneService );
+        return new DroneDeviceServiceImpl(droneRepository, signatureVerifierService,individualOperatorRepository, organizationOperatorRepository, operatorDroneService );
     }
 
     @Bean
-    SignatureVerifierService signatureVerifierService(ManufacturerService manufacturerService) {
-        return new SignatureVerifierServiceImpl(manufacturerService);
+    DigitalSignatureVerifierService signatureVerifierService(ManufacturerService manufacturerService, DigitalCertificateValidatorService digitalCertificateValidatorService) {
+        return new DigitalSignatureVerifierServiceImpl(manufacturerService, digitalCertificateValidatorService,  digitalCertificateManufacturerAttributeName);
+    }
+
+    @Bean
+    DigitalCertificateValidatorService digitalCertificateValidatorService() {
+        return new DigitalCertificateValidatorServiceImpl();
     }
 
     @Bean

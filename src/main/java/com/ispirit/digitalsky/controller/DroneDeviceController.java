@@ -1,6 +1,5 @@
 package com.ispirit.digitalsky.controller;
 
-import com.ispirit.digitalsky.domain.DroneDevice;
 import com.ispirit.digitalsky.domain.RegisterDroneRequestPayload;
 import com.ispirit.digitalsky.domain.RegisterDroneResponseCode;
 import com.ispirit.digitalsky.domain.RegisterDroneResponsePayload;

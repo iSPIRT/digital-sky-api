@@ -16,6 +16,4 @@ public interface UserRepository extends CrudRepository<User, Long> {
     @Query("SELECT u FROM User u WHERE u.accountVerificationToken = :accountVerificationToken")
     User loadByAccountVerificationToken(@Param("accountVerificationToken") String accountVerificationToken);
 
-    @Query("SELECT u FROM User u WHERE LOWER(u.fullName) = LOWER(:fullName)")
-    User findUserByName(@Param("fullName") String fullName);
 }
