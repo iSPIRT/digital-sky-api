@@ -132,5 +132,4 @@ public class CustomUserDetailService implements UserService {
         user.setAccountVerified(true);
         return userRepository.save(user);
     }
-
 }

@@ -5,8 +5,6 @@ import org.springframework.util.Base64Utils;
 import java.io.*;
 import java.security.*;
 import java.security.cert.*;
-import java.security.cert.Certificate;
-import java.util.*;
 
 public class CertificateUtil {
     private static final String keyStorePath = "/Users/archana/certchain.jks";
@@ -62,7 +60,6 @@ public class CertificateUtil {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return  null;
     }
 

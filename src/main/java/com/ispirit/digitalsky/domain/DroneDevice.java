@@ -23,7 +23,6 @@ public class DroneDevice implements Serializable {
     @Column(name = "DRONE_TYPE_ID")
     private long droneTypeId;
 
-    @JsonIgnore
     @Column(name = "CREATED_DATE")
     @JsonSerialize(using = CustomLocalDateSerializer.class)
     @JsonDeserialize(using = CustomLocalDateDeSerializer.class)

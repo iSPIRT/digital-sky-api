@@ -25,6 +25,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.security.*;
 
+
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)

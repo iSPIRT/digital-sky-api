@@ -11,6 +11,7 @@ import com.ispirit.digitalsky.service.api.DroneDeviceService;
 import com.ispirit.digitalsky.service.api.OperatorDroneService;
 import com.ispirit.digitalsky.service.api.DigitalSignatureVerifierService;
 
+
 import java.time.LocalDate;
 import java.util.Collection;
 
@@ -36,8 +37,9 @@ public class DroneDeviceServiceImpl implements DroneDeviceService {
 
     @Override
     public DroneDevice register(String manufacturerId, RegisterDroneRequestPayload payload) throws InvalidOperatorCodeException, DroneDeviceAlreadyExistException, InvalidDigitalSignatureException {
-        if (!signatureVerifierService.isValidSignature(payload, Long.valueOf(manufacturerId))) { throw new InvalidDigitalSignatureException(); }
-
+        if (!signatureVerifierService.isValidSignature(payload, Long.valueOf(manufacturerId))) {
+            throw new InvalidDigitalSignatureException();
+        }
         DroneDevice drone = payload.getDrone();
         if (droneExists(drone.getDeviceId())) { throw new DroneDeviceAlreadyExistException(); }
         if (operatorExists(drone.getOperatorCode())) {
@@ -81,4 +83,5 @@ public class DroneDeviceServiceImpl implements DroneDeviceService {
         boolean operatorExists = individualOperatorRepository.findOne(operatorId) != null  || organizationOperatorRepository.findOne(operatorId) != null;
         return operatorExists;
     }
+
 }
