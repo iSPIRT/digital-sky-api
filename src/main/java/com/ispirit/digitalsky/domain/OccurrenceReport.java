@@ -98,4 +98,36 @@ public class OccurrenceReport {
     public void setCreatedById(long createdById) {
         this.createdById = createdById;
     }
+
+    public OccurrenceReport() {
+    }
+
+    public OccurrenceReport(long operatorDroneId,
+                            LocalDateTime occurrenceTimestamp, String placeOfOccurrence, String latitude,
+                            String longitude, String phaseOfFlight, String typeOfOperation, String colorOfRpa,
+                            String rpaDamageDetails, String propertyDamageDetails, String detailsOfInjury,
+                            String pilotDetails, String uaopNUmber, String occurrenceDescription,
+                            String distanceFromAircraft, String distanceFromHelipad, String proximityFromDangerZone) {
+        this.operatorDroneId = operatorDroneId;
+        this.occurrenceTimestamp = occurrenceTimestamp;
+        this.placeOfOccurrence = placeOfOccurrence;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.phaseOfFlight = phaseOfFlight;
+        this.typeOfOperation = typeOfOperation;
+        this.colorOfRpa = colorOfRpa;
+        this.rpaDamageDetails = rpaDamageDetails;
+        this.propertyDamageDetails = propertyDamageDetails;
+        this.detailsOfInjury = detailsOfInjury;
+        this.pilotDetails = pilotDetails;
+        this.uaopNUmber = uaopNUmber;
+        this.occurrenceDescription = occurrenceDescription;
+        this.distanceFromAircraft = distanceFromAircraft;
+        this.distanceFromHelipad = distanceFromHelipad;
+        this.proximityFromDangerZone = proximityFromDangerZone;
+    }
+
+    public long getCreatedById() {
+        return createdById;
+    }
 }

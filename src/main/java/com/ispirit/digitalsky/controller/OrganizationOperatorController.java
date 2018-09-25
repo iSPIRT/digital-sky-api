@@ -35,9 +35,6 @@ public class OrganizationOperatorController {
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> addOrgOperator(@Valid @RequestBody OrganizationOperator organizationOperator) {
 
-        if (!validate(organizationOperator)) {
-            return new ResponseEntity<>(new Errors("Invalid Payload"), HttpStatus.BAD_REQUEST);
-        }
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
 
         organizationOperator.setResourceOwnerId(userPrincipal.getId());
@@ -45,7 +42,7 @@ public class OrganizationOperatorController {
         try {
             OrganizationOperator savedEntity = organizationOperatorService.createNewOperator(organizationOperator);
 
-            return new ResponseEntity<>(new EntityId(savedEntity.getId()), HttpStatus.OK);
+            return new ResponseEntity<>(new EntityId(savedEntity.getId()), HttpStatus.CREATED);
         } catch (OperatorProfileAlreadyExist e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.CONFLICT);
         }
@@ -85,10 +82,4 @@ public class OrganizationOperatorController {
 
         return new ResponseEntity<>(organizationOperator, HttpStatus.OK);
     }
-
-
-    private boolean validate(OrganizationOperator organizationOperator) {
-        return true;
-    }
-
 }

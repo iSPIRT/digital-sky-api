@@ -178,7 +178,5 @@ public class UAOPApplicationController {
         uaopApplication.setSecurityProgramDoc(securityProgramDoc);
         uaopApplication.setSecurityProgramDocName(resolveFileName(securityProgramDoc));
     }
-
-
 }
 
