@@ -55,8 +55,13 @@ public class UAOPApplicationController {
             ObjectMapper mapper = new ObjectMapper();
             UAOPApplication uaopApplication = mapper.readValue(uaopApplicationFormString, UAOPApplication.class);
             appendDocs(uaopApplication, securityProgramDoc, sopDoc, insuranceDoc, landOwnerPermissionDoc);
+            if(uaopApplication.isSubmitted()){
+                validator.validate(uaopApplication);
+            }
             UAOPApplication createdForm = uaopApplicationService.createApplication(uaopApplication);
-            return new ResponseEntity<>(createdForm, HttpStatus.OK);
+            return new ResponseEntity<>(createdForm, HttpStatus.CREATED);
+        } catch (ValidationException e) {
+            throw  e;
         } catch (Exception e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.CONFLICT);
         }
@@ -94,6 +99,8 @@ public class UAOPApplicationController {
             }
             UAOPApplication createdForm = uaopApplicationService.updateApplication(id, uaopApplication);
             return new ResponseEntity<>(createdForm, HttpStatus.OK);
+        } catch (EntityNotFoundException | ValidationException e) {
+            throw  e;
         } catch (Exception e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.CONFLICT);
         }
@@ -140,10 +147,15 @@ public class UAOPApplicationController {
 
         UAOPApplication applicationForm = uaopApplicationService.get(id);
 
+        if(applicationForm == null){
+            return new ResponseEntity<>(new Errors("Application Not Found"), HttpStatus.NOT_FOUND);
+        }
+
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         if (userPrincipal.getId() != applicationForm.getApplicantId()) {
             return new ResponseEntity<>(new Errors("UnAuthorized Access"), HttpStatus.UNAUTHORIZED);
         }
+
         return new ResponseEntity<>(applicationForm, HttpStatus.OK);
     }
 
@@ -152,6 +164,10 @@ public class UAOPApplicationController {
 
         try {
             UAOPApplication applicationForm = uaopApplicationService.get(applicationId);
+
+            if(applicationForm == null){
+                return new ResponseEntity<>(new Errors("Application Not Found"), HttpStatus.BAD_REQUEST);
+            }
 
             UserPrincipal userPrincipal = UserPrincipal.securityContext();
             if (!userPrincipal.isAdmin() && userPrincipal.getId() != applicationForm.getApplicantId()) {
@@ -178,5 +194,6 @@ public class UAOPApplicationController {
         uaopApplication.setSecurityProgramDoc(securityProgramDoc);
         uaopApplication.setSecurityProgramDocName(resolveFileName(securityProgramDoc));
     }
+
 }
 

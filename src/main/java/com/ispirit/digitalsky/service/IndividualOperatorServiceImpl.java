@@ -31,9 +31,9 @@ public class IndividualOperatorServiceImpl implements IndividualOperatorService 
 
     @Override
     @Transactional
-    public IndividualOperator updateOperator(long id, IndividualOperator pilot) {
-        pilot.setId(id);
-        return individualOperatorRepository.save(pilot);
+    public IndividualOperator updateOperator(long id, IndividualOperator operator) {
+        operator.setId(id);
+        return individualOperatorRepository.save(operator);
     }
 
     @Override

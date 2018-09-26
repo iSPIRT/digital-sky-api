@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -16,9 +17,11 @@ import java.util.List;
 public class UAOPApplication extends BasicApplication {
 
     @Field("name")
+    @NotNull
     private String name;
 
     @Field("designation")
+    @NotNull
     private String designation;
 
     @Field("securityProgramDocName")
