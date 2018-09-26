@@ -8,7 +8,6 @@ import com.ispirit.digitalsky.util.*;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "ds_drone_device")
@@ -23,6 +22,7 @@ public class DroneDevice implements Serializable {
     @Column(name = "DRONE_TYPE_ID")
     private long droneTypeId;
 
+    @JsonIgnore
     @Column(name = "CREATED_DATE")
     @JsonSerialize(using = CustomLocalDateSerializer.class)
     @JsonDeserialize(using = CustomLocalDateDeSerializer.class)
@@ -36,8 +36,8 @@ public class DroneDevice implements Serializable {
     @Convert(converter = LocalDateAttributeConverter.class)
     private LocalDate lastModifiedDate;
 
-    @Column(name = "MANUFACTURER_ID", nullable = false)
     @JsonIgnore
+    @Column(name = "MANUFACTURER_ID", nullable = false)
     private String manufacturerId;
 
     @JsonIgnore
@@ -142,5 +142,4 @@ public class DroneDevice implements Serializable {
     public DroneDeviceRegistrationStatus getRegistrationStatus() { return registrationStatus; }
 
     public void setRegistrationStatus(DroneDeviceRegistrationStatus registrationStatus) { this.registrationStatus = registrationStatus; }
-
 }

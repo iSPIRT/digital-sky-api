@@ -4,10 +4,8 @@ import com.ispirit.digitalsky.exception.StorageException;
 import com.ispirit.digitalsky.exception.StorageFileNotFoundException;
 import com.ispirit.digitalsky.util.FileStoreHelper;
 import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,7 +30,7 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @Override
-    public void store(List<MultipartFile> files, String newDirectory) {
+    public void store(List<MultipartFile> files, String newDirectory) throws StorageException{
         File directory = new File(this.rootLocation.resolve(newDirectory).toString());
         if (!directory.exists()) {
             directory.mkdir();
@@ -45,7 +43,6 @@ public class FileSystemStorageService implements StorageService {
                         throw new StorageException("Failed to store empty file " + filename);
                     }
                     if (filename.contains("..")) {
-                        // This is a security check
                         throw new StorageException(
                                 "Cannot store file with relative path outside current directory "
                                         + filename);
@@ -62,7 +59,7 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @Override
-    public void storeUnderSection(List<MultipartFile> files, String newDirectory, String section) {
+    public void storeUnderSection(List<MultipartFile> files, String newDirectory, String section) throws StorageException{
         File directory = new File(this.rootLocation.resolve(section).toString());
         if (!directory.exists()) {
             directory.mkdir();

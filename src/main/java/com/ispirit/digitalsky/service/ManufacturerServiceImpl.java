@@ -1,16 +1,17 @@
 package com.ispirit.digitalsky.service;
 
 import com.ispirit.digitalsky.domain.Manufacturer;
-import com.ispirit.digitalsky.exception.ManufacturerIdInvalidException;
-import com.ispirit.digitalsky.exception.ManufacturerProfileAlreadyExist;
+import com.ispirit.digitalsky.exception.ManufacturerNotFoundException;
+import com.ispirit.digitalsky.exception.ManufacturerExistsException;
+import com.ispirit.digitalsky.exception.StorageException;
 import com.ispirit.digitalsky.repository.ManufacturerRepository;
 import com.ispirit.digitalsky.repository.storage.StorageService;
 import com.ispirit.digitalsky.service.api.ManufacturerService;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+
+import static java.util.Collections.singletonList;
 
 public class ManufacturerServiceImpl implements ManufacturerService {
 
@@ -25,17 +26,15 @@ public class ManufacturerServiceImpl implements ManufacturerService {
 
     @Override
     @Transactional
-    public Manufacturer createNewManufacturer(Manufacturer manufacturer) {
+    public Manufacturer createNewManufacturer(Manufacturer manufacturer) throws StorageException, ManufacturerExistsException {
         long resourceOwnerId = manufacturer.getResourceOwnerId();
         if (manufacturerRepository.loadByResourceOwner(resourceOwnerId) != null) {
-            throw new ManufacturerProfileAlreadyExist();
+            throw new ManufacturerExistsException();
         }
         Manufacturer savedManufacturer =  manufacturerRepository.save(manufacturer);
 
         if(manufacturer.getTrustedCertificateDoc() != null) {
-            List documents = new ArrayList();
-            documents.add(manufacturer.getTrustedCertificateDoc());
-            storageService.storeUnderSection( documents, String.valueOf(savedManufacturer.getId()), MANUFACTURER_DIGITALCERTIFICATE_ROOT_PATH);
+            storageService.storeUnderSection( singletonList(manufacturer.getTrustedCertificateDoc()), String.valueOf(savedManufacturer.getId()), MANUFACTURER_DIGITALCERTIFICATE_ROOT_PATH);
         }
         return savedManufacturer;
     }
@@ -47,9 +46,7 @@ public class ManufacturerServiceImpl implements ManufacturerService {
         Manufacturer savedManufacturer =  manufacturerRepository.save(manufacturer);
 
         if(manufacturer.getTrustedCertificateDoc() != null) {
-            List documents = new ArrayList();
-            documents.add(manufacturer.getTrustedCertificateDoc());
-            storageService.storeUnderSection(documents, String.valueOf(id), MANUFACTURER_DIGITALCERTIFICATE_ROOT_PATH);
+            storageService.storeUnderSection(singletonList(manufacturer.getTrustedCertificateDoc()), String.valueOf(id), MANUFACTURER_DIGITALCERTIFICATE_ROOT_PATH);
         }
         return savedManufacturer;
     }
@@ -75,7 +72,7 @@ public class ManufacturerServiceImpl implements ManufacturerService {
             return path.toString();
         }
         else {
-            throw new ManufacturerIdInvalidException();
+            throw new ManufacturerNotFoundException();
         }
     }
 }

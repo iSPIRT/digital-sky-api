@@ -78,7 +78,7 @@ public class DroneDeviceController {
     }
 
     @RequestMapping(value = "/list", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> list(@RequestParam(value = "operatorCode", required = true) String operatorCode) {
+    public ResponseEntity<?> list(@RequestParam(value = "operatorCode") String operatorCode) {
         Collection<String> operatorDrones= droneDeviceService.getRegisteredDroneDeviceIds(operatorCode);
         return new ResponseEntity<>(operatorDrones, HttpStatus.OK);
     }

@@ -21,14 +21,16 @@ import java.util.regex.Pattern;
 
 public class DigitalSignatureVerifierServiceImpl implements DigitalSignatureVerifierService {
 
-	private ManufacturerService manufacturerService;
-	private String manufacturerAttributeNameInCertificate;
-	private DigitalCertificateValidatorService digitalCertificateValidatorService;
+	private final ManufacturerService manufacturerService;
+	private final String manufacturerAttributeNameInCertificate;
+	private final DigitalCertificateValidatorService digitalCertificateValidatorService;
+	private final boolean digitalCertificateValidationEnabled;
 
-    public DigitalSignatureVerifierServiceImpl(ManufacturerService manufacturerService, DigitalCertificateValidatorService digitalCertificateValidatorService, String manufacturerAttributeNameInCertificate) {
+    public DigitalSignatureVerifierServiceImpl(ManufacturerService manufacturerService, DigitalCertificateValidatorService digitalCertificateValidatorService, String manufacturerAttributeNameInCertificate, boolean digitalCertificateValidationEnabled) {
 		this.manufacturerService = manufacturerService;
 		this.manufacturerAttributeNameInCertificate = manufacturerAttributeNameInCertificate;
 		this.digitalCertificateValidatorService = digitalCertificateValidatorService;
+		this.digitalCertificateValidationEnabled = digitalCertificateValidationEnabled;
 	}
 
 	@Override
@@ -110,10 +112,14 @@ public class DigitalSignatureVerifierServiceImpl implements DigitalSignatureVeri
     }
 
 	private boolean isValidCertificate(X509Certificate certificate, String manufacturerCertificateChainPath) {
-        Set<X509Certificate> certificates = new HashSet<>();
-        certificates.add(certificate);
-        boolean isValid = digitalCertificateValidatorService.isValidCertificate(certificate, manufacturerCertificateChainPath);
-        return isValid;
+        if(this.digitalCertificateValidationEnabled) {
+            Set<X509Certificate> certificates = new HashSet<>();
+            certificates.add(certificate);
+            boolean isValid = digitalCertificateValidatorService.isValidCertificate(certificate, manufacturerCertificateChainPath);
+            return isValid;
+        } else {
+            return true;
+        }
     }
 
 }

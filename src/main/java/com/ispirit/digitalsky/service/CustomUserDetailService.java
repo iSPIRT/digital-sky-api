@@ -24,7 +24,6 @@ public class CustomUserDetailService implements UserService {
     private DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneService;
     private DroneAcquisitionApplicationService<ImportDroneApplication> importDroneService;
     private UAOPApplicationService uaopApplicationService;
-    private UINApplicationService uinApplicationService;
     private String resetPasswordBasePath;
     private String accountVerificationBasePath;
 
@@ -34,7 +33,6 @@ public class CustomUserDetailService implements UserService {
             DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneService,
             DroneAcquisitionApplicationService<ImportDroneApplication> importDroneService,
             UAOPApplicationService uaopApplicationService,
-            UINApplicationService uinApplicationService,
             String resetPasswordBasePath,
             String accountVerificationBasePath) {
         this.userRepository = userRepository;
@@ -42,7 +40,6 @@ public class CustomUserDetailService implements UserService {
         this.localDroneService = localDroneService;
         this.importDroneService = importDroneService;
         this.uaopApplicationService = uaopApplicationService;
-        this.uinApplicationService = uinApplicationService;
         this.resetPasswordBasePath = resetPasswordBasePath;
         this.accountVerificationBasePath = accountVerificationBasePath;
     }
@@ -117,7 +114,6 @@ public class CustomUserDetailService implements UserService {
         basicApplications.addAll(localDroneService.getApplicationsOfApplicant());
         basicApplications.addAll(importDroneService.getApplicationsOfApplicant());
         basicApplications.addAll(uaopApplicationService.getApplicationsOfApplicant(userId));
-        basicApplications.addAll(uinApplicationService.getApplicationsOfApplicant(userId));
         basicApplications.sort((BasicApplication a1, BasicApplication a2) -> a2.modifiedDate().compareTo(a1.modifiedDate()));
         return basicApplications;
     }

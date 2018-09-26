@@ -10,7 +10,7 @@ import com.ispirit.digitalsky.repository.OrganizationOperatorRepository;
 import com.ispirit.digitalsky.service.api.DroneDeviceService;
 import com.ispirit.digitalsky.service.api.OperatorDroneService;
 import com.ispirit.digitalsky.service.api.DigitalSignatureVerifierService;
-
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -36,6 +36,7 @@ public class DroneDeviceServiceImpl implements DroneDeviceService {
     }
 
     @Override
+    @Transactional
     public DroneDevice register(String manufacturerId, RegisterDroneRequestPayload payload) throws InvalidOperatorCodeException, DroneDeviceAlreadyExistException, InvalidDigitalSignatureException {
         if (!signatureVerifierService.isValidSignature(payload, Long.valueOf(manufacturerId))) {
             throw new InvalidDigitalSignatureException();
@@ -54,6 +55,7 @@ public class DroneDeviceServiceImpl implements DroneDeviceService {
     }
 
     @Override
+    @Transactional
     public DroneDevice deregister(String manufacturerId, RegisterDroneRequestPayload payload) throws DroneDeviceNotFoundException, InvalidDigitalSignatureException {
         if (!signatureVerifierService.isValidSignature(payload,Long.valueOf(manufacturerId))) {  throw new InvalidDigitalSignatureException(); }
 

@@ -1,11 +1,10 @@
 package com.ispirit.digitalsky.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ispirit.digitalsky.document.UINApplication;
 import com.ispirit.digitalsky.domain.Manufacturer;
 import com.ispirit.digitalsky.domain.UserPrincipal;
-import com.ispirit.digitalsky.dto.EntityId;
 import com.ispirit.digitalsky.dto.Errors;
+import com.ispirit.digitalsky.exception.ManufacturerExistsException;
 import com.ispirit.digitalsky.service.api.ManufacturerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,8 +12,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.validation.Valid;
 
 import java.io.IOException;
 
@@ -46,16 +43,18 @@ public class ManufacturerController {
             }
             UserPrincipal userPrincipal = UserPrincipal.securityContext();
             manufacturer.setResourceOwnerId(userPrincipal.getId());
-            if(trustedCertificateDoc!=null) {
+            if (trustedCertificateDoc != null) {
                 manufacturer.setTrustedCertificateDoc(trustedCertificateDoc);
                 manufacturer.setTrustedCertificateDocName(resolveFileName(trustedCertificateDoc));
             }
             Manufacturer savedEntity = manufacturerService.createNewManufacturer(manufacturer);
-            return new ResponseEntity<>(new EntityId(savedEntity.getId()), HttpStatus.OK);
+            return new ResponseEntity<>(savedEntity, HttpStatus.CREATED);
+        } catch (ManufacturerExistsException e) {
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.BAD_REQUEST);
         } catch (IOException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.UNPROCESSABLE_ENTITY);
         } catch (Exception e) {
-            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.CONFLICT);
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -76,8 +75,8 @@ public class ManufacturerController {
             Manufacturer manufacturerPayload = mapper.readValue(manufacturerString, Manufacturer.class);
             manufacturerPayload.setResourceOwnerId(manufacturer.getResourceOwnerId());
             if(trustedCertificateDoc!=null) {
-                manufacturer.setTrustedCertificateDoc(trustedCertificateDoc);
-                manufacturer.setTrustedCertificateDocName(resolveFileName(trustedCertificateDoc));
+                manufacturerPayload.setTrustedCertificateDoc(trustedCertificateDoc);
+                manufacturerPayload.setTrustedCertificateDocName(resolveFileName(trustedCertificateDoc));
             }
             Manufacturer updatedEntity = manufacturerService.updateManufacturer(id, manufacturerPayload);
             return new ResponseEntity<>(updatedEntity, HttpStatus.OK);

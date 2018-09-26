@@ -16,7 +16,7 @@ public interface StorageService {
 
     void store(List<MultipartFile> files, String newDirectory) throws StorageException;
 
-    void storeUnderSection(List<MultipartFile> files, String newDirectory, String section);
+    void storeUnderSection(List<MultipartFile> files, String newDirectory, String section) throws StorageException;
 
     void store(String fileName, String content, String directory) throws StorageException;
 

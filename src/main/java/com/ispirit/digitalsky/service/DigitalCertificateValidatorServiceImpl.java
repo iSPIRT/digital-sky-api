@@ -100,9 +100,7 @@ public class DigitalCertificateValidatorServiceImpl implements DigitalCertificat
             PublicKey key = cert.getPublicKey();
             cert.verify(key);
             return true;
-        } catch (SignatureException sigEx) {
-            return false;
-        } catch (InvalidKeyException keyEx) {
+        } catch (SignatureException | InvalidKeyException e) {
             return false;
         }
     }

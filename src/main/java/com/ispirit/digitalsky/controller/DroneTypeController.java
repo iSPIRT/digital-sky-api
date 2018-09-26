@@ -14,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,8 +30,6 @@ public class DroneTypeController {
     public static final String DRONE_RESOURCE_BASE_PATH = "/api/droneType";
 
     private DroneTypeService droneTypeService;
-
-    PasswordEncoder passwordEncoder;
 
     @Autowired
     public DroneTypeController(DroneTypeService droneTypeService) {
@@ -75,10 +72,8 @@ public class DroneTypeController {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.UNPROCESSABLE_ENTITY);
         } catch (JsonMappingException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.UNPROCESSABLE_ENTITY);
-        } catch (ApplicationNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.NOT_FOUND);
-        } catch(ApplicationNotEditableException e) {
-            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.UNPROCESSABLE_ENTITY);
         } catch (UnAuthorizedAccessException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.UNAUTHORIZED);
         } catch (StorageException e) {

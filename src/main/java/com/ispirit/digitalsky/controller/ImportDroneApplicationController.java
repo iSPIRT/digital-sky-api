@@ -49,9 +49,9 @@ public class ImportDroneApplicationController {
 
         try {
             ImportDroneApplication createdForm = droneAcquisitionFormService.createDroneAcquisitionApplication(acquisitionForm);
-            return new ResponseEntity<>(createdForm, HttpStatus.OK);
+            return new ResponseEntity<>(createdForm, HttpStatus.CREATED);
         } catch(Exception e){
-            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.CONFLICT);
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -96,6 +96,8 @@ public class ImportDroneApplicationController {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.UNAUTHORIZED);
         } catch (IOException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.UNPROCESSABLE_ENTITY);
+        } catch(ValidationException e) {
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -121,20 +123,24 @@ public class ImportDroneApplicationController {
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAcquisitionForm(@PathVariable String id){
-
+    try {
         ImportDroneApplication applicationForm = droneAcquisitionFormService.get(id);
-        return new ResponseEntity<>(applicationForm,HttpStatus.OK);
+        return new ResponseEntity<>(applicationForm, HttpStatus.OK);
+        } catch(UnAuthorizedAccessException e) {
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.UNAUTHORIZED);
+        }
     }
 
     @RequestMapping(value = "/{id}/document/{documentName:.+}", method = RequestMethod.GET)
     public ResponseEntity<?> getFile(@PathVariable String id, @PathVariable String documentName){
-
         try {
             Resource resourceFile = droneAcquisitionFormService.getFile(id, documentName);
             return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
                     "attachment; filename=\"" + resourceFile.getFilename() + "\"").body(resourceFile);
         } catch(StorageFileNotFoundException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.NOT_FOUND);
+        } catch(UnAuthorizedAccessException e) {
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.UNAUTHORIZED);
         }
     }
 }

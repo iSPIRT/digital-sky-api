@@ -6,6 +6,8 @@ import org.springframework.util.Base64Utils;
 
 import java.io.*;
 import java.security.*;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
 
 public class DigitalSigner {
 
@@ -39,6 +41,15 @@ public class DigitalSigner {
         return null;
     }
 
+    public String getBase64EncodedCertificate() throws CertificateEncodingException {
+        try {
+            X509Certificate certificate = (X509Certificate) keyEntry.getCertificate();
+            return Base64Utils.encodeToString(certificate.getEncoded());
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
     private KeyStore.PrivateKeyEntry getKeyFromKeyStore(String keyStoreFile, char[] keyStorePassword, String alias) {
         FileInputStream keyFileStream = null;
         try {
@@ -63,4 +74,5 @@ public class DigitalSigner {
             }
         }
     }
+
 }

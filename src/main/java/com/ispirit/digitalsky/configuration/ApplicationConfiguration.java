@@ -75,8 +75,11 @@ public class ApplicationConfiguration {
     @Value("${DS_CERT_PRIVATE_KEY_PATH:classpath:key.pem}")
     private String digitalSkyPrivateKeyPath;
 
-    @Value("${DIGITAL_CERT_MANUFACTURER_ATTRIBUTE_NAME:cn}")
-    private String digitalCertificateManufacturerAttributeName;
+    @Value("${MANUFACTURER_DIGITAL_CERT_MANUFACTURER_ATTRIBUTE_NAME:cn}")
+    private String manufacturerDigitalCertManufacturerAttributeName;
+
+    @Value("${MANUFACTURER_DIGITAL_CERT_VALIDATION_ENABLED:true}")
+    private boolean manufacturerDigitalCertValidationEnabled;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -94,14 +97,12 @@ public class ApplicationConfiguration {
             EmailService emailService,
             DroneAcquisitionApplicationService<ImportDroneApplication> importDroneService,
             UAOPApplicationService uaopApplicationService,
-            UINApplicationService uinApplicationService,
             DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneService) {
         return new CustomUserDetailService(userRepository,
                 emailService,
                 localDroneService,
                 importDroneService,
                 uaopApplicationService,
-                uinApplicationService,
                 resetPasswordBasePath,
                 accountVerificationPath);
     }
@@ -168,8 +169,8 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    OperatorDroneService operatorDroneService(OperatorDroneRepository operatorDroneRepository, IndividualOperatorRepository individualOperatorRepository, OrganizationOperatorRepository organizationOperatorRepository) {
-        return new OperatorDroneServiceImpl(operatorDroneRepository, individualOperatorRepository, organizationOperatorRepository );
+    OperatorDroneService operatorDroneService(OperatorDroneRepository operatorDroneRepository, UserProfileService userProfileService) {
+        return new OperatorDroneServiceImpl(operatorDroneRepository, userProfileService );
     }
 
     @Bean
@@ -202,10 +203,9 @@ public class ApplicationConfiguration {
     UINApplicationService uinApplicationService(StorageService storageService,
                                                 UINApplicationRepository uinApplicationRepository,
                                                 OperatorDroneService operatorDroneService,
-                                                IndividualOperatorRepository individualOperatorRepository,
-                                                OrganizationOperatorRepository organizationOperatorRepository,
+                                                UserProfileService userProfileService,
                                                 DroneDeviceRepository droneDeviceRepository) {
-        return new UINApplicationServiceImpl(uinApplicationRepository, storageService, operatorDroneService, individualOperatorRepository, organizationOperatorRepository, droneDeviceRepository);
+        return new UINApplicationServiceImpl(uinApplicationRepository, storageService, operatorDroneService, userProfileService, droneDeviceRepository);
     }
 
     @Bean
@@ -223,7 +223,7 @@ public class ApplicationConfiguration {
 
     @Bean
     DigitalSignatureVerifierService signatureVerifierService(ManufacturerService manufacturerService, DigitalCertificateValidatorService digitalCertificateValidatorService) {
-        return new DigitalSignatureVerifierServiceImpl(manufacturerService, digitalCertificateValidatorService,  digitalCertificateManufacturerAttributeName);
+        return new DigitalSignatureVerifierServiceImpl(manufacturerService, digitalCertificateValidatorService, manufacturerDigitalCertManufacturerAttributeName, manufacturerDigitalCertValidationEnabled);
     }
 
     @Bean

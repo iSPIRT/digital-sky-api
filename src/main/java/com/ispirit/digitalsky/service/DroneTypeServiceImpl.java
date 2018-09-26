@@ -2,6 +2,8 @@ package com.ispirit.digitalsky.service;
 
 import com.ispirit.digitalsky.domain.DroneType;
 import com.ispirit.digitalsky.domain.UserPrincipal;
+import com.ispirit.digitalsky.exception.EntityNotFoundException;
+import com.ispirit.digitalsky.exception.StorageException;
 import com.ispirit.digitalsky.exception.StorageFileNotFoundException;
 import com.ispirit.digitalsky.repository.DroneTypeRepository;
 import com.ispirit.digitalsky.repository.storage.StorageService;
@@ -29,7 +31,7 @@ public class DroneTypeServiceImpl implements DroneTypeService {
 
     @Override
     @Transactional
-    public DroneType createDroneType(DroneType droneType) {
+    public DroneType createDroneType(DroneType droneType) throws StorageException{
 
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         droneType.setCreatedBy(userPrincipal.getId());
@@ -43,12 +45,12 @@ public class DroneTypeServiceImpl implements DroneTypeService {
 
     @Override
     @Transactional
-    public DroneType updateDroneType(long id, DroneType droneType) {
+    public DroneType updateDroneType(long id, DroneType droneType) throws EntityNotFoundException, StorageException {
         DroneType actualDroneType = droneTypeRepository.findOne(id);
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
 
         if (actualDroneType == null) {
-            throw new RuntimeException("Drone Type Not Found");
+            throw new EntityNotFoundException("Drone Type", id);
         }
 
         long createdById = actualDroneType.getCreatedBy();
