@@ -52,7 +52,7 @@ public class OccurrenceReportController {
 
         OccurrenceReport savedEntity = occurrenceReportService.createNew(occurrenceReport);
 
-        return new ResponseEntity<>(savedEntity, HttpStatus.OK);
+        return new ResponseEntity<>(savedEntity, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)

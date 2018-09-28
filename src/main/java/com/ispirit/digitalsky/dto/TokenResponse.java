@@ -74,4 +74,8 @@ public class TokenResponse {
     public long getManufacturerProfileId() { return manufacturerProfileId; }
 
     public void setManufacturerProfileId(long manufacturerProfileId) { this.manufacturerProfileId = manufacturerProfileId; }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
 }

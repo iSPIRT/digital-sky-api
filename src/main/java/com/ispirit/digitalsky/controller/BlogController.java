@@ -32,7 +32,7 @@ public class BlogController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> addBlog(@Valid @RequestBody Blog blog) {
         Blog savedEntity = blogService.createNewBlog(blog);
-        return new ResponseEntity<>(savedEntity, HttpStatus.OK);
+        return new ResponseEntity<>(savedEntity, HttpStatus.CREATED);
 
     }
 
@@ -70,7 +70,7 @@ public class BlogController {
     @RequestMapping(value = "/list", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
     ResponseEntity<?> getAll() {
-        List<Blog> blogList = blogService.findLatest();
+        List<Blog> blogList = blogService.findAll();
         return new ResponseEntity<>(blogList, HttpStatus.OK);
     }
 }

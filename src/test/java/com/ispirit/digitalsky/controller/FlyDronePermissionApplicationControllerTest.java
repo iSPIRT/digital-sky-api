@@ -25,6 +25,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.ispirit.digitalsky.AssertionHelper.assertPreAuthorizeWithAdmin;
+import static com.ispirit.digitalsky.HandlerMethodHelper.*;
 import static com.ispirit.digitalsky.SecurityContextHelper.setUserSecurityContext;
 import static com.ispirit.digitalsky.controller.FlyDronePermissionApplicationController.APPLICATION_RESOURCE_BASE_PATH;
 import static java.util.Arrays.asList;
@@ -478,6 +480,11 @@ public class FlyDronePermissionApplicationControllerTest {
         List list = objectMapper.readValue(response.getContentAsString(), new TypeReference<List<FlyDronePermissionApplication>>() {
         });
         assertThat(list.size(), is(3));
+    }
+
+    @Test
+    public void shouldMakeSureOnlyAdminAccess() throws Exception {
+        assertPreAuthorizeWithAdmin(patchMethod(mvc, APPLICATION_RESOURCE_BASE_PATH+"/approve/1", MediaType.APPLICATION_JSON));
     }
 
 }

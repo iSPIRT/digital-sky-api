@@ -32,9 +32,6 @@ public class IndividualOperatorController {
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> addIndividualOperator(@Valid @RequestBody IndividualOperator individualOperator) {
 
-        if (!validate(individualOperator)) {
-            return new ResponseEntity<>(new Errors("Invalid Payload"), HttpStatus.BAD_REQUEST);
-        }
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
 
         individualOperator.setResourceOwnerId(userPrincipal.getId());
@@ -43,7 +40,7 @@ public class IndividualOperatorController {
         try {
             IndividualOperator savedEntity = individualOperatorService.createNewOperator(individualOperator);
 
-            return new ResponseEntity<>(new EntityId(savedEntity.getId()), HttpStatus.OK);
+            return new ResponseEntity<>(new EntityId(savedEntity.getId()), HttpStatus.CREATED);
         } catch (OperatorProfileAlreadyExist e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.CONFLICT);
         }
@@ -63,6 +60,8 @@ public class IndividualOperatorController {
             return new ResponseEntity<>(new Errors("UnAuthorized Access"), HttpStatus.UNAUTHORIZED);
         }
         individualOperatorPayload.setResourceOwnerId(individualOperator.getResourceOwnerId());
+        individualOperatorPayload.setName(individualOperator.getName());
+        individualOperatorPayload.setEmail(individualOperator.getEmail());
         IndividualOperator updatedEntity = individualOperatorService.updateOperator(id, individualOperatorPayload);
 
         return new ResponseEntity<>(updatedEntity, HttpStatus.OK);
@@ -83,10 +82,4 @@ public class IndividualOperatorController {
 
         return new ResponseEntity<>(individualOperator, HttpStatus.OK);
     }
-
-
-    private boolean validate(IndividualOperator individualOperator) {
-        return true;
-    }
-
 }
