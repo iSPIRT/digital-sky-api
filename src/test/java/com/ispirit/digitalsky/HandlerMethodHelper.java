@@ -7,6 +7,7 @@ import org.springframework.web.method.HandlerMethod;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 
 
 public class HandlerMethodHelper {
@@ -25,6 +26,16 @@ public class HandlerMethodHelper {
         return (HandlerMethod) mvc
                 .perform(
                         put(url)
+                                .content("{}")
+                                .contentType(mediaType.toString())
+                )
+                .andReturn().getHandler();
+    }
+
+    public static HandlerMethod patchMethod(MockMvc mvc, String url, MediaType mediaType) throws Exception {
+        return (HandlerMethod) mvc
+                .perform(
+                        patch(url)
                                 .content("{}")
                                 .contentType(mediaType.toString())
                 )
