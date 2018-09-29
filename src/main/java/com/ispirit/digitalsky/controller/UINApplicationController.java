@@ -1,15 +1,14 @@
 package com.ispirit.digitalsky.controller;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.document.UINApplication;
 import com.ispirit.digitalsky.domain.ApplicationStatus;
 import com.ispirit.digitalsky.domain.ApproveRequestBody;
 import com.ispirit.digitalsky.domain.UserPrincipal;
 import com.ispirit.digitalsky.dto.Errors;
-import com.ispirit.digitalsky.exception.ApplicationNotFoundException;
-import com.ispirit.digitalsky.exception.ApplicationNotInSubmittedStatusException;
-import com.ispirit.digitalsky.exception.StorageFileNotFoundException;
-import com.ispirit.digitalsky.exception.UnAuthorizedAccessException;
+import com.ispirit.digitalsky.exception.*;
 import com.ispirit.digitalsky.service.api.UINApplicationService;
 import com.ispirit.digitalsky.util.CustomValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,11 +65,18 @@ public class UINApplicationController {
             appendDocs(uinApplication, importPermissionDoc, cinDoc, gstinDoc, panCardDoc, securityClearanceDoc, dotPermissionDoc,etaDoc,opManualDoc,maintenanceGuidelinesDoc);
             UINApplication createdForm = uinApplicationService.createApplication(uinApplication);
             return new ResponseEntity<>(createdForm, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.CONFLICT);
+        } catch (OperatorNotAuthorizedException e) {
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.UNAUTHORIZED);
+        } catch (ValidationException e) {
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.PRECONDITION_FAILED);
+        } catch (JsonParseException e) {
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.BAD_REQUEST);
+        } catch (JsonMappingException e) {
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.BAD_REQUEST);
+        } catch (IOException e) {
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
-
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PATCH, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateApplication(
@@ -88,6 +95,9 @@ public class UINApplicationController {
         try {
             UserPrincipal userPrincipal = UserPrincipal.securityContext();
             UINApplication application = uinApplicationService.get(id);
+
+            if(application == null) throw new EntityNotFoundException("UINApplication", id);
+
             if (userPrincipal.getId() != application.getApplicantId()) {
                 return new ResponseEntity<>(new Errors("UnAuthorized Access"), HttpStatus.UNAUTHORIZED);
             }
@@ -104,11 +114,12 @@ public class UINApplicationController {
             }
             UINApplication updatedForm = uinApplicationService.updateApplication(id, uinApplication);
             return new ResponseEntity<>(updatedForm, HttpStatus.OK);
+        } catch (OperatorNotAuthorizedException e) {
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
-            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.CONFLICT);
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
-
 
     @RequestMapping(value = "/approve/{id}", method = RequestMethod.PATCH, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN')")

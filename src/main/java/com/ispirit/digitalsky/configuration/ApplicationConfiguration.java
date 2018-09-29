@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.document.ImportDroneApplication;
 import com.ispirit.digitalsky.document.LocalDroneAcquisitionApplication;
+import com.ispirit.digitalsky.domain.Manufacturer;
 import com.ispirit.digitalsky.repository.*;
 import com.ispirit.digitalsky.repository.storage.FileSystemStorageService;
 import com.ispirit.digitalsky.repository.storage.StorageService;
@@ -75,7 +76,11 @@ public class ApplicationConfiguration {
     @Value("${DS_CERT_PRIVATE_KEY_PATH:classpath:key.pem}")
     private String digitalSkyPrivateKeyPath;
 
+    @Value("${MANUFACTURER_DIGITAL_CERT_MANUFACTURER_ATTRIBUTE_NAME:cn}")
+    private String manufacturerDigitalCertManufacturerAttributeName;
 
+    @Value("${MANUFACTURER_DIGITAL_CERT_VALIDATION_ENABLED:true}")
+    private boolean manufacturerDigitalCertValidationEnabled;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -93,14 +98,12 @@ public class ApplicationConfiguration {
             EmailService emailService,
             DroneAcquisitionApplicationService<ImportDroneApplication> importDroneService,
             UAOPApplicationService uaopApplicationService,
-            UINApplicationService uinApplicationService,
             DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneService) {
         return new CustomUserDetailService(userRepository,
                 emailService,
                 localDroneService,
                 importDroneService,
                 uaopApplicationService,
-                uinApplicationService,
                 resetPasswordBasePath,
                 accountVerificationPath);
     }
@@ -157,8 +160,8 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    ManufacturerService manufacturerService(ManufacturerRepository manufacturerRepository, UserService userService) {
-        return new ManufacturerServiceImpl(manufacturerRepository, userService);
+    ManufacturerService manufacturerService(ManufacturerRepository manufacturerRepository, StorageService storageService) {
+        return new ManufacturerServiceImpl(manufacturerRepository, storageService);
     }
 
     @Bean
@@ -167,8 +170,8 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    OperatorDroneService operatorDroneService(OperatorDroneRepository operatorDroneRepository, IndividualOperatorRepository individualOperatorRepository, OrganizationOperatorRepository organizationOperatorRepository) {
-        return new OperatorDroneServiceImpl(operatorDroneRepository, individualOperatorRepository, organizationOperatorRepository );
+    OperatorDroneService operatorDroneService(OperatorDroneRepository operatorDroneRepository, UserProfileService userProfileService) {
+        return new OperatorDroneServiceImpl(operatorDroneRepository, userProfileService );
     }
 
     @Bean
@@ -201,10 +204,9 @@ public class ApplicationConfiguration {
     UINApplicationService uinApplicationService(StorageService storageService,
                                                 UINApplicationRepository uinApplicationRepository,
                                                 OperatorDroneService operatorDroneService,
-                                                IndividualOperatorRepository individualOperatorRepository,
-                                                OrganizationOperatorRepository organizationOperatorRepository,
+                                                UserProfileService userProfileService,
                                                 DroneDeviceRepository droneDeviceRepository) {
-        return new UINApplicationServiceImpl(uinApplicationRepository, storageService, operatorDroneService, individualOperatorRepository, organizationOperatorRepository, droneDeviceRepository);
+        return new UINApplicationServiceImpl(uinApplicationRepository, storageService, operatorDroneService, userProfileService, droneDeviceRepository);
     }
 
     @Bean
@@ -213,17 +215,22 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    DroneDeviceService droneDeviceService(DroneDeviceRepository droneRepository, SignatureVerifierService signatureVerifierService,
-                                                IndividualOperatorRepository individualOperatorRepository,
-                                                OrganizationOperatorRepository organizationOperatorRepository,
-                                                ManufacturerRepository manufacturerRepository,
-                                                OperatorDroneService operatorDroneService) {
-        return new DroneDeviceServiceImpl(droneRepository, signatureVerifierService,individualOperatorRepository, organizationOperatorRepository, manufacturerRepository, operatorDroneService );
+    DroneDeviceService droneDeviceService(DroneDeviceRepository droneRepository, DigitalSignatureVerifierService signatureVerifierService,
+                                          IndividualOperatorRepository individualOperatorRepository,
+                                          OrganizationOperatorRepository organizationOperatorRepository,
+                                          OperatorDroneService operatorDroneService,
+                                          ManufacturerService manufacturerService) {
+        return new DroneDeviceServiceImpl(droneRepository, signatureVerifierService,individualOperatorRepository, organizationOperatorRepository, operatorDroneService, manufacturerService );
     }
 
     @Bean
-    SignatureVerifierService signatureVerifierService(ManufacturerService manufacturerService) {
-        return new SignatureVerifierServiceImpl(manufacturerService);
+    DigitalSignatureVerifierService signatureVerifierService(ManufacturerService manufacturerService, DigitalCertificateValidatorService digitalCertificateValidatorService) {
+        return new DigitalSignatureVerifierServiceImpl(digitalCertificateValidatorService, manufacturerDigitalCertManufacturerAttributeName, manufacturerDigitalCertValidationEnabled);
+    }
+
+    @Bean
+    DigitalCertificateValidatorService digitalCertificateValidatorService() {
+        return new DigitalCertificateValidatorServiceImpl();
     }
 
     @Bean

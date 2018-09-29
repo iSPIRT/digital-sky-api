@@ -1,6 +1,8 @@
 package com.ispirit.digitalsky.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ispirit.digitalsky.util.BusinessIdentifierGenerator;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
 import java.util.List;
@@ -21,8 +23,19 @@ public class Manufacturer extends Organisation {
     @JsonIgnore
     private String status = "DEFAULT";
 
+    @Column(name = "TRUSTED_CERTIFICATE_DOC_NAME")
+    private String trustedCertificateDocName;
+
+    @JsonIgnore
+    @Transient
+    private MultipartFile trustedCertificateDoc;
+
+    @Column(name = "BUSINESS_IDENTIFIER")
+    private String businessIdentifier;
+
     private Manufacturer() {
         //for serialization and de-serialization
+        businessIdentifier = BusinessIdentifierGenerator.generateManufacturerBusinessIdentifier();
     }
 
     public Manufacturer(long resourceOwnerId, String status, String name, String email, String mobileNumber, String contactNumber, String country, List<Address> addressList) {
@@ -56,4 +69,15 @@ public class Manufacturer extends Organisation {
     public String getStatus() {
         return status;
     }
+
+    public String getTrustedCertificateDocName() { return trustedCertificateDocName; }
+
+    public void setTrustedCertificateDocName(String trustedCertificateDocName) { this.trustedCertificateDocName = trustedCertificateDocName; }
+
+    public MultipartFile getTrustedCertificateDoc() { return trustedCertificateDoc; }
+
+    public void setTrustedCertificateDoc(MultipartFile trustedCertificateDoc) { this.trustedCertificateDoc = trustedCertificateDoc; }
+
+    public String getBusinessIdentifier() { return businessIdentifier; }
+
 }

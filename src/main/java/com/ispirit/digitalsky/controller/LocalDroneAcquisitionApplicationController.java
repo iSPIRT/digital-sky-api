@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.document.LocalDroneAcquisitionApplication;
 import com.ispirit.digitalsky.domain.ApplicationStatus;
 import com.ispirit.digitalsky.domain.ApproveRequestBody;
+import com.ispirit.digitalsky.domain.UserPrincipal;
 import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.*;
 
@@ -39,7 +40,6 @@ public class LocalDroneAcquisitionApplicationController {
 
     @Autowired
     public LocalDroneAcquisitionApplicationController(DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> droneAcquisitionFormService, CustomValidator validator) {
-
         this.droneAcquisitionFormService = droneAcquisitionFormService;
         this.validator = validator;
     }
@@ -49,9 +49,9 @@ public class LocalDroneAcquisitionApplicationController {
 
         try {
             LocalDroneAcquisitionApplication createdForm = droneAcquisitionFormService.createDroneAcquisitionApplication(acquisitionForm);
-            return new ResponseEntity<>(createdForm, HttpStatus.OK);
+            return new ResponseEntity<>(createdForm, HttpStatus.CREATED);
         } catch(Exception e){
-            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.CONFLICT);
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -96,6 +96,8 @@ public class LocalDroneAcquisitionApplicationController {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.UNAUTHORIZED);
         } catch (IOException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.UNPROCESSABLE_ENTITY);
+        } catch(ValidationException e) {
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -120,21 +122,29 @@ public class LocalDroneAcquisitionApplicationController {
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAcquisitionForm(@PathVariable String id){
-
-        LocalDroneAcquisitionApplication applicationForm = droneAcquisitionFormService.get(id);
-        return new ResponseEntity<>(applicationForm,HttpStatus.OK);
+        try {
+            LocalDroneAcquisitionApplication applicationForm = droneAcquisitionFormService.get(id);
+            return new ResponseEntity<>(applicationForm, HttpStatus.OK);
+        } catch(UnAuthorizedAccessException e) {
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.UNAUTHORIZED);
+        } catch(Exception e) {
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.PRECONDITION_FAILED);
+        }
     }
 
 
     @RequestMapping(value = "/{id}/document/{documentName:.+}", method = RequestMethod.GET)
     public ResponseEntity<?> getFile(@PathVariable String id, @PathVariable String documentName){
-
         try {
             Resource resourceFile = droneAcquisitionFormService.getFile(id, documentName);
             return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
                     "attachment; filename=\"" + resourceFile.getFilename() + "\"").body(resourceFile);
         } catch(StorageFileNotFoundException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.NOT_FOUND);
+        } catch(UnAuthorizedAccessException e) {
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.UNAUTHORIZED);
+        } catch(Exception e) {
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.PRECONDITION_FAILED);
         }
     }
 }

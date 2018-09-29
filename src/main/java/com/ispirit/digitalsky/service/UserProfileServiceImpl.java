@@ -32,6 +32,21 @@ public class UserProfileServiceImpl implements UserProfileService {
         long individualOperatorId = individualOperator != null ? individualOperator.getId() : 0;
         long organizationOperatorId = organizationOperator != null ? organizationOperator.getId() : 0;
         long manufacturerId = manufacturer != null ? manufacturer.getId() : 0;
-        return new UserProfile(id, pilotProfileId, individualOperatorId, organizationOperatorId, manufacturerId);
+
+        String pilotBusinessIdentifier = pilot != null ? pilot.getBusinessIdentifier() : null;
+        String operatorBusinessIdentifier = null;
+        if(individualOperator != null) {
+            operatorBusinessIdentifier = individualOperator.getBusinessIdentifier();
+        } else {
+            if(organizationOperator != null) {
+                operatorBusinessIdentifier = organizationOperator.getBusinessIdentifier();
+            }
+        }
+
+        String manufacturerBusinessIdentifier = manufacturer != null ? manufacturer.getBusinessIdentifier() : null;
+        return new UserProfile(id, pilotProfileId, individualOperatorId, organizationOperatorId, manufacturerId,
+                pilotBusinessIdentifier,operatorBusinessIdentifier,
+                manufacturerBusinessIdentifier
+        );
     }
 }

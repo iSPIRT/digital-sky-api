@@ -1,16 +1,11 @@
 package com.ispirit.digitalsky.controller;
 
-import com.ispirit.digitalsky.domain.DroneDevice;
-import com.ispirit.digitalsky.domain.RegisterDroneRequestPayload;
-import com.ispirit.digitalsky.domain.RegisterDroneResponseCode;
-import com.ispirit.digitalsky.domain.RegisterDroneResponsePayload;
+import com.ispirit.digitalsky.domain.*;
 import com.ispirit.digitalsky.dto.Errors;
-import com.ispirit.digitalsky.exception.DroneDeviceAlreadyExistException;
-import com.ispirit.digitalsky.exception.DroneDeviceNotFoundException;
-import com.ispirit.digitalsky.exception.InvalidDigitalSignatureException;
-import com.ispirit.digitalsky.exception.InvalidOperatorCodeException;
+import com.ispirit.digitalsky.exception.*;
 import com.ispirit.digitalsky.service.api.DroneDeviceService;
 
+import com.ispirit.digitalsky.service.api.UserProfileService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,26 +25,47 @@ public class DroneDeviceController {
     public static final String DRONEDEVICE_RESOURCE_BASE_PATH = "/api/droneDevice";
 
     DroneDeviceService droneDeviceService;
+    UserProfileService userProfileService;
 
-    public DroneDeviceController(DroneDeviceService droneDeviceService) {
+    public DroneDeviceController(DroneDeviceService droneDeviceService, UserProfileService userProfileService) {
         this.droneDeviceService = droneDeviceService;
+        this.userProfileService = userProfileService;
     }
 
-    @RequestMapping(value = "/register/{manufacturerId}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> registerDrone(@PathVariable String manufacturerId, @Valid @RequestBody RegisterDroneRequestPayload payload) {
+    @RequestMapping(value = "/register/{manufacturerBusinessIdentifier}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> registerDrone(@PathVariable String manufacturerBusinessIdentifier, @Valid @RequestBody RegisterDroneRequestPayload payload) {
         RegisterDroneResponsePayload responsePayload = new RegisterDroneResponsePayload(payload.getDrone().getTxn(), LocalDateTime.now());
         try {
-            droneDeviceService.register(manufacturerId, payload);
+            droneDeviceService.register(manufacturerBusinessIdentifier, payload);
             responsePayload.setCode(RegisterDroneResponseCode.REGISTERED);
             return new ResponseEntity<>(responsePayload, HttpStatus.CREATED);
-        } catch(InvalidDigitalSignatureException e){
+        } catch (InvalidDigitalSignatureException e) {
             responsePayload.setCode(RegisterDroneResponseCode.INVALID_SIGNATURE);
+            responsePayload.setError(new Errors(e.getMessage()));
             return new ResponseEntity<>(responsePayload, HttpStatus.PRECONDITION_FAILED);
-        } catch(InvalidOperatorCodeException e){
-            responsePayload.setCode(RegisterDroneResponseCode.OPERATORCODE_INVALID);
+        } catch (OperatorBusinessIdentifierMissingException e) {
+            responsePayload.setCode(RegisterDroneResponseCode.OPERATOR_BUSINESS_IDENTIFIER_MISSING);
+            responsePayload.setError(new Errors(e.getMessage()));
             return new ResponseEntity<>(responsePayload, HttpStatus.PRECONDITION_FAILED);
-        } catch(DroneDeviceAlreadyExistException e){
+        } catch (InvalidOperatorBusinessIdentifierException e) {
+            responsePayload.setCode(RegisterDroneResponseCode.OPERATOR_BUSINESS_IDENTIFIER_INVALID);
+            responsePayload.setError(new Errors(e.getMessage()));
+            return new ResponseEntity<>(responsePayload, HttpStatus.PRECONDITION_FAILED);
+        } catch (DroneDeviceAlreadyExistException e) {
             responsePayload.setCode(RegisterDroneResponseCode.DRONE_ALREADY_REGISTERED);
+            responsePayload.setError(new Errors(e.getMessage()));
+            return new ResponseEntity<>(responsePayload, HttpStatus.PRECONDITION_FAILED);
+        } catch (InvalidDigitalCertificateException e) {
+            responsePayload.setCode(RegisterDroneResponseCode.INVALID_DIGITAL_CERTIFICATE);
+            responsePayload.setError(new Errors(e.getMessage()));
+            return new ResponseEntity<>(responsePayload, HttpStatus.PRECONDITION_FAILED);
+        } catch (ManufacturerNotFoundException e) {
+            responsePayload.setCode(RegisterDroneResponseCode.MANUFACTURER_BUSINESS_IDENTIFIER_INVALID);
+            responsePayload.setError(new Errors(e.getMessage()));
+            return new ResponseEntity<>(responsePayload, HttpStatus.PRECONDITION_FAILED);
+        } catch(InvalidManufacturerException e){
+            responsePayload.setCode(RegisterDroneResponseCode.INVALID_MANUFACTURER);
+            responsePayload.setError(new Errors(e.getMessage()));
             return new ResponseEntity<>(responsePayload, HttpStatus.PRECONDITION_FAILED);
         } catch(Exception e){
             responsePayload.setCode(RegisterDroneResponseCode.BAD_REQUEST_PAYLOAD);
@@ -58,18 +74,36 @@ public class DroneDeviceController {
         }
     }
 
-    @RequestMapping(value = "/deregister/{manufacturerId}", method = RequestMethod.PATCH, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> deregisterDrone(@PathVariable String manufacturerId, @Valid @RequestBody RegisterDroneRequestPayload payload) {
+    @RequestMapping(value = "/deregister/{manufacturerBusinessIdentifier}", method = RequestMethod.PATCH, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> deregisterDrone(@PathVariable String manufacturerBusinessIdentifier, @Valid @RequestBody RegisterDroneRequestPayload payload) {
         RegisterDroneResponsePayload responsePayload = new RegisterDroneResponsePayload(payload.getDrone().getTxn(), LocalDateTime.now());
         try {
-            droneDeviceService.deregister(manufacturerId, payload);
+            droneDeviceService.deregister(manufacturerBusinessIdentifier, payload);
             responsePayload.setCode(RegisterDroneResponseCode.DEREGISTERED);
             return new ResponseEntity<>(responsePayload, HttpStatus.OK);
+        } catch(DeviceNotInRegisteredStateException e) {
+            responsePayload.setCode(RegisterDroneResponseCode.INVALID_SIGNATURE);
+            responsePayload.setError(new Errors(e.getMessage()));
+            return new ResponseEntity<>(responsePayload, HttpStatus.PRECONDITION_FAILED);
         } catch(InvalidDigitalSignatureException e){
             responsePayload.setCode(RegisterDroneResponseCode.INVALID_SIGNATURE);
+            responsePayload.setError(new Errors(e.getMessage()));
             return new ResponseEntity<>(responsePayload, HttpStatus.PRECONDITION_FAILED);
-        } catch(DroneDeviceNotFoundException e){
+        } catch(InvalidDigitalCertificateException e) {
+            responsePayload.setCode(RegisterDroneResponseCode.INVALID_DIGITAL_CERTIFICATE);
+            responsePayload.setError(new Errors(e.getMessage()));
+            return new ResponseEntity<>(responsePayload, HttpStatus.PRECONDITION_FAILED);
+        }  catch(DroneDeviceNotFoundException e){
             responsePayload.setCode(RegisterDroneResponseCode.DRONE_NOT_FOUND);
+            responsePayload.setError(new Errors(e.getMessage()));
+            return new ResponseEntity<>(responsePayload, HttpStatus.PRECONDITION_FAILED);
+        } catch (ManufacturerNotFoundException e) {
+            responsePayload.setCode(RegisterDroneResponseCode.MANUFACTURER_BUSINESS_IDENTIFIER_INVALID);
+            responsePayload.setError(new Errors(e.getMessage()));
+            return new ResponseEntity<>(responsePayload, HttpStatus.PRECONDITION_FAILED);
+        } catch(InvalidManufacturerException e){
+            responsePayload.setCode(RegisterDroneResponseCode.INVALID_MANUFACTURER);
+            responsePayload.setError(new Errors(e.getMessage()));
             return new ResponseEntity<>(responsePayload, HttpStatus.PRECONDITION_FAILED);
         } catch(Exception e){
             responsePayload.setCode(RegisterDroneResponseCode.BAD_REQUEST_PAYLOAD);
@@ -79,8 +113,12 @@ public class DroneDeviceController {
     }
 
     @RequestMapping(value = "/list", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> list(@RequestParam(value = "operatorCode", required = true) String operatorCode) {
-        Collection<String> operatorDrones= droneDeviceService.getRegisteredDroneDeviceIds(operatorCode);
+    public ResponseEntity<?> list() {
+        UserProfile profile = userProfileService.profile(UserPrincipal.securityContext().getId());
+
+        if(profile == null ) {throw new InvalidOperatorBusinessIdentifierException(); }
+
+        Collection<String> operatorDrones= droneDeviceService.getRegisteredDroneDeviceIds(profile.getOperatorBusinessIdentifier());
         return new ResponseEntity<>(operatorDrones, HttpStatus.OK);
     }
 }

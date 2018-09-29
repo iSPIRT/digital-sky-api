@@ -9,8 +9,6 @@ import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.*;
 
 import com.ispirit.digitalsky.repository.DroneAcquisitionApplicationRepository;
-import com.ispirit.digitalsky.repository.IndividualOperatorRepository;
-import com.ispirit.digitalsky.repository.OrganizationOperatorRepository;
 import com.ispirit.digitalsky.repository.storage.StorageService;
 
 
@@ -18,6 +16,8 @@ import com.ispirit.digitalsky.service.api.*;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static com.ispirit.digitalsky.util.FileStoreHelper.resolveFileName;
+import static java.util.Collections.singletonList;
 
 public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionApplication> implements DroneAcquisitionApplicationService<T> {
 
@@ -63,20 +64,21 @@ public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionAp
     public T updateDroneAcquisitionApplication(String id, T droneAcquisitionApplicationForm, MultipartFile securityClearanceDoc) throws ApplicationNotFoundException, UnAuthorizedAccessException, StorageException, ApplicationNotEditableException {
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         T actualForm = droneAcquisitionFormRepository.findById(id);
+
         if (actualForm == null) {
             throw new ApplicationNotFoundException();
+        }
+
+        if (userPrincipal.getId() != actualForm.getApplicantId()) {
+            throw new UnAuthorizedAccessException();
         }
 
         if (!actualForm.canBeModified()) {
             throw new ApplicationNotEditableException();
         }
 
-        long applicantId = actualForm.getApplicantId();
         Date createdDate = actualForm.getCreatedDate();
-
-        if (userPrincipal.getId() != applicantId) {
-            throw new UnAuthorizedAccessException();
-        }
+        long applicantId = actualForm.getApplicantId();
 
         BeanUtils.copyProperties(droneAcquisitionApplicationForm, actualForm);
         if(actualForm.getStatus() == ApplicationStatus.SUBMITTED) {
@@ -92,16 +94,13 @@ public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionAp
         }
 
         T savedForm = droneAcquisitionFormRepository.save(actualForm);
-
-        List<MultipartFile> filesToBeUploaded = new ArrayList<MultipartFile>(Arrays.asList(securityClearanceDoc));
-        storageService.store(filesToBeUploaded, savedForm.getId());
-
+        storageService.store(singletonList(securityClearanceDoc), savedForm.getId());
         return savedForm;
     }
 
     @Override
     @Transactional
-    public T approveDroneAcquisitionApplication(ApproveRequestBody approveRequestBody) throws ApplicationNotFoundException, UnAuthorizedAccessException, IOException {
+    public T approveDroneAcquisitionApplication(ApproveRequestBody approveRequestBody) throws ApplicationNotFoundException, UnAuthorizedAccessException, IOException, ValidationException {
 
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         T actualForm = droneAcquisitionFormRepository.findById(approveRequestBody.getApplicationFormId());
@@ -120,11 +119,8 @@ public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionAp
         if(savedForm.getStatus() == ApplicationStatus.APPROVED) {
 
             boolean isImported = actualForm instanceof ImportDroneApplication;
-
             long operatorId;
-
             ApplicantType operatorType;
-
             UserProfile userProfile = userProfileService.profile(actualForm.getApplicantId());
 
             if (userProfile.isIndividualOperator()) {
@@ -150,7 +146,7 @@ public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionAp
             }
 
             operatorDroneService.createOperatorDrones(operatorDrones);
-            }
+        }
 
         return savedForm;
     }
@@ -168,16 +164,27 @@ public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionAp
 
     @Override
     public T get(String id) {
-        return droneAcquisitionFormRepository.findById(id);
+        UserPrincipal userPrincipal = UserPrincipal.securityContext();
+
+        T application =  droneAcquisitionFormRepository.findById(id);
+        if (userPrincipal.getId() != application.getApplicantId()) {
+            throw new UnAuthorizedAccessException();
+        }
+        return application;
     }
 
     @Override
     public Resource getFile(String id, String fileName) throws StorageFileNotFoundException, UnAuthorizedAccessException {
 
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
-        T applicationForm = get(id);
-        if (!userPrincipal.isAdmin() && userPrincipal.getId() != applicationForm.getApplicantId())
+        T applicationForm = droneAcquisitionFormRepository.findById(id);
+
+        if(applicationForm == null) {
+            throw new ApplicationNotFoundException();
+        }
+        if (!userPrincipal.isAdmin() && userPrincipal.getId() != applicationForm.getApplicantId()) {
             throw new UnAuthorizedAccessException();
+        }
 
         return storageService.loadAsResource(id, fileName);
     }

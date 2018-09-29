@@ -6,11 +6,14 @@ public enum RegisterDroneResponseCode {
     REGISTRATION_FAILED(10, "Registration Failed"),
     DEREGISTERED(20, "Deregistered"),
     DEREGISTRATION_FAILED(30, "Deregistration failed"),
-    OPERATORCODE_INVALID(40, "Operator id/code invalid"),
+    OPERATOR_BUSINESS_IDENTIFIER_INVALID(40, "Operator business identifier invalid"),
+    OPERATOR_BUSINESS_IDENTIFIER_MISSING(41, "Operator business identifier missing"),
     INVALID_SIGNATURE(50, "Invalid Signature"),
-    INVALID_DIGITALCERTIFICATE(60, "Invalid Digital Certificate"),
-    DRONE_ALREADY_REGISTERED(70, "Drone Already Registered"),
-    INVALID_MANUFACTURER(80, "Invalid manufacturer in the certificate"),
+    INVALID_DIGITAL_CERTIFICATE(60, "Invalid Digital Certificate"),
+    DRONE_ALREADY_REGISTERED(70, "Drone device already Registered"),
+    DRONE_NOT_REGISTERED(71, "Drone device not registered"),
+    INVALID_MANUFACTURER(80, "Invalid manufacturer"),
+    MANUFACTURER_BUSINESS_IDENTIFIER_INVALID(81, "Manufacturer not found/invalid manufacturer business identifier"),
     DRONE_NOT_FOUND(90, "Drone not found"),
     BAD_REQUEST_PAYLOAD(100, "BAD request payload");
 

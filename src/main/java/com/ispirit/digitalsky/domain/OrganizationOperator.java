@@ -1,6 +1,7 @@
 package com.ispirit.digitalsky.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ispirit.digitalsky.util.BusinessIdentifierGenerator;
 
 import javax.persistence.*;
 import java.util.List;
@@ -21,11 +22,17 @@ public class OrganizationOperator extends Organisation {
     @JsonIgnore
     private String status = "DEFAULT";
 
+
+    @Column(name = "BUSINESS_IDENTIFIER")
+    private final String businessIdentifier;
+
     private OrganizationOperator() {
         //for serialization and de-serialization
+        businessIdentifier = BusinessIdentifierGenerator.generateOrganizationOperatorBusinessIdentifier();
     }
 
     public OrganizationOperator(long resourceOwnerId, String status, String name, String email, String mobileNumber, String contactNumber, String country, List<Address> addressList) {
+        this();
         this.status = status;
         this.resourceOwnerId = resourceOwnerId;
         this.name = name;
@@ -56,4 +63,6 @@ public class OrganizationOperator extends Organisation {
     public String getStatus() {
         return status;
     }
+
+    public String getBusinessIdentifier() { return businessIdentifier; }
 }

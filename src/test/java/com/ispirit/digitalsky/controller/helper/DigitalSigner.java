@@ -6,8 +6,7 @@ import org.springframework.util.Base64Utils;
 
 import java.io.*;
 import java.security.*;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 
 public class DigitalSigner {
@@ -16,12 +15,6 @@ public class DigitalSigner {
 
     private KeyStore.PrivateKeyEntry keyEntry;
 
-    /**
-     * Constructor
-     * @param keyStoreFile - Location of .cer file
-     * @param keyStorePassword - Password of .cer file
-     * @param alias - Alias of the certificate in .cer file
-     */
     public DigitalSigner(String keyStoreFile, char[] keyStorePassword, String alias) {
         this.keyEntry = getKeyFromKeyStore(keyStoreFile, keyStorePassword, alias);
 
@@ -31,52 +24,33 @@ public class DigitalSigner {
         }
     }
 
-    //The method that signs the data using the private key that is stored in keyFile path
     public String sign(DroneDevice drone) throws InvalidKeyException, NoSuchAlgorithmException, IOException, SignatureException {
         Signature rsa = Signature.getInstance("SHA1withRSA");
-        SignedObject digitalSignedObj =
-                new SignedObject(drone, keyEntry.getPrivateKey(), rsa);
+        rsa.initSign(keyEntry.getPrivateKey());
+
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-             ObjectOutputStream oos = new ObjectOutputStream(baos);) {
-            oos.writeObject(digitalSignedObj);
+             ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+            oos.writeObject(drone);
             oos.flush();
-            return Base64Utils.encodeToString(baos.toByteArray());
+            rsa.update(baos.toByteArray());
+            byte[] signedDroneDeviceObj = rsa.sign();
+            return Base64Utils.encodeToString(signedDroneDeviceObj);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-//        Signature rsa = Signature.getInstance("SHA256withRSA");
-//        rsa.initSign(keyEntry.getPrivateKey());
-//        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//             ObjectOutputStream oos = new ObjectOutputStream(baos);) {
-//            oos.writeObject(drone);
-//            oos.flush();
-//            byte[] device = baos.toByteArray();
-//            rsa.update(device);
-//            String encodedSign = Base64Utils.encodeToString(rsa.sign());
-//            return encodedSign;
-//        }
         return null;
     }
 
-//    public boolean verify(String encodedSign, DroneDevice device, String certificate) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, IOException {
-//
-//        Signature sig = Signature.getInstance("SHA256withRSA");
-//        sig.initVerify(getCertificateFromFile(certificate));
-//        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//             ObjectOutputStream oos = new ObjectOutputStream(baos);) {
-//            oos.writeObject(device);
-//            oos.flush();
-//            byte[] bytes = baos.toByteArray();
-//            sig.update(bytes);
-//        }
-//        byte[] decodedSign = Base64Utils.decodeFromString(encodedSign);
-//        boolean isValid = sig.verify(decodedSign);
-//        return isValid;
-//    }
+    public String getBase64EncodedCertificate() throws CertificateEncodingException {
+        try {
+            X509Certificate certificate = (X509Certificate) keyEntry.getCertificate();
+            return Base64Utils.encodeToString(certificate.getEncoded());
+        } catch (Exception e) {
+            throw e;
+        }
+    }
 
     private KeyStore.PrivateKeyEntry getKeyFromKeyStore(String keyStoreFile, char[] keyStorePassword, String alias) {
-        // Load the KeyStore and get the signing key and certificate.
         FileInputStream keyFileStream = null;
         try {
             KeyStore ks = KeyStore.getInstance(KEY_STORE_TYPE);
@@ -100,4 +74,5 @@ public class DigitalSigner {
             }
         }
     }
+
 }
