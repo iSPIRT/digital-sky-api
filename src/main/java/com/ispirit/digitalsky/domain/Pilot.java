@@ -2,6 +2,7 @@ package com.ispirit.digitalsky.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ispirit.digitalsky.util.BusinessIdentifierGenerator;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
@@ -41,13 +42,17 @@ public class Pilot extends Person {
     @Transient
     private MultipartFile trainingCertificate;
 
+    @Column(name = "BUSINESS_IDENTIFIER")
+    private final String businessIdentifier;
 
     private Pilot() {
         //for serialization and de-serialization
+        businessIdentifier = BusinessIdentifierGenerator.generatePilotBusinessIdentifier();
     }
 
 
     public Pilot(long resourceOwnerId, String status, String name, String email, String mobileNumber, String country, LocalDate dateOfBirth, String droneCategory, List<Address> addressList) {
+        this();
         this.name = name;
         this.email = email;
         this.mobileNumber = mobileNumber;
@@ -79,13 +84,11 @@ public class Pilot extends Person {
         this.resourceOwnerId = resourceOwnerId;
     }
 
-    public void setTrainingCertificateDocName(String trainingCertificateDocName) {
-        this.trainingCertificateDocName = trainingCertificateDocName;
-    }
+    public void setTrainingCertificateDocName(String trainingCertificateDocName) { this.trainingCertificateDocName = trainingCertificateDocName; }
 
-    public void setTrainingCertificate(MultipartFile trainingCertificate) {
-        this.trainingCertificate = trainingCertificate;
-    }
+    public void setTrainingCertificate(MultipartFile trainingCertificate) { this.trainingCertificate = trainingCertificate; }
+
+    public String getBusinessIdentifier() { return businessIdentifier; }
 
     public String getTrainingCertificateDocName() {
         return trainingCertificateDocName;

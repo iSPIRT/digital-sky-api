@@ -1,0 +1,1 @@
+ALTER TABLE ds_individual_operator ADD BUSINESS_IDENTIFIER VARCHAR(36);

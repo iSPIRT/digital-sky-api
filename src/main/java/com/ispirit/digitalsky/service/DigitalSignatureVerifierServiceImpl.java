@@ -3,9 +3,10 @@ package com.ispirit.digitalsky.service;
 
 import com.ispirit.digitalsky.domain.DroneDevice;
 import com.ispirit.digitalsky.domain.RegisterDroneRequestPayload;
-import com.ispirit.digitalsky.domain.Manufacturer;
+import com.ispirit.digitalsky.exception.InvalidDigitalCertificateException;
+import com.ispirit.digitalsky.exception.InvalidDigitalSignatureException;
+import com.ispirit.digitalsky.exception.InvalidManufacturerException;
 import com.ispirit.digitalsky.service.api.DigitalCertificateValidatorService;
-import com.ispirit.digitalsky.service.api.ManufacturerService;
 import com.ispirit.digitalsky.service.api.DigitalSignatureVerifierService;
 import org.springframework.util.Base64Utils;
 
@@ -21,39 +22,34 @@ import java.util.regex.Pattern;
 
 public class DigitalSignatureVerifierServiceImpl implements DigitalSignatureVerifierService {
 
-	private final ManufacturerService manufacturerService;
 	private final String manufacturerAttributeNameInCertificate;
 	private final DigitalCertificateValidatorService digitalCertificateValidatorService;
 	private final boolean digitalCertificateValidationEnabled;
 
-    public DigitalSignatureVerifierServiceImpl(ManufacturerService manufacturerService, DigitalCertificateValidatorService digitalCertificateValidatorService, String manufacturerAttributeNameInCertificate, boolean digitalCertificateValidationEnabled) {
-		this.manufacturerService = manufacturerService;
+    public DigitalSignatureVerifierServiceImpl(DigitalCertificateValidatorService digitalCertificateValidatorService,
+                                               String manufacturerAttributeNameInCertificate,
+                                               boolean digitalCertificateValidationEnabled) {
 		this.manufacturerAttributeNameInCertificate = manufacturerAttributeNameInCertificate;
 		this.digitalCertificateValidatorService = digitalCertificateValidatorService;
 		this.digitalCertificateValidationEnabled = digitalCertificateValidationEnabled;
 	}
 
 	@Override
-	public boolean isValidSignature(RegisterDroneRequestPayload payload, long manufacturerId) {
+	public boolean isValidSignature(RegisterDroneRequestPayload payload, String orgName, String orgTrustedCertificatePath) throws InvalidDigitalCertificateException, InvalidManufacturerException, SignatureException {
 
         boolean isValid = ((payload.getSignature() != null) || (payload.getDigitalCertificate() != null));
         if(isValid) {
-            String digitalCertificatePath = manufacturerService.getDigitalCertificatePath(manufacturerId);
-            try {
                 X509Certificate certificate = getCertificateFromFile(payload.getDigitalCertificate());
                 isValid =  validateSignature(payload.getSignature(), payload.getDrone(), certificate)
-                         && isValidCertificate(certificate, digitalCertificatePath)
-                        && validateManufacturer(certificate);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+                         && isValidCertificate(certificate, orgTrustedCertificatePath)
+                        && validateOrganization(certificate, orgName);
         }
 
         return isValid;
     }
 
-    private boolean validateSignature(String signature, DroneDevice drone, X509Certificate certificate) throws SignatureException {
-        boolean isValid =  false;
+    private boolean validateSignature(String signature, DroneDevice drone, X509Certificate certificate) throws SignatureException, InvalidDigitalSignatureException {
+        boolean isValid;
         try {
             Signature rsa = Signature.getInstance("SHA1withRSA");
             rsa.initVerify(certificate);
@@ -62,33 +58,31 @@ public class DigitalSignatureVerifierServiceImpl implements DigitalSignatureVeri
                 oos.writeObject(drone);
                 oos.flush();
                 rsa.update(baos.toByteArray());
+                isValid = rsa.verify(Base64Utils.decodeFromString(signature));
             } catch (IOException e) {
-                e.printStackTrace();
+               throw new InvalidDigitalSignatureException();
             }
-            isValid = rsa.verify(Base64Utils.decodeFromString(signature));
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            e.printStackTrace();
+            throw new InvalidDigitalCertificateException();
         }
         return isValid;
     }
 
-    private boolean validateManufacturer(X509Certificate certificate) {
+    private boolean validateOrganization(X509Certificate certificate, String orgName) throws InvalidDigitalCertificateException, InvalidManufacturerException {
         Principal principal = certificate.getSubjectDN();
         String subjectDn = principal.getName();
         String attributeName = manufacturerAttributeNameInCertificate + "=";
         Pattern pattern = Pattern.compile(attributeName + "[\\w\\s\\.\\-]+",Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(subjectDn);
-        if(matcher.find()) {
-            String manufacturerName = matcher.group(0).substring(attributeName.length());
-            Manufacturer manufacturer = manufacturerService.findByName(manufacturerName);
-            if(manufacturer !=null) {
-                return true;
-            }
-        }
-		return false;
+        if(!matcher.find()) { throw new InvalidDigitalCertificateException(); }
+
+        String manufacturerOrgName = matcher.group(0).substring(attributeName.length());
+        if(!manufacturerOrgName.equals(orgName)) { throw new InvalidManufacturerException(); }
+        else { return true; }
+
 	}
 
-    private X509Certificate getCertificateFromFile(String certString) {
+    private X509Certificate getCertificateFromFile(String certString) throws InvalidDigitalCertificateException{
         InputStream inputStream = null;
         try {
             X509Certificate certificate = (X509Certificate) CertificateFactory
@@ -98,17 +92,16 @@ public class DigitalSignatureVerifierServiceImpl implements DigitalSignatureVeri
                     );
             return certificate;
         } catch (CertificateException e) {
-            e.printStackTrace();
+           throw new InvalidDigitalCertificateException();
         } finally {
             if (inputStream != null) {
                 try {
                     inputStream.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    throw new InvalidDigitalCertificateException();
                 }
             }
         }
-        return null;
     }
 
 	private boolean isValidCertificate(X509Certificate certificate, String manufacturerCertificateChainPath) {

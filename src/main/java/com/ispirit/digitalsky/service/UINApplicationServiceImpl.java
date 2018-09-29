@@ -169,7 +169,7 @@ public class UINApplicationServiceImpl implements UINApplicationService {
 
             DroneDevice device = droneDeviceRepository.findByDeviceId(uinApplication.getUniqueDeviceId());
 
-            if (!device.getOperatorCode().equals(String.valueOf(operatorId))) {
+            if (!device.getOperatorCode().equals(String.valueOf(userProfile.getOperatorBusinessIdentifier()))) {
                 throw new OperatorNotAuthorizedException();
             }
 

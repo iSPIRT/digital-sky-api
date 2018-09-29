@@ -57,7 +57,7 @@ public class DroneDevice implements Serializable {
     @Column(name = "DEVICE_MODEL_ID", nullable = false)
     private String deviceModelId;
 
-    @Column(name = "OPERATOR_CODE", nullable = false)
+    @Column(name = "OPERATOR_CODE")
     private String operatorCode;
 
     @Column(name = "ID_HASH")
@@ -135,9 +135,7 @@ public class DroneDevice implements Serializable {
         return idHash;
     }
 
-    public void setIdHash(String idHash) {
-        this.idHash = idHash;
-    }
+    public void setIdHash(String idHash) { this.idHash = idHash; }
 
     public DroneDeviceRegistrationStatus getRegistrationStatus() { return registrationStatus; }
 

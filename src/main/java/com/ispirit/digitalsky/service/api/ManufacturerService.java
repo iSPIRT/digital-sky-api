@@ -11,8 +11,8 @@ public interface ManufacturerService {
 
     Manufacturer find(long id);
 
-    Manufacturer findByName(String fullName);
+    Manufacturer loadByBusinessIdentifier(String businessIdentifier);
 
-    String getDigitalCertificatePath(long id);
+    String getCAAndTrustedCertificatePath(long id);
 
 }

@@ -9,4 +9,7 @@ public interface OrganizationOperatorRepository extends CrudRepository<Organizat
 
     @Query("SELECT o FROM OrganizationOperator o WHERE  o.resourceOwnerId = :resourceOwnerId")
     OrganizationOperator loadByResourceOwner(@Param("resourceOwnerId") long resourceOwnerId);
+
+    @Query("SELECT o FROM OrganizationOperator o WHERE  Lower(o.businessIdentifier) = Lower(:businessIdentifier)")
+    OrganizationOperator loadByBusinessIdentifier(@Param("businessIdentifier") String businessIdentifier);
 }

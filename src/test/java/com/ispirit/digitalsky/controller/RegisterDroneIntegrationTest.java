@@ -61,14 +61,15 @@ public class RegisterDroneIntegrationTest {
         DroneDevice mockDrone = new DroneDevice();
 
         mockDrone.setVersion("1.0");
-        mockDrone.setDeviceId("Beebop 700.0");
+        mockDrone.setDeviceId("Beebop 600.0");
         mockDrone.setDeviceModelId("1A29.0");
         mockDrone.setTxn("From manufacturer ");
-        mockDrone.setOperatorCode("23");
+        //mockDrone.setOperatorCode("178968bec6414af99d79a69518a8306e");
+        mockDrone.setOperatorCode("eff217e740534fde89c1bfe62e08f316");
         mockDrone.setIdHash("some value");
 
         mockDronePayload.setDrone(mockDrone);
-        String certificate = null;
+        String certificate;
 
         try {
             certificate = digitalSigner.getBase64EncodedCertificate();
@@ -87,7 +88,7 @@ public class RegisterDroneIntegrationTest {
         }
 
         ResponseEntity<RegisterDroneResponsePayload> responseEntity =
-                restTemplate.postForEntity("/api/droneDevice/register/24",  mockDronePayload, RegisterDroneResponsePayload.class);
+                restTemplate.postForEntity("/api/droneDevice/register/8ccf320028554028b47dbc3441d058c0",  mockDronePayload, RegisterDroneResponsePayload.class);
 
         String txn = responseEntity.getBody().getTxn();
 
@@ -105,17 +106,17 @@ public class RegisterDroneIntegrationTest {
         DroneDevice mockDrone = new DroneDevice();
 
         mockDrone.setVersion("1.0");
-        mockDrone.setDeviceId("Beebop 700.0");
+        mockDrone.setDeviceId("Beebop 300.0");
         mockDrone.setDeviceModelId("1A29.0");
         mockDrone.setTxn("From manufacturer ");
-        mockDrone.setOperatorCode("23");
         mockDrone.setIdHash("some value");
 
         mockDronePayload.setDrone(mockDrone);
-        String certificate = null;
+        String certificate;
         try {
             certificate = digitalSigner.getBase64EncodedCertificate();
             mockDronePayload.setDigitalCertificate(certificate);
+            mockDronePayload.setSignature(digitalSigner.sign(mockDrone));
             mockDronePayload.setSignature(digitalSigner.sign(mockDrone));
         } catch (InvalidKeyException e) {
             e.printStackTrace();
@@ -130,7 +131,7 @@ public class RegisterDroneIntegrationTest {
         }
 
         RegisterDroneResponsePayload responsePayload =
-                patchRestTemplate.patchForObject("/api/droneDevice/deregister/24", mockDronePayload, RegisterDroneResponsePayload.class);
+                patchRestTemplate.patchForObject("/api/droneDevice/deregister/8ccf320028554028b47dbc3441d058c0", mockDronePayload, RegisterDroneResponsePayload.class);
         String txn = responsePayload.getTxn();
 
         assertEquals(txn, "From manufacturer ");

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.document.ImportDroneApplication;
 import com.ispirit.digitalsky.document.LocalDroneAcquisitionApplication;
+import com.ispirit.digitalsky.domain.Manufacturer;
 import com.ispirit.digitalsky.repository.*;
 import com.ispirit.digitalsky.repository.storage.FileSystemStorageService;
 import com.ispirit.digitalsky.repository.storage.StorageService;
@@ -215,15 +216,16 @@ public class ApplicationConfiguration {
 
     @Bean
     DroneDeviceService droneDeviceService(DroneDeviceRepository droneRepository, DigitalSignatureVerifierService signatureVerifierService,
-                                                IndividualOperatorRepository individualOperatorRepository,
-                                                OrganizationOperatorRepository organizationOperatorRepository,
-                                                OperatorDroneService operatorDroneService) {
-        return new DroneDeviceServiceImpl(droneRepository, signatureVerifierService,individualOperatorRepository, organizationOperatorRepository, operatorDroneService );
+                                          IndividualOperatorRepository individualOperatorRepository,
+                                          OrganizationOperatorRepository organizationOperatorRepository,
+                                          OperatorDroneService operatorDroneService,
+                                          ManufacturerService manufacturerService) {
+        return new DroneDeviceServiceImpl(droneRepository, signatureVerifierService,individualOperatorRepository, organizationOperatorRepository, operatorDroneService, manufacturerService );
     }
 
     @Bean
     DigitalSignatureVerifierService signatureVerifierService(ManufacturerService manufacturerService, DigitalCertificateValidatorService digitalCertificateValidatorService) {
-        return new DigitalSignatureVerifierServiceImpl(manufacturerService, digitalCertificateValidatorService, manufacturerDigitalCertManufacturerAttributeName, manufacturerDigitalCertValidationEnabled);
+        return new DigitalSignatureVerifierServiceImpl(digitalCertificateValidatorService, manufacturerDigitalCertManufacturerAttributeName, manufacturerDigitalCertValidationEnabled);
     }
 
     @Bean

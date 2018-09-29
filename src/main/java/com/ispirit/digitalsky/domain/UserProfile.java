@@ -12,12 +12,22 @@ public class UserProfile {
 
     private long manufacturerId;
 
-    public UserProfile(long id, long pilotProfileId, long individualOperatorId, long orgOperatorId, long manufacturerId) {
+    private String pilotBusinessIdentifier;
+
+    private String operatorBusinessIdentifier;
+
+    private String manufacturerBusinessIdentifier;
+
+
+    public UserProfile(long id, long pilotProfileId, long individualOperatorId, long orgOperatorId, long manufacturerId, String pilotBusinessIdentifier, String operatorBusinessIdentifier, String manufacturerBusinessIdentifier) {
         this.id = id;
         this.pilotProfileId = pilotProfileId;
         this.individualOperatorId = individualOperatorId;
         this.orgOperatorId = orgOperatorId;
         this.manufacturerId = manufacturerId;
+        this.pilotBusinessIdentifier = pilotBusinessIdentifier;
+        this.operatorBusinessIdentifier = operatorBusinessIdentifier;
+        this.manufacturerBusinessIdentifier = manufacturerBusinessIdentifier;
     }
 
     public boolean owns(OperatorDrone operatorDrone) {
@@ -58,4 +68,11 @@ public class UserProfile {
     public boolean isOrganizationOperator() {
         return isOperator() && orgOperatorId != 0;
     }
+
+    public String getPilotBusinessIdentifier() { return pilotBusinessIdentifier; }
+
+    public String getOperatorBusinessIdentifier() { return operatorBusinessIdentifier; }
+
+    public String getManufacturerBusinessIdentifier() { return manufacturerBusinessIdentifier; }
+
 }

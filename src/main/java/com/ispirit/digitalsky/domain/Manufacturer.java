@@ -1,6 +1,7 @@
 package com.ispirit.digitalsky.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ispirit.digitalsky.util.BusinessIdentifierGenerator;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
@@ -29,8 +30,12 @@ public class Manufacturer extends Organisation {
     @Transient
     private MultipartFile trustedCertificateDoc;
 
+    @Column(name = "BUSINESS_IDENTIFIER")
+    private String businessIdentifier;
+
     private Manufacturer() {
         //for serialization and de-serialization
+        businessIdentifier = BusinessIdentifierGenerator.generateManufacturerBusinessIdentifier();
     }
 
     public Manufacturer(long resourceOwnerId, String status, String name, String email, String mobileNumber, String contactNumber, String country, List<Address> addressList) {
@@ -72,4 +77,7 @@ public class Manufacturer extends Organisation {
     public MultipartFile getTrustedCertificateDoc() { return trustedCertificateDoc; }
 
     public void setTrustedCertificateDoc(MultipartFile trustedCertificateDoc) { this.trustedCertificateDoc = trustedCertificateDoc; }
+
+    public String getBusinessIdentifier() { return businessIdentifier; }
+
 }

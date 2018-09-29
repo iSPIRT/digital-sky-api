@@ -9,4 +9,7 @@ public interface IndividualOperatorRepository extends CrudRepository<IndividualO
 
     @Query("SELECT o FROM IndividualOperator o WHERE  o.resourceOwnerId = :resourceOwnerId")
     IndividualOperator loadByResourceOwner(@Param("resourceOwnerId") long resourceOwnerId);
+
+    @Query("SELECT o FROM IndividualOperator o WHERE  Lower(o.businessIdentifier) = Lower(:businessIdentifier)")
+    IndividualOperator loadByBusinessIdentifier(@Param("businessIdentifier") String businessIdentifier);
 }

@@ -17,7 +17,7 @@ public class ManufacturerServiceImpl implements ManufacturerService {
 
     private ManufacturerRepository manufacturerRepository;
     private StorageService storageService;
-    public static final String MANUFACTURER_DIGITALCERTIFICATE_ROOT_PATH = "manufacturer_digital_certificates";
+    private static final String MANUFACTURER_DIGITALCERTIFICATE_ROOT_PATH = "manufacturer_digital_certificates";
 
     public ManufacturerServiceImpl(ManufacturerRepository manufacturerRepository, StorageService storageService) {
         this.manufacturerRepository = manufacturerRepository;
@@ -57,13 +57,13 @@ public class ManufacturerServiceImpl implements ManufacturerService {
     }
 
     @Override
-    public Manufacturer findByName(String orgName) {
-        Manufacturer manufacturer = manufacturerRepository.findByName(orgName);
+    public Manufacturer loadByBusinessIdentifier(String businessIdentifier) {
+        Manufacturer manufacturer = manufacturerRepository.loadByBusinessIdentifier(businessIdentifier);
         return manufacturer;
     }
 
     @Override
-    public String getDigitalCertificatePath(long manufacturerId) {
+    public String getCAAndTrustedCertificatePath(long manufacturerId) {
         Manufacturer manufacturer = manufacturerRepository.findOne(manufacturerId);
 
         if (manufacturer != null) {

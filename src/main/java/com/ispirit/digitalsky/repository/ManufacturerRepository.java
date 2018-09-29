@@ -10,7 +10,7 @@ public interface ManufacturerRepository extends CrudRepository<Manufacturer, Lon
     @Query("SELECT m FROM Manufacturer m WHERE  m.resourceOwnerId = :resourceOwnerId")
     Manufacturer loadByResourceOwner(@Param("resourceOwnerId") long resourceOwnerId);
 
-    @Query("SELECT m FROM Manufacturer m WHERE LOWER(m.name) = LOWER(:organizationName)")
-    Manufacturer findByName(@Param("organizationName") String organizationName);
+    @Query("SELECT m FROM Manufacturer m WHERE LOWER(m.businessIdentifier) = LOWER(:businessIdentifier)")
+    Manufacturer loadByBusinessIdentifier(@Param("businessIdentifier") String businessIdentifier);
 
 }
