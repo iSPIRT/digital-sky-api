@@ -43,20 +43,24 @@ public class DroneDeviceController {
             responsePayload.setCode(RegisterDroneResponseCode.INVALID_SIGNATURE);
             responsePayload.setError(new Errors(e.getMessage()));
             return new ResponseEntity<>(responsePayload, HttpStatus.PRECONDITION_FAILED);
-        } catch(OperatorCodeMissingException e) {
-            responsePayload.setCode(RegisterDroneResponseCode.OPERATOR_CODE_MISSING);
+        } catch (OperatorBusinessIdentifierMissingException e) {
+            responsePayload.setCode(RegisterDroneResponseCode.OPERATOR_BUSINESS_IDENTIFIER_MISSING);
             responsePayload.setError(new Errors(e.getMessage()));
             return new ResponseEntity<>(responsePayload, HttpStatus.PRECONDITION_FAILED);
-        }   catch(InvalidOperatorCodeException e){
-            responsePayload.setCode(RegisterDroneResponseCode.OPERATOR_CODE_INVALID);
+        } catch (InvalidOperatorBusinessIdentifierException e) {
+            responsePayload.setCode(RegisterDroneResponseCode.OPERATOR_BUSINESS_IDENTIFIER_INVALID);
             responsePayload.setError(new Errors(e.getMessage()));
             return new ResponseEntity<>(responsePayload, HttpStatus.PRECONDITION_FAILED);
-        } catch(DroneDeviceAlreadyExistException e) {
+        } catch (DroneDeviceAlreadyExistException e) {
             responsePayload.setCode(RegisterDroneResponseCode.DRONE_ALREADY_REGISTERED);
             responsePayload.setError(new Errors(e.getMessage()));
             return new ResponseEntity<>(responsePayload, HttpStatus.PRECONDITION_FAILED);
-        } catch(InvalidDigitalCertificateException e) {
+        } catch (InvalidDigitalCertificateException e) {
             responsePayload.setCode(RegisterDroneResponseCode.INVALID_DIGITAL_CERTIFICATE);
+            responsePayload.setError(new Errors(e.getMessage()));
+            return new ResponseEntity<>(responsePayload, HttpStatus.PRECONDITION_FAILED);
+        } catch (ManufacturerNotFoundException e) {
+            responsePayload.setCode(RegisterDroneResponseCode.MANUFACTURER_BUSINESS_IDENTIFIER_INVALID);
             responsePayload.setError(new Errors(e.getMessage()));
             return new ResponseEntity<>(responsePayload, HttpStatus.PRECONDITION_FAILED);
         } catch(InvalidManufacturerException e){
@@ -77,6 +81,10 @@ public class DroneDeviceController {
             droneDeviceService.deregister(manufacturerBusinessIdentifier, payload);
             responsePayload.setCode(RegisterDroneResponseCode.DEREGISTERED);
             return new ResponseEntity<>(responsePayload, HttpStatus.OK);
+        } catch(DeviceNotInRegisteredStateException e) {
+            responsePayload.setCode(RegisterDroneResponseCode.INVALID_SIGNATURE);
+            responsePayload.setError(new Errors(e.getMessage()));
+            return new ResponseEntity<>(responsePayload, HttpStatus.PRECONDITION_FAILED);
         } catch(InvalidDigitalSignatureException e){
             responsePayload.setCode(RegisterDroneResponseCode.INVALID_SIGNATURE);
             responsePayload.setError(new Errors(e.getMessage()));
@@ -87,6 +95,10 @@ public class DroneDeviceController {
             return new ResponseEntity<>(responsePayload, HttpStatus.PRECONDITION_FAILED);
         }  catch(DroneDeviceNotFoundException e){
             responsePayload.setCode(RegisterDroneResponseCode.DRONE_NOT_FOUND);
+            responsePayload.setError(new Errors(e.getMessage()));
+            return new ResponseEntity<>(responsePayload, HttpStatus.PRECONDITION_FAILED);
+        } catch (ManufacturerNotFoundException e) {
+            responsePayload.setCode(RegisterDroneResponseCode.MANUFACTURER_BUSINESS_IDENTIFIER_INVALID);
             responsePayload.setError(new Errors(e.getMessage()));
             return new ResponseEntity<>(responsePayload, HttpStatus.PRECONDITION_FAILED);
         } catch(InvalidManufacturerException e){
@@ -104,7 +116,7 @@ public class DroneDeviceController {
     public ResponseEntity<?> list() {
         UserProfile profile = userProfileService.profile(UserPrincipal.securityContext().getId());
 
-        if(profile == null ) {throw new InvalidOperatorCodeException(); }
+        if(profile == null ) {throw new InvalidOperatorBusinessIdentifierException(); }
 
         Collection<String> operatorDrones= droneDeviceService.getRegisteredDroneDeviceIds(profile.getOperatorBusinessIdentifier());
         return new ResponseEntity<>(operatorDrones, HttpStatus.OK);

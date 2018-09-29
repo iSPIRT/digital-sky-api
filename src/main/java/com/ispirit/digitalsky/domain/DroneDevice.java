@@ -37,8 +37,8 @@ public class DroneDevice implements Serializable {
     private LocalDate lastModifiedDate;
 
     @JsonIgnore
-    @Column(name = "MANUFACTURER_ID", nullable = false)
-    private String manufacturerId;
+    @Column(name = "MANUFACTURER_BUSINESS_IDENTIFIER", nullable = false)
+    private String manufacturerBusinessIdentifier;
 
     @JsonIgnore
     @Column(name = "REGISTRATION_STATUS", nullable = false)
@@ -57,8 +57,8 @@ public class DroneDevice implements Serializable {
     @Column(name = "DEVICE_MODEL_ID", nullable = false)
     private String deviceModelId;
 
-    @Column(name = "OPERATOR_CODE")
-    private String operatorCode;
+    @Column(name = "OPERATOR_BUSINESS_IDENTIFIER")
+    private String operatorBusinessIdentifier;
 
     @Column(name = "ID_HASH")
     private String idHash;
@@ -121,15 +121,15 @@ public class DroneDevice implements Serializable {
         this.deviceModelId = deviceModelId;
     }
 
-    public String getOperatorCode() { return operatorCode; }
+    public String getOperatorBusinessIdentifier() { return operatorBusinessIdentifier; }
 
-    public void setOperatorCode(String operatorCode) {
-        this.operatorCode = operatorCode;
+    public void setOperatorBusinessIdentifier(String operatorBusinessIdentifier) {
+        this.operatorBusinessIdentifier = operatorBusinessIdentifier;
     }
 
-    public String getManufacturerId() { return manufacturerId; }
+    public String getManufacturerBusinessIdentifier() { return manufacturerBusinessIdentifier; }
 
-    public void setManufacturerId(String manufacturerId) { this.manufacturerId = manufacturerId; }
+    public void setManufacturerBusinessIdentifier(String manufacturerBusinessIdentifier) { this.manufacturerBusinessIdentifier = manufacturerBusinessIdentifier; }
 
     public String getIdHash() {
         return idHash;

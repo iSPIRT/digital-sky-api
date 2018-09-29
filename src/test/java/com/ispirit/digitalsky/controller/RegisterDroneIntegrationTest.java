@@ -61,11 +61,11 @@ public class RegisterDroneIntegrationTest {
         DroneDevice mockDrone = new DroneDevice();
 
         mockDrone.setVersion("1.0");
-        mockDrone.setDeviceId("Beebop 600.0");
+        mockDrone.setDeviceId("Beebop 800.0");
         mockDrone.setDeviceModelId("1A29.0");
         mockDrone.setTxn("From manufacturer ");
         //mockDrone.setOperatorCode("178968bec6414af99d79a69518a8306e");
-        mockDrone.setOperatorCode("eff217e740534fde89c1bfe62e08f316");
+        mockDrone.setOperatorBusinessIdentifier("eff217e740534fde89c1bfe62e08f316");
         mockDrone.setIdHash("some value");
 
         mockDronePayload.setDrone(mockDrone);

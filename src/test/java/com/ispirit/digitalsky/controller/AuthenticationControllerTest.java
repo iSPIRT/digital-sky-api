@@ -73,7 +73,7 @@ public class AuthenticationControllerTest {
 
         when(authenticationManager.authenticate(authenticationRequest)).thenReturn(authentication);
         when(securityTokenService.generateToken(authentication)).thenReturn("jwt-token");
-        when(userProfileService.profile(1L)).thenReturn(new UserProfile(1, 1, 1, 0, 0));
+        when(userProfileService.profile(1L)).thenReturn(new UserProfile(1, 1, 1, 0, 0, null, null, null));
 
         //when
         MockHttpServletResponse response = mvc
@@ -114,7 +114,7 @@ public class AuthenticationControllerTest {
 
         when(authenticationManager.authenticate(authenticationRequest)).thenReturn(authentication);
         when(securityTokenService.generateToken(authentication)).thenReturn("jwt-token");
-        when(userProfileService.profile(1L)).thenReturn(new UserProfile(1, 1, 1, 0, 0));
+        when(userProfileService.profile(1L)).thenReturn(new UserProfile(1, 1, 1, 0, 0, null, null, null));
 
         //when
         MockHttpServletResponse response = mvc
