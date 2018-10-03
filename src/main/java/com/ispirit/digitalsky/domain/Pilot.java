@@ -2,6 +2,7 @@ package com.ispirit.digitalsky.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ispirit.digitalsky.util.BusinessIdentifierGenerator;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,6 +44,7 @@ public class Pilot extends Person {
     private MultipartFile trainingCertificate;
 
     @Column(name = "BUSINESS_IDENTIFIER")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private final String businessIdentifier;
 
     private Pilot() {
