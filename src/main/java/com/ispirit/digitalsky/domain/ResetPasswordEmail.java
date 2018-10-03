@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class ResetPasswordEmail implements EmailMessage {
 
-    private String templateName = "reset_password_template.ftl";
+    private String templateName = "email_reset_password_template.ftl";
     private String subject = "[DigiSky] Reset password link";
     private String to;
     private String resetPasswordLink;

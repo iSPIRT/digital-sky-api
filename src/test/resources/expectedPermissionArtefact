@@ -1,0 +1,17 @@
+<UAPermission>
+    <Permission>
+    <Owner operatorID="xyz">
+        <Pilot id="1234" validTo="NA"/>
+    </Owner>
+    <FlightDetails>
+        <UADetails uinNo="sdsd"/>
+        <FlightPurpose shortDesc="test"/>
+        <PayloadDetails payLoadWeightInKg="12" payloadDetails="test"/>
+        <FlightParameters flightStartTime="2018-07-18T00:00:00" flightEndTime="2018-07-18T01:00:00" recurrenceTimeExpression="" recurrenceTimeExpressionType="CRON_QUARTZ" recurringTimeDurationInMinutes="">
+            <Coordinates>
+                <Coordinate latitude="1.0" longitude="1.0"/><Coordinate latitude="2.0" longitude="2.0"/>
+            </Coordinates>
+        </FlightParameters>
+    </FlightDetails>
+    </Permission>
+</UAPermission>

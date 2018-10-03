@@ -50,6 +50,11 @@ public class Pilot extends Person {
         businessIdentifier = BusinessIdentifierGenerator.generatePilotBusinessIdentifier();
     }
 
+    public Pilot(long id) {
+        this();
+        this.id = id;
+    }
+
 
     public Pilot(long resourceOwnerId, String status, String name, String email, String mobileNumber, String country, LocalDate dateOfBirth, String droneCategory, List<Address> addressList) {
         this();

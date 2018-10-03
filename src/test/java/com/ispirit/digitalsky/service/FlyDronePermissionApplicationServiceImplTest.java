@@ -11,10 +11,9 @@ import com.ispirit.digitalsky.exception.StorageFileNotFoundException;
 import com.ispirit.digitalsky.exception.ValidationException;
 import com.ispirit.digitalsky.repository.FlyDronePermissionApplicationRepository;
 import com.ispirit.digitalsky.repository.storage.StorageService;
-import com.ispirit.digitalsky.service.api.AirspaceCategoryService;
-import com.ispirit.digitalsky.service.api.DigitalSignService;
-import com.ispirit.digitalsky.service.api.OperatorDroneService;
+import com.ispirit.digitalsky.service.api.*;
 import freemarker.template.Configuration;
+import freemarker.template.TemplateExceptionHandler;
 import org.apache.commons.io.IOUtils;
 import org.geojson.FeatureCollection;
 import org.geojson.GeoJsonObject;
@@ -27,11 +26,7 @@ import org.springframework.security.util.InMemoryResource;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.ZoneId;
-import java.util.Collection;
-import java.util.Date;
-
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static com.ispirit.digitalsky.service.FlyDronePermissionApplicationServiceImpl.PERMISSION_ARTIFACT_XML;
 import static java.util.Arrays.asList;
@@ -51,6 +46,8 @@ public class FlyDronePermissionApplicationServiceImplTest {
     private UserPrincipal userPrincipal;
     private DigitalSignService digitalSignService;
     private OperatorDroneService operatorDroneService;
+    private UserProfileService userProfileService;
+    private PilotService pilotService;
     private Configuration freemarkerConfiguration;
 
     @Before
@@ -60,8 +57,10 @@ public class FlyDronePermissionApplicationServiceImplTest {
         airspaceCategoryService = mock(AirspaceCategoryService.class);
         digitalSignService = mock(DigitalSignService.class);
         operatorDroneService = mock(OperatorDroneService.class);
-        freemarkerConfiguration = mock(Configuration.class);
-        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, freemarkerConfiguration));
+        userProfileService = mock(UserProfileService.class);
+        pilotService = mock(PilotService.class);
+        freemarkerConfiguration = freemarkerConfiguration();
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration));
         userPrincipal = SecurityContextHelper.setUserSecurityContext();
     }
 
@@ -69,11 +68,12 @@ public class FlyDronePermissionApplicationServiceImplTest {
     public void shouldCreateApplication() throws Exception {
         //given
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
-        application.setPilotId("1");
+        application.setPilotBusinessIdentifier("1");
         application.setDroneId(1);
         application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
         doNothing().when(service).validateFlyArea(application);
         when(operatorDroneService.find(application.getDroneId())).thenReturn(new OperatorDrone());
+        when(pilotService.findByBusinessIdentifier("1")).thenReturn(new Pilot(1L));
         //when
         service.createApplication(application);
 
@@ -83,7 +83,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
         assertThat(argumentCaptor.getValue().getCreatedDate(), notNullValue());
         assertThat(argumentCaptor.getValue().getLastModifiedDate(), notNullValue());
         assertThat(argumentCaptor.getValue().getApplicantId(), is(userPrincipal.getId()));
-        assertThat(argumentCaptor.getValue().getPilotId(), is(application.getPilotId()));
+        assertThat(argumentCaptor.getValue().getPilotBusinessIdentifier(), is(application.getPilotBusinessIdentifier()));
         assertThat(argumentCaptor.getValue().getFlyArea(), is(application.getFlyArea()));
     }
 
@@ -91,7 +91,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
     public void shouldHandleSubmitCreateApplicationSubmitted() throws Exception {
         //given
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
-        application.setPilotId("1");
+        application.setPilotBusinessIdentifier("1");
         application.setDroneId(1);
         application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
         application.setStatus(ApplicationStatus.SUBMITTED);
@@ -99,6 +99,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
         doNothing().when(service).handleSubmit(application);
         doNothing().when(service).generatePermissionArtifact(any());
         when(operatorDroneService.find(application.getDroneId())).thenReturn(new OperatorDrone());
+        when(pilotService.findByBusinessIdentifier("1")).thenReturn(new Pilot(2));
         //when
         service.createApplication(application);
 
@@ -115,17 +116,17 @@ public class FlyDronePermissionApplicationServiceImplTest {
         //given
         LocalDateTime dateTime = LocalDateTime.of(2018, Month.AUGUST, 12, 0, 0);
         FlyDronePermissionApplication applicationPayload = new FlyDronePermissionApplication();
-        applicationPayload.setPilotId("2");
+        applicationPayload.setPilotBusinessIdentifier("2");
         applicationPayload.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
-        applicationPayload.setEndDateTime(LocalDateTime.of(2018, Month.AUGUST,21,0,0));
-        applicationPayload.setEndDateTime(LocalDateTime.of(2018, Month.AUGUST,22,0,0));
+        applicationPayload.setEndDateTime(LocalDateTime.of(2018, Month.AUGUST, 21, 0, 0));
+        applicationPayload.setEndDateTime(LocalDateTime.of(2018, Month.AUGUST, 22, 0, 0));
         applicationPayload.setPayloadWeightInKg(2.5);
         applicationPayload.setPayloadDetails("food");
         applicationPayload.setFlightPurpose("parcel");
 
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
         application.setId("1");
-        application.setPilotId("1");
+        application.setPilotBusinessIdentifier("1");
         application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
         application.setCreatedDate(Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant()));
         application.setLastModifiedDate(Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant()));
@@ -133,6 +134,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
 
         when(repository.findById("1")).thenReturn(application);
         doNothing().when(service).validateFlyArea(application);
+        when(pilotService.findByBusinessIdentifier("2")).thenReturn(new Pilot(2L));
         //when
         service.updateApplication("1", applicationPayload);
 
@@ -142,7 +144,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
         assertThat(argumentCaptor.getValue().getCreatedDate(), is(application.getCreatedDate()));
         assertThat(argumentCaptor.getValue().getLastModifiedDate(), notNullValue());
         assertThat(argumentCaptor.getValue().getApplicantId(), is(application.getApplicantId()));
-        assertThat(argumentCaptor.getValue().getPilotId(), is(applicationPayload.getPilotId()));
+        assertThat(argumentCaptor.getValue().getPilotBusinessIdentifier(), is(applicationPayload.getPilotBusinessIdentifier()));
         assertThat(argumentCaptor.getValue().getFlyArea(), is(applicationPayload.getFlyArea()));
         assertThat(argumentCaptor.getValue().getStartDateTime(), is(applicationPayload.getStartDateTime()));
         assertThat(argumentCaptor.getValue().getEndDateTime(), is(applicationPayload.getEndDateTime()));
@@ -152,37 +154,37 @@ public class FlyDronePermissionApplicationServiceImplTest {
     }
 
     @Test
-    public void shouldMarkApplicationApprovedWhenFlyAreaIsGoodDuringUpdate() throws Exception{
+    public void shouldMarkApplicationApprovedWhenFlyAreaIsGoodDuringUpdate() throws Exception {
 
         //given
         LocalDateTime dateTime = LocalDateTime.of(2018, Month.AUGUST, 12, 0, 0);
         FlyDronePermissionApplication applicationPayload = new FlyDronePermissionApplication();
         applicationPayload.setStatus(ApplicationStatus.SUBMITTED);
-        applicationPayload.setPilotId("2");
+        applicationPayload.setPilotBusinessIdentifier("2");
         applicationPayload.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
-        applicationPayload.setEndDateTime(LocalDateTime.of(2018, Month.AUGUST,21,0,0));
-        applicationPayload.setEndDateTime(LocalDateTime.of(2018, Month.AUGUST,22,0,0));
+        applicationPayload.setEndDateTime(LocalDateTime.of(2018, Month.AUGUST, 21, 0, 0));
+        applicationPayload.setEndDateTime(LocalDateTime.of(2018, Month.AUGUST, 22, 0, 0));
         applicationPayload.setPayloadWeightInKg(2.5);
         applicationPayload.setPayloadDetails("food");
         applicationPayload.setFlightPurpose("parcel");
 
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
         application.setId("1");
-        application.setPilotId("1");
+        application.setPilotBusinessIdentifier("1");
         application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
         application.setCreatedDate(Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant()));
         application.setLastModifiedDate(Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant()));
         application.setApplicantId(1);
 
         HashMap<AirspaceCategory.Type, GeoJsonObject> airspaceCategoryMap = new HashMap<>();
-        airspaceCategoryMap.put(AirspaceCategory.Type.AMBER,new FeatureCollection());
+        airspaceCategoryMap.put(AirspaceCategory.Type.AMBER, new FeatureCollection());
 
         when(repository.findById("1")).thenReturn(application);
         when(airspaceCategoryService.findGeoJsonMapByType()).thenReturn(airspaceCategoryMap);
         doNothing().when(service).validateFlyArea(application);
         doReturn(false).when(service).isFlyAreaIntersects(anyString(), eq(applicationPayload.getFlyArea()));
         doNothing().when(service).generatePermissionArtifact(application);
-
+        when(pilotService.findByBusinessIdentifier("2")).thenReturn(new Pilot(2));
         //when
         service.updateApplication("1", applicationPayload);
 
@@ -217,7 +219,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
 
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
         application.setId("1");
-        application.setPilotId("1");
+        application.setPilotBusinessIdentifier("1");
         application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
         application.setApplicantId(1);
         application.setStatus(ApplicationStatus.SUBMITTED);
@@ -333,7 +335,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
         //when
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
         InMemoryResource resource = new InMemoryResource("");
-        when(storageService.loadAsResource("1",PERMISSION_ARTIFACT_XML))
+        when(storageService.loadAsResource("1", PERMISSION_ARTIFACT_XML))
                 .thenThrow(new StorageFileNotFoundException("")).thenReturn(resource);
 
         doReturn(application).when(service).get("1");
@@ -387,7 +389,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
     @Test
     public void shouldValidateIfFlyAreaWithinGreenZones() throws Exception {
         //given
-        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, freemarkerConfiguration));
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration));
         LatLong one = new LatLong(11.630715737981486, 68.88427734374999);
         LatLong two = new LatLong(7.18810087117902, 68.70849609375);
         LatLong three = new LatLong(11.695272733029402, 77.89306640625);
@@ -413,7 +415,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
     @Test
     public void shouldValidateIfFlyAreaIntersectWithRedZones() throws Exception {
         //given
-        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, freemarkerConfiguration));
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration));
         LatLong one = new LatLong(11.630715737981486, 68.88427734374999);
         LatLong two = new LatLong(7.18810087117902, 68.70849609375);
         LatLong three = new LatLong(11.695272733029402, 77.89306640625);
@@ -440,7 +442,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
     @Test
     public void handleSubmitShouldCheckIfFlyAreaIntersectWithAmberZones() throws Exception {
         //given
-        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, freemarkerConfiguration));
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration));
         LatLong one = new LatLong(11.630715737981486, 68.88427734374999);
         LatLong two = new LatLong(7.18810087117902, 68.70849609375);
         LatLong three = new LatLong(11.695272733029402, 77.89306640625);
@@ -448,7 +450,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
         LatLong five = new LatLong(11.630715737981486, 68.88427734374999);
         List<LatLong> flyArea = asList(one, two, three, four, five);
 
-        doReturn(true).when(service).isFlyAreaIntersects(anyString(),eq(flyArea));
+        doReturn(true).when(service).isFlyAreaIntersects(anyString(), eq(flyArea));
 
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
         application.setFlyArea(flyArea);
@@ -468,7 +470,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
     public void shouldApproveApplicationAfterSubmit() throws Exception {
         //given
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
-        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, freemarkerConfiguration));
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration));
         LatLong one = new LatLong(11.630715737981486, 68.88427734374999);
         LatLong two = new LatLong(7.18810087117902, 68.70849609375);
         LatLong three = new LatLong(11.695272733029402, 77.89306640625);
@@ -477,7 +479,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
         List<LatLong> flyArea = asList(one, two, three, four, five);
         application.setFlyArea(flyArea);
 
-        doReturn(false).when(service).isFlyAreaIntersects(anyString(),eq(flyArea));
+        doReturn(false).when(service).isFlyAreaIntersects(anyString(), eq(flyArea));
 
 
         //when
@@ -485,10 +487,10 @@ public class FlyDronePermissionApplicationServiceImplTest {
             service.handleSubmit(application);
         } catch (ValidationException e) {
         }
-        assertThat(application.getStatus(),is(ApplicationStatus.APPROVED));
-        assertThat(application.getApproverId(),is(userPrincipal.getId()));
-        assertThat(application.getApprovedDate(),notNullValue());
-        assertThat(application.getApproverComments(),is("Self approval, within green zone"));
+        assertThat(application.getStatus(), is(ApplicationStatus.APPROVED));
+        assertThat(application.getApproverId(), is(userPrincipal.getId()));
+        assertThat(application.getApprovedDate(), notNullValue());
+        assertThat(application.getApproverComments(), is("Self approval, within green zone"));
     }
 
     @Test
@@ -522,9 +524,49 @@ public class FlyDronePermissionApplicationServiceImplTest {
         assertThat(service.isFlyAreaIntersects(zones, asList(one, two, three, four, five, six)), is(true));
     }
 
+    @Test
+    public void shouldGeneratePermissionArtifact() throws Exception {
+        FlyDronePermissionApplication application = new FlyDronePermissionApplication();
+        application.setStatus(ApplicationStatus.APPROVED);
+        application.setPilotBusinessIdentifier("1234");
+        application.setDroneId(1);
+        application.setOperatorId(1);
+        application.setStartDateTime(LocalDateTime.of(2018, Calendar.AUGUST, 18, 0, 0));
+        application.setEndDateTime(LocalDateTime.of(2018, Calendar.AUGUST, 18, 1, 0));
+        application.setPayloadWeightInKg(12);
+        application.setFlightPurpose("test");
+        application.setPayloadDetails("test");
+        application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
+
+
+        OperatorDrone operatorDrone = new OperatorDrone();
+        operatorDrone.setOperatorId(application.getOperatorId());
+        operatorDrone.setOperatorType(application.getApplicantType());
+        operatorDrone.setUinApplicationId("sdsd");
+        when(operatorDroneService.find(application.getDroneId())).thenReturn(operatorDrone);
+
+        when(userProfileService.resolveOperatorBusinessIdentifier(application.getApplicantType(), application.getOperatorId())).thenReturn("xyz");
+
+        service.generatePermissionArtifact(application);
+
+        ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
+        verify(digitalSignService).sign(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue(), is(IOUtils.toString(this.getClass().getResourceAsStream("/expectedPermissionArtefact"), "UTF-8")));
+        verify(storageService).store(anyString(), anyString(), anyString());
+    }
+
     private FlyDronePermissionApplication application(LocalDateTime dateTime) {
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
         application.setLastModifiedDate(Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant()));
         return application;
+    }
+
+    public freemarker.template.Configuration freemarkerConfiguration() {
+        freemarker.template.Configuration cfg = new freemarker.template.Configuration(freemarker.template.Configuration.VERSION_2_3_20);
+        cfg.setClassForTemplateLoading(this.getClass(), "/templates");
+        cfg.setDefaultEncoding("UTF-8");
+        cfg.setLocalizedLookup(false);
+        cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+        return cfg;
     }
 }

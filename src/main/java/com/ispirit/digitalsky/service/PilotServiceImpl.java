@@ -54,6 +54,11 @@ public class PilotServiceImpl implements PilotService {
     }
 
     @Override
+    public Pilot findByBusinessIdentifier(String id) {
+        return pilotRepository.loadByBusinessIdentifier(id);
+    }
+
+    @Override
     public Resource trainingCertificate(Pilot pilot) {
         return storageService.loadAsResource(pilotDocumentFolder(pilot), pilot.getTrainingCertificateDocName());
     }
