@@ -90,7 +90,7 @@ public class OccurrenceReportControllerTest {
         operatorDrone.setOperatorType(ApplicantType.ORGANISATION);
         when(operatorDroneService.find(occurrenceReport.getOperatorDroneId())).thenReturn(operatorDrone);
 
-        when(userProfileService.profile(userPrincipal.getId())).thenReturn(new UserProfile(userPrincipal.getId(), 0, 0, 3L, 0));
+        when(userProfileService.profile(userPrincipal.getId())).thenReturn(new UserProfile(userPrincipal.getId(), 0, 0, 3L, 0, null, null, null));
 
         //when
         MockHttpServletResponse response = mvc
@@ -114,7 +114,7 @@ public class OccurrenceReportControllerTest {
         operatorDrone.setOperatorType(ApplicantType.ORGANISATION);
         when(operatorDroneService.find(occurrenceReport.getOperatorDroneId())).thenReturn(operatorDrone);
 
-        when(userProfileService.profile(userPrincipal.getId())).thenReturn(new UserProfile(userPrincipal.getId(), 0, 0, 2L, 0));
+        when(userProfileService.profile(userPrincipal.getId())).thenReturn(new UserProfile(userPrincipal.getId(), 0, 0, 2L, 0, null, null, null));
 
         //when
         MockHttpServletResponse response = mvc
@@ -140,7 +140,7 @@ public class OccurrenceReportControllerTest {
         operatorDrone.setOperatorId(2L);
         operatorDrone.setOperatorType(ApplicantType.ORGANISATION);
         when(operatorDroneService.find(occurrenceReport.getOperatorDroneId())).thenReturn(operatorDrone);
-        when(userProfileService.profile(userPrincipal.getId())).thenReturn(new UserProfile(userPrincipal.getId(), 0, 0, 2L, 0));
+        when(userProfileService.profile(userPrincipal.getId())).thenReturn(new UserProfile(userPrincipal.getId(), 0, 0, 2L, 0, null, null, null));
 
         when(occurrenceReportService.find(1L)).thenReturn(occurrenceReport);
 
@@ -178,7 +178,7 @@ public class OccurrenceReportControllerTest {
         operatorDrone.setOperatorId(2L);
         operatorDrone.setOperatorType(ApplicantType.ORGANISATION);
         when(operatorDroneService.find(occurrenceReport.getOperatorDroneId())).thenReturn(operatorDrone);
-        when(userProfileService.profile(userPrincipal.getId())).thenReturn(new UserProfile(userPrincipal.getId(), 0, 0, 3L, 0));
+        when(userProfileService.profile(userPrincipal.getId())).thenReturn(new UserProfile(userPrincipal.getId(), 0, 0, 3L, 0, null, null, null));
 
         when(occurrenceReportService.find(1L)).thenReturn(occurrenceReport);
 
@@ -201,7 +201,7 @@ public class OccurrenceReportControllerTest {
         operatorDrone.setOperatorId(2L);
         operatorDrone.setOperatorType(ApplicantType.ORGANISATION);
         when(operatorDroneService.find(1L)).thenReturn(operatorDrone);
-        when(userProfileService.profile(userPrincipal.getId())).thenReturn(new UserProfile(userPrincipal.getId(), 0, 0, 2L, 0));
+        when(userProfileService.profile(userPrincipal.getId())).thenReturn(new UserProfile(userPrincipal.getId(), 0, 0, 2L, 0, null, null, null));
 
         when(occurrenceReportService.findByDroneId(1L)).thenReturn(asList(occurrenceReportOne, occurrenceReportTwo));
 
@@ -241,7 +241,7 @@ public class OccurrenceReportControllerTest {
         operatorDrone.setOperatorId(2L);
         operatorDrone.setOperatorType(ApplicantType.ORGANISATION);
         when(operatorDroneService.find(1L)).thenReturn(operatorDrone);
-        when(userProfileService.profile(userPrincipal.getId())).thenReturn(new UserProfile(userPrincipal.getId(), 0, 0, 3L, 0));
+        when(userProfileService.profile(userPrincipal.getId())).thenReturn(new UserProfile(userPrincipal.getId(), 0, 0, 3L, 0, null, null,  null));
 
         when(occurrenceReportService.findByDroneId(1L)).thenReturn(asList(occurrenceReportOne, occurrenceReportTwo));
 

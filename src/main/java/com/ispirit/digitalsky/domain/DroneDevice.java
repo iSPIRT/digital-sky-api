@@ -8,36 +8,43 @@ import com.ispirit.digitalsky.util.*;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "ds_drone_device")
 public class DroneDevice implements Serializable {
 
+    @JsonIgnore
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
+    @JsonIgnore
     @Column(name = "DRONE_TYPE_ID")
     private long droneTypeId;
 
+    @JsonIgnore
     @Column(name = "CREATED_DATE")
     @JsonSerialize(using = CustomLocalDateSerializer.class)
     @JsonDeserialize(using = CustomLocalDateDeSerializer.class)
     @Convert(converter = LocalDateAttributeConverter.class)
     private LocalDate createdDate;
 
+    @JsonIgnore
     @Column(name = "LAST_MODIFIED_DATE")
     @JsonSerialize(using = CustomLocalDateSerializer.class)
     @JsonDeserialize(using = CustomLocalDateDeSerializer.class)
     @Convert(converter = LocalDateAttributeConverter.class)
     private LocalDate lastModifiedDate;
 
-    @Column(name = "MANUFACTURER_ID", nullable = false)
     @JsonIgnore
-    private String manufacturerId;
+    @Column(name = "MANUFACTURER_BUSINESS_IDENTIFIER", nullable = false)
+    private String manufacturerBusinessIdentifier;
 
-    /* attributes copied from request */
+    @JsonIgnore
+    @Column(name = "REGISTRATION_STATUS", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private DroneDeviceRegistrationStatus registrationStatus  = DroneDeviceRegistrationStatus.NOT_REGISTERED;
+
     @Column(name = "VERSION", nullable = false)
     private String version;
 
@@ -50,21 +57,11 @@ public class DroneDevice implements Serializable {
     @Column(name = "DEVICE_MODEL_ID", nullable = false)
     private String deviceModelId;
 
-    @Column(name = "OPERATOR_CODE", nullable = false)
-    private String operatorCode;
-
-    @Column(name = "REQUEST_TIMESTAMP", nullable = false)
-    @Convert(converter = LocalDateTimeAttributeConverter.class)
-    @JsonSerialize(using = CustomLocalDateTimeSerializer.class)
-    @JsonDeserialize(using = CustomLocalDateTimeDeSerializer.class)
-    private LocalDateTime requestTimestamp;
+    @Column(name = "OPERATOR_BUSINESS_IDENTIFIER")
+    private String operatorBusinessIdentifier;
 
     @Column(name = "ID_HASH")
     private String idHash;
-
-    @Column(name = "REGISTRATION_STATUS", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private DroneDeviceRegistrationStatus registrationStatus  = DroneDeviceRegistrationStatus.NOT_REGISTERED;
 
     public DroneDevice() {
 
@@ -124,32 +121,23 @@ public class DroneDevice implements Serializable {
         this.deviceModelId = deviceModelId;
     }
 
-    public String getOperatorCode() { return operatorCode; }
+    public String getOperatorBusinessIdentifier() { return operatorBusinessIdentifier; }
 
-    public void setOperatorCode(String operatorCode) {
-        this.operatorCode = operatorCode;
+    public void setOperatorBusinessIdentifier(String operatorBusinessIdentifier) {
+        this.operatorBusinessIdentifier = operatorBusinessIdentifier;
     }
 
-    public String getManufacturerId() { return manufacturerId; }
+    public String getManufacturerBusinessIdentifier() { return manufacturerBusinessIdentifier; }
 
-    public void setManufacturerId(String manufacturerId) { this.manufacturerId = manufacturerId; }
-
-    public LocalDateTime getRequestTimestamp() {
-        return requestTimestamp;
-    }
-
-    public void setRequestTimestamp(LocalDateTime requestTimestamp) { this.requestTimestamp = requestTimestamp; }
+    public void setManufacturerBusinessIdentifier(String manufacturerBusinessIdentifier) { this.manufacturerBusinessIdentifier = manufacturerBusinessIdentifier; }
 
     public String getIdHash() {
         return idHash;
     }
 
-    public void setIdHash(String idHash) {
-        this.idHash = idHash;
-    }
+    public void setIdHash(String idHash) { this.idHash = idHash; }
 
     public DroneDeviceRegistrationStatus getRegistrationStatus() { return registrationStatus; }
 
     public void setRegistrationStatus(DroneDeviceRegistrationStatus registrationStatus) { this.registrationStatus = registrationStatus; }
-
 }
