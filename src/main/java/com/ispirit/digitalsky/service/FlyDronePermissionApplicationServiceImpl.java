@@ -8,10 +8,7 @@ import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.*;
 import com.ispirit.digitalsky.repository.FlyDronePermissionApplicationRepository;
 import com.ispirit.digitalsky.repository.storage.StorageService;
-import com.ispirit.digitalsky.service.api.AirspaceCategoryService;
-import com.ispirit.digitalsky.service.api.DigitalSignService;
-import com.ispirit.digitalsky.service.api.FlyDronePermissionApplicationService;
-import com.ispirit.digitalsky.service.api.OperatorDroneService;
+import com.ispirit.digitalsky.service.api.*;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +29,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.io.IOUtils.toInputStream;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermissionApplicationService {
 
@@ -50,13 +48,26 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
 
     private OperatorDroneService operatorDroneService;
 
+    private UserProfileService userProfileService;
 
-    public FlyDronePermissionApplicationServiceImpl(FlyDronePermissionApplicationRepository repository, StorageService storageService, AirspaceCategoryService airspaceCategoryService, DigitalSignService digitalSignService, OperatorDroneService operatorDroneService, Configuration freemarkerConfiguration) {
+    private PilotService pilotService;
+
+
+    public FlyDronePermissionApplicationServiceImpl(
+            FlyDronePermissionApplicationRepository repository,
+            StorageService storageService,
+            AirspaceCategoryService airspaceCategoryService,
+            DigitalSignService digitalSignService,
+            OperatorDroneService operatorDroneService,
+            UserProfileService userProfileService,
+            PilotService pilotService, Configuration freemarkerConfiguration) {
         this.repository = repository;
         this.storageService = storageService;
         this.airspaceCategoryService = airspaceCategoryService;
         this.digitalSignService = digitalSignService;
         this.operatorDroneService = operatorDroneService;
+        this.userProfileService = userProfileService;
+        this.pilotService = pilotService;
         this.configuration = freemarkerConfiguration;
     }
 
@@ -70,6 +81,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         OperatorDrone operatorDrone = operatorDroneService.find(application.getDroneId());
         application.setApplicantType(operatorDrone.getOperatorType());
         application.setOperatorId(operatorDrone.getOperatorId());
+        setPilotId(application);
         validateFlyArea(application);
 
         if (application.getStatus() == ApplicationStatus.SUBMITTED) {
@@ -86,6 +98,8 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         }
     }
 
+
+
     @Override
     @Transactional
     public FlyDronePermissionApplication updateApplication(String id, FlyDronePermissionApplication application) throws ApplicationNotFoundException, UnAuthorizedAccessException, StorageException {
@@ -93,7 +107,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         if (actualForm == null) {
             throw new ApplicationNotFoundException();
         }
-        actualForm.setPilotId(application.getPilotId());
+        actualForm.setPilotBusinessIdentifier(application.getPilotBusinessIdentifier());
         actualForm.setFlyArea(application.getFlyArea());
         actualForm.setStatus(application.getStatus());
         actualForm.setStartDateTime(application.getStartDateTime());
@@ -102,7 +116,10 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         actualForm.setPayloadDetails(application.getPayloadDetails());
         actualForm.setFlightPurpose(application.getFlightPurpose());
         actualForm.setLastModifiedDate(new Date());
+        actualForm.setRecurringTimeExpression(application.getRecurringTimeExpression());
+        actualForm.setRecurringTimeDurationInMinutes(application.getRecurringTimeDurationInMinutes());
         validateFlyArea(actualForm);
+        setPilotId(actualForm);
         if (application.getStatus() == ApplicationStatus.SUBMITTED) {
             if (actualForm.getFlyArea() == null || actualForm.getFlyArea().isEmpty()) {
                 throw new ValidationException(new Errors("Fly Area coordinates required"));
@@ -286,23 +303,26 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             HashMap<Object, Object> parameters = new HashMap<>();
 
             OperatorDrone operatorDrone = operatorDroneService.find(application.getDroneId());
+            String operatorId = userProfileService.resolveOperatorBusinessIdentifier(operatorDrone.getOperatorType(), operatorDrone.getOperatorId());
 
-            parameters.put("operatorId", operatorDrone.getOperatorId());
-            parameters.put("operatorType", operatorDrone.getOperatorType().name());
-            parameters.put("pilotId", application.getPilotId());
+            parameters.put("operatorId", operatorId);
+            parameters.put("pilotId", application.getPilotBusinessIdentifier());
             parameters.put("uinNumber", operatorDrone.getUinApplicationId());
             parameters.put("purposeOfFlight", application.getFlightPurpose());
             parameters.put("payloadWeightInKg", application.getPayloadWeightInKg());
             parameters.put("payloadDetails", application.getPayloadDetails());
             parameters.put("startDateTime", application.getStartDateTime().format(DateTimeFormatter.ISO_DATE_TIME));
             parameters.put("endDateTime", application.getEndDateTime().format(DateTimeFormatter.ISO_DATE_TIME));
+            parameters.put("recurrenceTimeExpression", application.getRecurringTimeExpression());
+            parameters.put("recurrenceTimeExpressionType", application.getRecurringTimeExpressionType());
+            parameters.put("recurringTimeDurationInMinutes", application.getRecurringTimeDurationInMinutes());
 
             List<String> coordinates = new ArrayList<>();
 
             for (LatLong latLong : application.getFlyArea()) {
                 coordinates.add(String.format("<Coordinate latitude=\"%s\" longitude=\"%s\"/>", latLong.getLatitude(), latLong.getLongitude()));
             }
-            parameters.put("coordinates", StringUtils.join(coordinates,""));
+            parameters.put("coordinates", StringUtils.join(coordinates, ""));
 
 
             StringWriter stringWriter = new StringWriter();
@@ -311,6 +331,19 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void setPilotId(FlyDronePermissionApplication application) {
+        if (isEmpty(application.getPilotBusinessIdentifier())) {
+            throw new ValidationException(new Errors("Pilot Identifier required"));
+        }
+
+        Pilot pilot = pilotService.findByBusinessIdentifier(application.getPilotBusinessIdentifier());
+
+        if (pilot == null) {
+            throw new ValidationException(new Errors("Invalid Pilot Identifier"));
+        }
+        application.setPilotId(pilot.getId());
     }
 
 }
