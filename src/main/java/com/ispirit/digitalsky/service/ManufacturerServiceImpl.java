@@ -3,6 +3,7 @@ package com.ispirit.digitalsky.service;
 import com.ispirit.digitalsky.domain.Manufacturer;
 import com.ispirit.digitalsky.exception.ManufacturerNotFoundException;
 import com.ispirit.digitalsky.exception.ManufacturerExistsException;
+import com.ispirit.digitalsky.exception.ManufacturerTrustedCertificateNotFoundException;
 import com.ispirit.digitalsky.exception.StorageException;
 import com.ispirit.digitalsky.repository.ManufacturerRepository;
 import com.ispirit.digitalsky.repository.storage.StorageService;
@@ -63,16 +64,15 @@ public class ManufacturerServiceImpl implements ManufacturerService {
     }
 
     @Override
-    public String getCAAndTrustedCertificatePath(long manufacturerId) {
+    public String getCAAndTrustedCertificatePath(long manufacturerId) throws ManufacturerNotFoundException, ManufacturerTrustedCertificateNotFoundException {
         Manufacturer manufacturer = manufacturerRepository.findOne(manufacturerId);
 
-        if (manufacturer != null) {
-            String fileName = MANUFACTURER_DIGITALCERTIFICATE_ROOT_PATH + "//" + manufacturerId + "//" + manufacturer.getTrustedCertificateDocName();
-            Path path = storageService.load(fileName);
-            return path.toString();
-        }
-        else {
-            throw new ManufacturerNotFoundException();
-        }
+        if (manufacturer == null) {  throw new ManufacturerNotFoundException(); }
+        if(manufacturer.getTrustedCertificateDocName() == null) { throw new ManufacturerTrustedCertificateNotFoundException(); }
+
+        String fileName = MANUFACTURER_DIGITALCERTIFICATE_ROOT_PATH + "//" + manufacturerId + "//" + manufacturer.getTrustedCertificateDocName();
+        Path path = storageService.load(fileName);
+        return path.toString();
     }
+
 }

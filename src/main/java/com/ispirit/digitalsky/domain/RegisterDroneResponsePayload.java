@@ -19,17 +19,12 @@ public class RegisterDroneResponsePayload {
     @JsonDeserialize(using = CustomLocalDateTimeDeSerializer.class)
     private LocalDateTime responseTimeStamp;
 
-    private RegisterDroneResponseCode code;
+    private RegisterDroneResponseCode responseCode;
 
     private Errors error;
 
     public RegisterDroneResponsePayload () {
-
-    }
-
-    public RegisterDroneResponsePayload(String txn, LocalDateTime responseTimeStamp) {
-        this.txn = txn;
-        this.responseTimeStamp = responseTimeStamp;
+        this.responseTimeStamp = LocalDateTime.now();
     }
 
     public String getTxn() {
@@ -48,10 +43,10 @@ public class RegisterDroneResponsePayload {
         this.responseTimeStamp = responseTimeStamp;
     }
 
-    public RegisterDroneResponseCode getCode() { return code; }
+    public RegisterDroneResponseCode getResponseCode() { return responseCode; }
 
-    public void setCode(RegisterDroneResponseCode code) {
-        this.code = code;
+    public void setResponseCode(RegisterDroneResponseCode responseCode) {
+        this.responseCode = responseCode;
     }
 
     public Errors getError() {

@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.ispirit.digitalsky.util.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.LocalDate;
 
@@ -45,19 +47,25 @@ public class DroneDevice implements Serializable {
     @Enumerated(EnumType.STRING)
     private DroneDeviceRegistrationStatus registrationStatus  = DroneDeviceRegistrationStatus.NOT_REGISTERED;
 
-    @Column(name = "VERSION", nullable = false)
+    @Column(name = "VERSION")
+    @NotNull
     private String version;
 
-    @Column(name = "TXN", nullable = false)
+    @Column(name = "TXN")
+    @NotNull
+    @Size(max = 50)
     private String txn;
 
-    @Column(name = "UNIQUE_DEVICE_ID", nullable = false)
+    @Column(name = "UNIQUE_DEVICE_ID")
+    @NotNull
     private String deviceId;
 
-    @Column(name = "DEVICE_MODEL_ID", nullable = false)
+    @Column(name = "DEVICE_MODEL_ID")
+    @NotNull
     private String deviceModelId;
 
     @Column(name = "OPERATOR_BUSINESS_IDENTIFIER")
+    @Size(max = 36)
     private String operatorBusinessIdentifier;
 
     @Column(name = "ID_HASH")
@@ -66,6 +74,24 @@ public class DroneDevice implements Serializable {
     public DroneDevice() {
 
     }
+
+    public DroneDevice(String deviceId, String deviceModelId, String version, String txn, String idHash, String operatorBusinessIdentifier ) {
+        this.deviceId = deviceId;
+        this.deviceModelId = deviceModelId;
+        this.version = version;
+        this.txn = txn;
+        this.idHash = idHash;
+        this.operatorBusinessIdentifier = operatorBusinessIdentifier;
+    }
+
+    public DroneDevice(String deviceId, String deviceModelId, String version, String txn, String idHash ) {
+        this.deviceId = deviceId;
+        this.deviceModelId = deviceModelId;
+        this.version = version;
+        this.txn = txn;
+        this.idHash = idHash;
+    }
+
 
     public long getDroneTypeId() {
         return droneTypeId;
@@ -123,9 +149,7 @@ public class DroneDevice implements Serializable {
 
     public String getOperatorBusinessIdentifier() { return operatorBusinessIdentifier; }
 
-    public void setOperatorBusinessIdentifier(String operatorBusinessIdentifier) {
-        this.operatorBusinessIdentifier = operatorBusinessIdentifier;
-    }
+    public void setOperatorBusinessIdentifier(String operatorBusinessIdentifier) { this.operatorBusinessIdentifier = operatorBusinessIdentifier; }
 
     public String getManufacturerBusinessIdentifier() { return manufacturerBusinessIdentifier; }
 

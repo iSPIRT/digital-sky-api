@@ -1,5 +1,5 @@
 
-package com.ispirit.digitalsky.controller.helper;
+package com.ispirit.digitalsky.helper;
 
 import com.ispirit.digitalsky.domain.DroneDevice;
 import org.springframework.util.Base64Utils;
@@ -9,13 +9,13 @@ import java.security.*;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 
-public class DigitalSigner {
+public class DigitalSignerForTest {
 
     private static final String KEY_STORE_TYPE = "JKS";
 
     private KeyStore.PrivateKeyEntry keyEntry;
 
-    public DigitalSigner(String keyStoreFile, char[] keyStorePassword, String alias) {
+    public DigitalSignerForTest(String keyStoreFile, char[] keyStorePassword, String alias) {
         this.keyEntry = getKeyFromKeyStore(keyStoreFile, keyStorePassword, alias);
 
         if (keyEntry == null) {
@@ -25,7 +25,7 @@ public class DigitalSigner {
     }
 
     public String sign(DroneDevice drone) throws InvalidKeyException, NoSuchAlgorithmException, IOException, SignatureException {
-        Signature rsa = Signature.getInstance("SHA1withRSA");
+        Signature rsa = Signature.getInstance("SHA256withRSA");
         rsa.initSign(keyEntry.getPrivateKey());
 
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();

@@ -5,7 +5,9 @@ import com.ispirit.digitalsky.domain.Manufacturer;
 import com.ispirit.digitalsky.domain.UserPrincipal;
 import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.ManufacturerExistsException;
+import com.ispirit.digitalsky.exception.ValidationException;
 import com.ispirit.digitalsky.service.api.ManufacturerService;
+import com.ispirit.digitalsky.util.CustomValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,23 +26,23 @@ public class ManufacturerController {
 
     public static final String MANUFACTURER_RESOURCE_BASE_PATH = "/api/manufacturer";
 
-    private ManufacturerService manufacturerService;
+    private final ManufacturerService manufacturerService;
+    private final CustomValidator validator;
 
     @Autowired
-    public ManufacturerController(ManufacturerService manufacturerService) {
+    public ManufacturerController(ManufacturerService manufacturerService, CustomValidator validator) {
         this.manufacturerService = manufacturerService;
+        this.validator = validator;
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> addManufacturer(@RequestParam(value = "trustedCertificateDoc", required = false) MultipartFile trustedCertificateDoc,
+    public ResponseEntity<?> createManufacturer(@RequestParam(value = "trustedCertificateDoc    ", required = false) MultipartFile trustedCertificateDoc,
                                              @RequestParam(value = "manufacturer") String manufacturerString) {
 
         ObjectMapper mapper = new ObjectMapper();
         try {
             Manufacturer manufacturer = mapper.readValue(manufacturerString, Manufacturer.class);
-            if (!validate(manufacturer)) {
-                return new ResponseEntity<>(new Errors("Invalid Payload"), HttpStatus.BAD_REQUEST);
-            }
+            validator.validate(manufacturer);
             UserPrincipal userPrincipal = UserPrincipal.securityContext();
             manufacturer.setResourceOwnerId(userPrincipal.getId());
             if (trustedCertificateDoc != null) {
@@ -49,7 +51,7 @@ public class ManufacturerController {
             }
             Manufacturer savedEntity = manufacturerService.createNewManufacturer(manufacturer);
             return new ResponseEntity<>(savedEntity, HttpStatus.CREATED);
-        } catch (ManufacturerExistsException e) {
+        } catch (ManufacturerExistsException | ValidationException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.BAD_REQUEST);
         } catch (IOException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.UNPROCESSABLE_ENTITY);
@@ -73,15 +75,19 @@ public class ManufacturerController {
         ObjectMapper mapper = new ObjectMapper();
         try {
             Manufacturer manufacturerPayload = mapper.readValue(manufacturerString, Manufacturer.class);
+            validator.validate(manufacturer);
             manufacturerPayload.setResourceOwnerId(manufacturer.getResourceOwnerId());
-            if(trustedCertificateDoc!=null) {
+            if (trustedCertificateDoc != null) {
                 manufacturerPayload.setTrustedCertificateDoc(trustedCertificateDoc);
                 manufacturerPayload.setTrustedCertificateDocName(resolveFileName(trustedCertificateDoc));
             }
+
             Manufacturer updatedEntity = manufacturerService.updateManufacturer(id, manufacturerPayload);
             return new ResponseEntity<>(updatedEntity, HttpStatus.OK);
         } catch (IOException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.UNPROCESSABLE_ENTITY);
+        } catch (ValidationException e) {
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -99,10 +105,6 @@ public class ManufacturerController {
         }
 
         return new ResponseEntity<>(manufacturer, HttpStatus.OK);
-    }
-
-    private boolean validate(Manufacturer manufacturer) {
-        return true;
     }
 
 }

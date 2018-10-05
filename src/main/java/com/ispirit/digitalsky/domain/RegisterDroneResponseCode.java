@@ -10,6 +10,7 @@ public enum RegisterDroneResponseCode {
     OPERATOR_BUSINESS_IDENTIFIER_MISSING(41, "Operator business identifier missing"),
     INVALID_SIGNATURE(50, "Invalid Signature"),
     INVALID_DIGITAL_CERTIFICATE(60, "Invalid Digital Certificate"),
+    MANUFACTURER_TRUSTED_CERTIFICATE_NOT_FOUND(61, "Manufacturer Intermediate/Trusted Certificate Chain not Found"),
     DRONE_ALREADY_REGISTERED(70, "Drone device already Registered"),
     DRONE_NOT_REGISTERED(71, "Drone device not registered"),
     INVALID_MANUFACTURER(80, "Invalid manufacturer"),
