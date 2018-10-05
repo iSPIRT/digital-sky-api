@@ -8,6 +8,7 @@ import com.ispirit.digitalsky.exception.StorageException;
 import com.ispirit.digitalsky.repository.ManufacturerRepository;
 import com.ispirit.digitalsky.repository.storage.StorageService;
 import com.ispirit.digitalsky.service.api.ManufacturerService;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.Path;

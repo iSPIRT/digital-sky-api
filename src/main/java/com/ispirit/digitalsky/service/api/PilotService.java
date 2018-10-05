@@ -12,5 +12,7 @@ public interface PilotService {
 
     Pilot find(long id);
 
+    Pilot findByBusinessIdentifier(String id);
+
     Resource trainingCertificate(Pilot pilot);
 }

@@ -1,6 +1,7 @@
 package com.ispirit.digitalsky.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.ispirit.digitalsky.domain.Manufacturer;
 import com.ispirit.digitalsky.domain.UserPrincipal;
 import com.ispirit.digitalsky.dto.Errors;
@@ -8,6 +9,7 @@ import com.ispirit.digitalsky.exception.ManufacturerExistsException;
 import com.ispirit.digitalsky.exception.ValidationException;
 import com.ispirit.digitalsky.service.api.ManufacturerService;
 import com.ispirit.digitalsky.util.CustomValidator;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -36,7 +38,7 @@ public class ManufacturerController {
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> createManufacturer(@RequestParam(value = "trustedCertificateDoc    ", required = false) MultipartFile trustedCertificateDoc,
+    public ResponseEntity<?> createManufacturer(@RequestParam(value = "trustedCertificateDoc", required = false) MultipartFile trustedCertificateDoc,
                                              @RequestParam(value = "manufacturer") String manufacturerString) {
 
         ObjectMapper mapper = new ObjectMapper();

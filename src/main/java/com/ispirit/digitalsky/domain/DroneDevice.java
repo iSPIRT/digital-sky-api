@@ -40,6 +40,7 @@ public class DroneDevice implements Serializable {
 
     @JsonIgnore
     @Column(name = "MANUFACTURER_BUSINESS_IDENTIFIER", nullable = false)
+    @Size(max = 36)
     private String manufacturerBusinessIdentifier;
 
     @JsonIgnore

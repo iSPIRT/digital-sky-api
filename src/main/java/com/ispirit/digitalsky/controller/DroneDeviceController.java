@@ -6,7 +6,9 @@ import com.ispirit.digitalsky.exception.*;
 import com.ispirit.digitalsky.service.api.DroneDeviceService;
 
 import com.ispirit.digitalsky.service.api.UserProfileService;
+
 import com.ispirit.digitalsky.util.CustomValidator;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,7 @@ import static com.ispirit.digitalsky.controller.DroneDeviceController.DRONEDEVIC
 public class DroneDeviceController {
     public static final String DRONEDEVICE_RESOURCE_BASE_PATH = "/api/droneDevice";
 
+
     private final DroneDeviceService droneDeviceService;
     private final UserProfileService userProfileService;
     private final CustomValidator validator;
@@ -35,6 +38,7 @@ public class DroneDeviceController {
 
     @RequestMapping(value = "/register/{manufacturerBusinessIdentifier}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> registerDrone(@PathVariable String manufacturerBusinessIdentifier, @Valid @RequestBody RegisterDroneRequestPayload payload) {
+
         RegisterDroneResponsePayload responsePayload = new RegisterDroneResponsePayload();
         try {
             validator.validate(payload.getDrone());
@@ -65,6 +69,7 @@ public class DroneDeviceController {
 
     @RequestMapping(value = "/deregister/{manufacturerBusinessIdentifier}", method = RequestMethod.PATCH, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> deregisterDrone(@PathVariable String manufacturerBusinessIdentifier, @Valid @RequestBody RegisterDroneRequestPayload payload) {
+
         RegisterDroneResponsePayload responsePayload = new RegisterDroneResponsePayload();
         try {
             validator.validate(payload.getDrone());

@@ -2,6 +2,8 @@ package com.ispirit.digitalsky.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.ispirit.digitalsky.util.BusinessIdentifierGenerator;
 
 import javax.persistence.*;
@@ -26,6 +28,7 @@ public class IndividualOperator extends Person {
     private String status = "DEFAULT";
 
     @Column(name = "BUSINESS_IDENTIFIER")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private final String businessIdentifier;
 
     private IndividualOperator() {

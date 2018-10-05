@@ -8,13 +8,16 @@ import com.ispirit.digitalsky.exception.InvalidDigitalSignatureException;
 import com.ispirit.digitalsky.exception.InvalidManufacturerException;
 import com.ispirit.digitalsky.service.api.DigitalCertificateValidatorService;
 import com.ispirit.digitalsky.service.api.DigitalSignatureVerifierService;
+
 import org.springframework.util.Base64Utils;
 
 import java.io.*;
+
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -81,7 +84,6 @@ public class DigitalSignatureVerifierServiceImpl implements DigitalSignatureVeri
 	}
 
     private X509Certificate generateX509CertificateFromBase64EncodedString(String certString) throws InvalidDigitalCertificateException{
-
         InputStream inputStream = null;
         try {
             X509Certificate certificate = (X509Certificate) CertificateFactory

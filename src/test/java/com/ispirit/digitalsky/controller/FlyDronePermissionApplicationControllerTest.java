@@ -146,6 +146,7 @@ public class FlyDronePermissionApplicationControllerTest {
         application.setDroneId(droneId);
 
         OperatorDrone operatorDrone = new OperatorDrone(droneOperatorId, ApplicantType.INDIVIDUAL, "", false);
+        operatorDrone.setOperatorDroneStatus(OperatorDroneStatus.UIN_APPROVED);
 
         when(operatorDroneService.find(droneId)).thenReturn(operatorDrone);
 
@@ -224,6 +225,7 @@ public class FlyDronePermissionApplicationControllerTest {
         application.setStatus(ApplicationStatus.SUBMITTED);
 
         OperatorDrone operatorDrone = new OperatorDrone(droneOperatorId, ApplicantType.INDIVIDUAL, "", false);
+        operatorDrone.setOperatorDroneStatus(OperatorDroneStatus.UIN_APPROVED);
 
         when(operatorDroneService.find(droneId)).thenReturn(operatorDrone);
 
@@ -253,6 +255,7 @@ public class FlyDronePermissionApplicationControllerTest {
         application.setStatus(ApplicationStatus.SUBMITTED);
 
         OperatorDrone operatorDrone = new OperatorDrone(droneOperatorId, ApplicantType.INDIVIDUAL, "", false);
+        operatorDrone.setOperatorDroneStatus(OperatorDroneStatus.UIN_APPROVED);
 
         when(operatorDroneService.find(droneId)).thenReturn(operatorDrone);
 
@@ -285,6 +288,7 @@ public class FlyDronePermissionApplicationControllerTest {
         application.setStatus(ApplicationStatus.SUBMITTED);
 
         OperatorDrone operatorDrone = new OperatorDrone(droneOperatorId, ApplicantType.INDIVIDUAL, "", false);
+        operatorDrone.setOperatorDroneStatus(OperatorDroneStatus.UIN_APPROVED);
 
         when(operatorDroneService.find(droneId)).thenReturn(operatorDrone);
 
@@ -346,6 +350,7 @@ public class FlyDronePermissionApplicationControllerTest {
         application.setDroneId(droneId);
 
         OperatorDrone operatorDrone = new OperatorDrone(droneOperatorId, ApplicantType.INDIVIDUAL, "", false);
+        operatorDrone.setOperatorDroneStatus(OperatorDroneStatus.UIN_APPROVED);
 
         when(operatorDroneService.find(droneId)).thenReturn(operatorDrone);
 
@@ -435,6 +440,7 @@ public class FlyDronePermissionApplicationControllerTest {
         long droneOperatorId = 2L;
 
         OperatorDrone operatorDrone = new OperatorDrone(droneOperatorId, ApplicantType.INDIVIDUAL, "", false);
+        operatorDrone.setOperatorDroneStatus(OperatorDroneStatus.UIN_APPROVED);
 
         when(operatorDroneService.find(droneId)).thenReturn(operatorDrone);
 

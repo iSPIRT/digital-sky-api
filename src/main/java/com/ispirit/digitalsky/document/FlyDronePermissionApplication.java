@@ -1,9 +1,11 @@
 package com.ispirit.digitalsky.document;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.ispirit.digitalsky.domain.ApplicantType;
-import com.ispirit.digitalsky.util.*;
+import com.ispirit.digitalsky.util.CustomLocalDateTimeDeSerializer;
+import com.ispirit.digitalsky.util.CustomLocalDateTimeSerializer;
+import com.ispirit.digitalsky.util.LocalDateTimeAttributeConverter;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -19,9 +21,14 @@ import java.util.List;
 @TypeAlias("flyDronePermissionApplications")
 public class FlyDronePermissionApplication extends BasicApplication {
 
-    @Field("name")
+    @Field("pilotBusinessIdentifier")
     @NotNull
-    private String pilotId;
+    private String pilotBusinessIdentifier;
+
+    @Field("pilotId")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private long pilotId;
+
 
     @Field("flyArea")
     @NotNull
@@ -66,18 +73,22 @@ public class FlyDronePermissionApplication extends BasicApplication {
     @Convert(converter = LocalDateTimeAttributeConverter.class)
     private LocalDateTime endDateTime;
 
+    @Field("recurringTimeExpression")
+    @Size(max = 50)
+    private String recurringTimeExpression;
+
+    @Field("recurringTimeDurationInMinutes")
+    private Long recurringTimeDurationInMinutes;
+
+    @Field("recurringPatternType")
+    @Size(max = 50)
+    private String recurringTimeExpressionType;
+
 
     public FlyDronePermissionApplication() {
         setCreatedDate(new Date());
         setLastModifiedDate(new Date());
-    }
-
-    public String getPilotId() {
-        return pilotId;
-    }
-
-    public void setPilotId(String pilotId) {
-        this.pilotId = pilotId;
+        recurringTimeExpressionType = "CRON_QUARTZ";
     }
 
     public List<LatLong> getFlyArea() {
@@ -142,5 +153,41 @@ public class FlyDronePermissionApplication extends BasicApplication {
 
     public void setOperatorId(long operatorId) {
         this.operatorId = operatorId;
+    }
+
+    public String getRecurringTimeExpression() {
+        return recurringTimeExpression;
+    }
+
+    public void setRecurringTimeExpression(String recurringTimeExpression) {
+        this.recurringTimeExpression = recurringTimeExpression;
+    }
+
+    public String getRecurringTimeExpressionType() {
+        return recurringTimeExpressionType;
+    }
+
+    public void setRecurringTimeExpressionType(String recurringTimeExpressionType) {
+        this.recurringTimeExpressionType = recurringTimeExpressionType;
+    }
+
+    public Long getRecurringTimeDurationInMinutes() {
+        return recurringTimeDurationInMinutes;
+    }
+
+    public void setRecurringTimeDurationInMinutes(Long recurringTimeDurationInMinutes) {
+        this.recurringTimeDurationInMinutes = recurringTimeDurationInMinutes;
+    }
+
+    public String getPilotBusinessIdentifier() {
+        return pilotBusinessIdentifier;
+    }
+
+    public void setPilotBusinessIdentifier(String pilotBusinessIdentifier) {
+        this.pilotBusinessIdentifier = pilotBusinessIdentifier;
+    }
+
+    public void setPilotId(long pilotId) {
+        this.pilotId = pilotId;
     }
 }

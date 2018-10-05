@@ -1,5 +1,9 @@
 package com.ispirit.digitalsky.controller;
 
+import com.cronutils.model.Cron;
+import com.cronutils.model.definition.CronDefinition;
+import com.cronutils.model.definition.CronDefinitionBuilder;
+import com.cronutils.parser.CronParser;
 import com.ispirit.digitalsky.document.FlyDronePermissionApplication;
 import com.ispirit.digitalsky.domain.*;
 import com.ispirit.digitalsky.dto.Errors;
@@ -22,7 +26,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.cronutils.model.CronType.QUARTZ;
 import static com.ispirit.digitalsky.controller.FlyDronePermissionApplicationController.APPLICATION_RESOURCE_BASE_PATH;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @RestController
@@ -49,6 +55,7 @@ public class FlyDronePermissionApplicationController {
         validateDroneId(application.getDroneId());
         if (application.isSubmitted()) {
             validator.validate(application);
+            validateRecurrenceTimePattern(application);
         }
         FlyDronePermissionApplication savedApplication = service.createApplication(application);
         return new ResponseEntity<>(savedApplication, HttpStatus.CREATED);
@@ -74,6 +81,7 @@ public class FlyDronePermissionApplicationController {
 
         if (application.isSubmitted()) {
             validator.validate(application);
+            validateRecurrenceTimePattern(application);
         }
         FlyDronePermissionApplication savedApplication = service.updateApplication(id, application);
         return new ResponseEntity<>(savedApplication, HttpStatus.OK);
@@ -163,6 +171,22 @@ public class FlyDronePermissionApplicationController {
 
         if (!operatorDrone.getOperatorDroneStatus().equals(OperatorDroneStatus.UIN_APPROVED)) {
             throw new ValidationException(new Errors("UIN not approved for drone"));
+        }
+    }
+
+    private void validateRecurrenceTimePattern(FlyDronePermissionApplication application) {
+        if (isEmpty(application.getRecurringTimeExpression())) return;
+
+        try {
+            CronParser cronParser = new CronParser(CronDefinitionBuilder.instanceDefinitionFor(QUARTZ));
+            Cron cron = cronParser.parse(application.getRecurringTimeExpression());
+            cron.validate();
+        } catch (Exception e) {
+            throw new ValidationException(new Errors("Invalid Recurring time expression"));
+        }
+
+        if (application.getRecurringTimeDurationInMinutes() == null || application.getRecurringTimeDurationInMinutes() <=0 ){
+            throw new ValidationException(new Errors("Invalid Recurring time duration"));
         }
     }
 

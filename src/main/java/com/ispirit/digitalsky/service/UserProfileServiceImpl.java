@@ -35,18 +35,27 @@ public class UserProfileServiceImpl implements UserProfileService {
 
         String pilotBusinessIdentifier = pilot != null ? pilot.getBusinessIdentifier() : null;
         String operatorBusinessIdentifier = null;
-        if(individualOperator != null) {
+
+        if (individualOperator != null) {
             operatorBusinessIdentifier = individualOperator.getBusinessIdentifier();
         } else {
-            if(organizationOperator != null) {
+            if (organizationOperator != null) {
                 operatorBusinessIdentifier = organizationOperator.getBusinessIdentifier();
             }
         }
 
         String manufacturerBusinessIdentifier = manufacturer != null ? manufacturer.getBusinessIdentifier() : null;
         return new UserProfile(id, pilotProfileId, individualOperatorId, organizationOperatorId, manufacturerId,
-                pilotBusinessIdentifier,operatorBusinessIdentifier,
+                pilotBusinessIdentifier, operatorBusinessIdentifier,
                 manufacturerBusinessIdentifier
         );
+    }
+
+    @Override
+    public String resolveOperatorBusinessIdentifier(ApplicantType applicantType, long operatorId) {
+        if (applicantType == ApplicantType.INDIVIDUAL) {
+            return individualOperatorRepository.findOne(operatorId).getBusinessIdentifier();
+        }
+        return organizationOperatorRepository.findOne(operatorId).getBusinessIdentifier();
     }
 }

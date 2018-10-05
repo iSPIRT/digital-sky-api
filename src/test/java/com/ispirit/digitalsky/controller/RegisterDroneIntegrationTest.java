@@ -6,6 +6,7 @@ import com.ispirit.digitalsky.domain.DroneDevice;
 import com.ispirit.digitalsky.domain.RegisterDroneRequestPayload;
 import com.ispirit.digitalsky.domain.RegisterDroneResponseCode;
 import com.ispirit.digitalsky.domain.RegisterDroneResponsePayload;
+
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.junit.Before;
@@ -40,7 +41,6 @@ public class RegisterDroneIntegrationTest {
     private final String keyStoreFile = "digitalsky.jks";
     private final String keyStorePassword = "password";
     private final String alias = "digitalsky";
-
     private String keyStorePath;
     private DigitalSignerForTest digitalSigner;
 
@@ -92,9 +92,6 @@ public class RegisterDroneIntegrationTest {
             String signature = digitalSigner.sign(mockDrone);
             String certificate = digitalSigner.getBase64EncodedCertificate();
             RegisterDroneRequestPayload mockDronePayload = new RegisterDroneRequestPayload(mockDrone, signature, certificate );
-            mockDronePayload.setDigitalCertificate(certificate);
-            mockDronePayload.setSignature(digitalSigner.sign(mockDrone));
-            mockDronePayload.setSignature(digitalSigner.sign(mockDrone));
 
             RegisterDroneResponsePayload responsePayload =
                     patchRestTemplate.patchForObject("/api/droneDevice/deregister/8ccf320028554028b47dbc3441d058c0", mockDronePayload, RegisterDroneResponsePayload.class);

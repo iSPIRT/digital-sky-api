@@ -131,7 +131,7 @@ public class ApplicationConfiguration {
     @Bean
     public freemarker.template.Configuration freemarkerConfiguration() {
         freemarker.template.Configuration cfg = new freemarker.template.Configuration(freemarker.template.Configuration.VERSION_2_3_20);
-        cfg.setClassForTemplateLoading(this.getClass(), "/emailTemplates");
+        cfg.setClassForTemplateLoading(this.getClass(), "/templates");
         cfg.setDefaultEncoding("UTF-8");
         cfg.setLocalizedLookup(false);
         cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
@@ -264,8 +264,8 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    FlyDronePermissionApplicationService flyDronePermissionApplicationService(FlyDronePermissionApplicationRepository repository, StorageService storageService, AirspaceCategoryService airspaceCategoryService, freemarker.template.Configuration freemarkerConfiguration, DigitalSignService digitalSignService, OperatorDroneService operatorDroneService){
-        return new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, freemarkerConfiguration);
+    FlyDronePermissionApplicationService flyDronePermissionApplicationService(FlyDronePermissionApplicationRepository repository, StorageService storageService, AirspaceCategoryService airspaceCategoryService, freemarker.template.Configuration freemarkerConfiguration, DigitalSignService digitalSignService, OperatorDroneService operatorDroneService, UserProfileService userProfileService, PilotService pilotService){
+        return new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration);
     }
 
     @Bean
