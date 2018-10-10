@@ -3,7 +3,6 @@ package com.ispirit.digitalsky.service;
 import com.ispirit.digitalsky.domain.*;
 
 import com.ispirit.digitalsky.dto.Errors;
-import com.ispirit.digitalsky.exception.OperatorNotAuthorizedException;
 import com.ispirit.digitalsky.exception.ValidationException;
 import com.ispirit.digitalsky.repository.OperatorDroneRepository;
 import com.ispirit.digitalsky.service.api.OperatorDroneService;
@@ -49,7 +48,7 @@ public class OperatorDroneServiceImpl implements OperatorDroneService {
     }
 
     @Override
-    public List<OperatorDrone> loadByOperator() throws OperatorNotAuthorizedException{
+    public List<OperatorDrone> loadByOperator() throws ValidationException {
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         long userId = userPrincipal.getId();
 

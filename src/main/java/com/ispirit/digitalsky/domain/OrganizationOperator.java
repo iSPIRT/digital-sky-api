@@ -2,6 +2,7 @@ package com.ispirit.digitalsky.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.ispirit.digitalsky.util.BusinessIdentifierGenerator;
 
 import javax.persistence.*;
