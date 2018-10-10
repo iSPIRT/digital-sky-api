@@ -50,6 +50,7 @@ public class DroneDevice implements Serializable {
 
     @Column(name = "VERSION")
     @NotNull
+    @Size(max = 20)
     private String version;
 
     @Column(name = "TXN")
@@ -59,10 +60,12 @@ public class DroneDevice implements Serializable {
 
     @Column(name = "UNIQUE_DEVICE_ID")
     @NotNull
+    @Size(max = 50)
     private String deviceId;
 
     @Column(name = "DEVICE_MODEL_ID")
     @NotNull
+    @Size(max = 50)
     private String deviceModelId;
 
     @Column(name = "OPERATOR_BUSINESS_IDENTIFIER")

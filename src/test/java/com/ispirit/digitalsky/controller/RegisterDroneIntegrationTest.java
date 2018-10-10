@@ -59,13 +59,13 @@ public class RegisterDroneIntegrationTest {
     public void registerDrone()  {
 
         try {
-            DroneDevice mockDrone = new DroneDevice("1.0","Beebop 900.0","1A29.0", "From manufacturer ", "some value", "eff217e740534fde89c1bfe62e08f316");
+            DroneDevice mockDrone = new DroneDevice("BeebopB800","1.0","1A29.0", "From manufacturer ", "some value", "eff217e740534fde89c1bfe62e08f316");
             String signature = digitalSigner.sign(mockDrone);
             String certificate = digitalSigner.getBase64EncodedCertificate();
             RegisterDroneRequestPayload mockDronePayload = new RegisterDroneRequestPayload(mockDrone, signature, certificate );
 
             ResponseEntity<RegisterDroneResponsePayload> responseEntity =
-                    restTemplate.postForEntity("/api/droneDevice/register/8ccf320028554028b47dbc3441d058c0",  mockDronePayload, RegisterDroneResponsePayload.class);
+                    restTemplate.postForEntity("/api/droneDevice/register/43fcbdd1bb904b9280ba2d769277efe0",  mockDronePayload, RegisterDroneResponsePayload.class);
 
             assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
             assertEquals(responseEntity.getBody().getTxn(), mockDrone.getTxn());

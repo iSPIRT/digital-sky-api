@@ -83,6 +83,9 @@ public class UINApplication extends BasicApplication {
     @Field("operatorDroneId")
     private long operatorDroneId;
 
+    @Field("operatorId")
+    private long operatorId;
+
     @Field("uniqueDeviceId")
     private String uniqueDeviceId;
 
@@ -273,6 +276,10 @@ public class UINApplication extends BasicApplication {
 
     public void setModelName(String modelName) { this.modelName = modelName; }
 
+    public long getOperatorId() { return operatorId; }
+
+    public void setOperatorId(long operatorId) { this.operatorId = operatorId; }
+
     public long getOperatorDroneId() { return operatorDroneId; }
 
     public void setOperatorDroneTypeId(long operatorDroneId) { this.operatorDroneId = operatorDroneId; }
@@ -460,6 +467,5 @@ public class UINApplication extends BasicApplication {
 
         return list;
     }
-
 
 }
