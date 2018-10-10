@@ -8,15 +8,16 @@ import com.ispirit.digitalsky.exception.InvalidDigitalSignatureException;
 import com.ispirit.digitalsky.exception.InvalidManufacturerException;
 import com.ispirit.digitalsky.service.api.DigitalCertificateValidatorService;
 import com.ispirit.digitalsky.service.api.DigitalSignatureVerifierService;
+
 import org.springframework.util.Base64Utils;
 
 import java.io.*;
+
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.HashSet;
-import java.util.Set;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,21 +38,20 @@ public class DigitalSignatureVerifierServiceImpl implements DigitalSignatureVeri
 	@Override
 	public boolean isValidSignature(RegisterDroneRequestPayload payload, String orgName, String orgTrustedCertificatePath) throws InvalidDigitalCertificateException, InvalidManufacturerException, SignatureException {
 
-        boolean isValid = ((payload.getSignature() != null) || (payload.getDigitalCertificate() != null));
-        if(isValid) {
-                X509Certificate certificate = getCertificateFromFile(payload.getDigitalCertificate());
-                isValid =  validateSignature(payload.getSignature(), payload.getDrone(), certificate)
-                         && isValidCertificate(certificate, orgTrustedCertificatePath)
-                        && validateOrganization(certificate, orgName);
-        }
+        X509Certificate certificate = generateX509CertificateFromBase64EncodedString(payload.getDigitalCertificate());
+
+        boolean isValid =  verifySignature(payload.getSignature(), payload.getDrone(), certificate)
+                            && isValidCertificate(certificate, orgTrustedCertificatePath)
+                            && verifyOrganizationInTheCertificate(certificate, orgName);
 
         return isValid;
     }
 
-    private boolean validateSignature(String signature, DroneDevice drone, X509Certificate certificate) throws SignatureException, InvalidDigitalSignatureException {
+    private boolean verifySignature(String signature, DroneDevice drone, X509Certificate certificate) throws SignatureException, InvalidDigitalSignatureException {
+
         boolean isValid;
         try {
-            Signature rsa = Signature.getInstance("SHA1withRSA");
+            Signature rsa = Signature.getInstance("SHA256withRSA");
             rsa.initVerify(certificate);
             try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
                  ObjectOutputStream oos = new ObjectOutputStream(baos);) {
@@ -68,7 +68,8 @@ public class DigitalSignatureVerifierServiceImpl implements DigitalSignatureVeri
         return isValid;
     }
 
-    private boolean validateOrganization(X509Certificate certificate, String orgName) throws InvalidDigitalCertificateException, InvalidManufacturerException {
+    private boolean verifyOrganizationInTheCertificate(X509Certificate certificate, String orgName) throws InvalidDigitalCertificateException, InvalidManufacturerException {
+
         Principal principal = certificate.getSubjectDN();
         String subjectDn = principal.getName();
         String attributeName = manufacturerAttributeNameInCertificate + "=";
@@ -82,7 +83,7 @@ public class DigitalSignatureVerifierServiceImpl implements DigitalSignatureVeri
 
 	}
 
-    private X509Certificate getCertificateFromFile(String certString) throws InvalidDigitalCertificateException{
+    private X509Certificate generateX509CertificateFromBase64EncodedString(String certString) throws InvalidDigitalCertificateException{
         InputStream inputStream = null;
         try {
             X509Certificate certificate = (X509Certificate) CertificateFactory
@@ -105,14 +106,10 @@ public class DigitalSignatureVerifierServiceImpl implements DigitalSignatureVeri
     }
 
 	private boolean isValidCertificate(X509Certificate certificate, String manufacturerCertificateChainPath) {
-        if(this.digitalCertificateValidationEnabled) {
-            Set<X509Certificate> certificates = new HashSet<>();
-            certificates.add(certificate);
-            boolean isValid = digitalCertificateValidatorService.isValidCertificate(certificate, manufacturerCertificateChainPath);
-            return isValid;
-        } else {
-            return true;
-        }
+
+        return this.digitalCertificateValidationEnabled ?
+                digitalCertificateValidatorService.isValidCertificate(certificate, manufacturerCertificateChainPath)
+                : true;
     }
 
 }

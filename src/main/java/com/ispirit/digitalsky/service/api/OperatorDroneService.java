@@ -4,6 +4,7 @@ import com.ispirit.digitalsky.domain.ApplicantType;
 import com.ispirit.digitalsky.domain.OperatorDrone;
 import com.ispirit.digitalsky.domain.OperatorDroneStatus;
 import com.ispirit.digitalsky.exception.OperatorNotAuthorizedException;
+import com.ispirit.digitalsky.exception.ValidationException;
 
 import java.util.Collection;
 import java.util.List;
@@ -16,7 +17,7 @@ public interface OperatorDroneService {
 
     OperatorDrone find(long id);
 
-    Collection<?> loadByOperator() throws OperatorNotAuthorizedException;
+    Collection<?> loadByOperator() throws ValidationException;
 
     OperatorDrone updateStatus(long id, OperatorDroneStatus operatorDroneStatus);
 

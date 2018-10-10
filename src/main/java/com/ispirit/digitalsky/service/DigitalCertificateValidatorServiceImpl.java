@@ -29,8 +29,7 @@ public class DigitalCertificateValidatorServiceImpl implements DigitalCertificat
             Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
             final List<X509Certificate> certs = new ArrayList<>();
             final PEMReader reader = new PEMReader(new StringReader(certificateChainString));
-
-            Certificate crt = null;
+            Certificate crt;
 
             while ((crt = (Certificate) reader.readObject()) != null) {
                 if (crt instanceof X509Certificate) {

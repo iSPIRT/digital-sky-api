@@ -48,6 +48,7 @@ public class UINApplicationServiceImpl implements UINApplicationService {
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         if(isAuthorizedOperatorDrone(uinApplication.getOperatorDroneId())) {
             uinApplication.setApplicantId(userPrincipal.getId());
+            setOperatorDetails(userPrincipal, uinApplication);
             uinApplication.setApplicant(userPrincipal.getUsername());
             UINApplication document = uinApplicationRepository.insert(uinApplication);
             storageService.store(uinApplication.getAllDocs(), document.getId());
@@ -71,6 +72,8 @@ public class UINApplicationServiceImpl implements UINApplicationService {
         if (isValidDroneDevice(uinApplication)) {
             long applicantId = actualForm.getApplicantId();
             Date createdDate = actualForm.getCreatedDate();
+            UserPrincipal userPrincipal = UserPrincipal.securityContext();
+
             setDocumentNames(uinApplication, actualForm);
             BeanUtils.copyProperties(uinApplication, actualForm);
             if (actualForm.getStatus() == ApplicationStatus.SUBMITTED) {
@@ -82,6 +85,7 @@ public class UINApplicationServiceImpl implements UINApplicationService {
             actualForm.setLastModifiedDate(new Date());
             actualForm.setCreatedDate(createdDate);
             actualForm.setApplicantId(applicantId);
+            setOperatorDetails(userPrincipal, actualForm);
             UINApplication savedForm = uinApplicationRepository.save(actualForm);
             storageService.store(uinApplication.getAllDocs(), savedForm.getId());
 
@@ -89,8 +93,6 @@ public class UINApplicationServiceImpl implements UINApplicationService {
         } else {
             return null;
         }
-
-
     }
 
     @Override
@@ -239,4 +241,25 @@ public class UINApplicationServiceImpl implements UINApplicationService {
         boolean isAuthorized = (operatorDrone.getOperatorId() == operatorId  && operatorDrone.getOperatorType() == operatorType);
         return isAuthorized;
     }
+
+    private void setOperatorDetails(UserPrincipal userPrincipal, UINApplication uinApplication) {
+        UserProfile userProfile = userProfileService.profile(userPrincipal.getId());
+        long operatorId;
+        ApplicantType operatorType;
+
+        if (userProfile.isIndividualOperator()) {
+            operatorId = userProfile.getIndividualOperatorId();
+            operatorType = ApplicantType.INDIVIDUAL;
+        } else if (userProfile.isOrganizationOperator()) {
+            operatorId = userProfile.getOrgOperatorId();
+            operatorType = ApplicantType.ORGANISATION;
+        } else {
+            throw new ValidationException(new Errors("Applicant not operator"));
+        }
+
+        uinApplication.setOperatorId(operatorId);
+        uinApplication.setApplicantType(operatorType);
+    }
+
+
 }

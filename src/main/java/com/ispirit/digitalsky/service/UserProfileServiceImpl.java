@@ -35,6 +35,7 @@ public class UserProfileServiceImpl implements UserProfileService {
 
         String pilotBusinessIdentifier = pilot != null ? pilot.getBusinessIdentifier() : null;
         String operatorBusinessIdentifier = null;
+
         if (individualOperator != null) {
             operatorBusinessIdentifier = individualOperator.getBusinessIdentifier();
         } else {
