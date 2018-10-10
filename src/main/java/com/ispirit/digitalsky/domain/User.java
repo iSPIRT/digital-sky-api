@@ -140,4 +140,8 @@ public class User {
         if (roles == null || roles.isEmpty()) return emptyList();
         return roles.stream().map(UserRole::getUserRole).collect(toList());
     }
+
+    public String getAccountVerificationToken() {
+        return accountVerificationToken;
+    }
 }
