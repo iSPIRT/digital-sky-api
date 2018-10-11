@@ -12,6 +12,10 @@ public class AccountVerificationRequest {
         //for serialization and de-serialization
     }
 
+    public AccountVerificationRequest(String token) {
+        this.token = token;
+    }
+
     public String getToken() {
         return token;
     }
