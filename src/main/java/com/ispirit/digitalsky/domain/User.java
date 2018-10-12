@@ -35,6 +35,7 @@ public class User {
     private String email;
 
     @Column(name = "PASSWORD_HASH")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @NotNull
     @Size(min = 7, max = 50)
     private String password;
@@ -143,5 +144,9 @@ public class User {
 
     public String getAccountVerificationToken() {
         return accountVerificationToken;
+    }
+
+    public void setReCaptcha(String reCaptcha) {
+        this.reCaptcha = reCaptcha;
     }
 }
