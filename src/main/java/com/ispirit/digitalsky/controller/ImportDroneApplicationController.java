@@ -66,10 +66,6 @@ public class ImportDroneApplicationController {
             }
             ImportDroneApplication updatedForm = droneAcquisitionFormService.updateDroneAcquisitionApplication(id, droneAcquisitionForm, securityClearanceDoc);
             return new ResponseEntity<>(updatedForm, HttpStatus.OK);
-        } catch (JsonGenerationException e) {
-            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.UNPROCESSABLE_ENTITY);
-        } catch (JsonMappingException e) {
-            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.UNPROCESSABLE_ENTITY);
         } catch (ApplicationNotFoundException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.NOT_FOUND);
         } catch(ApplicationNotEditableException e) {

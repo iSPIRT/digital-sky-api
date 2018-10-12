@@ -16,6 +16,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.Convert;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
@@ -75,6 +76,7 @@ public class UINApplication extends BasicApplication {
     private MultipartFile etaDoc;
 
     @Field("feeDetails")
+    @NotNull
     private String feeDetails;
 
     @Field("droneTypeId")
@@ -190,7 +192,6 @@ public class UINApplication extends BasicApplication {
 
     @Field("opManualDocName")
     private String opManualDocName;
-
 
     @JsonIgnore
     @Transient
