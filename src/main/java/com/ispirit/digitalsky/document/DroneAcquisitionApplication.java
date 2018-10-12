@@ -7,11 +7,13 @@ import com.ispirit.digitalsky.domain.ApplicantCategory;
 import com.ispirit.digitalsky.util.CustomLocalDateDeSerializer;
 import com.ispirit.digitalsky.util.CustomLocalDateSerializer;
 import com.ispirit.digitalsky.util.LocalDateAttributeConverter;
+import org.hibernate.validator.constraints.Range;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.Convert;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Date;
 
@@ -63,6 +65,7 @@ public abstract class DroneAcquisitionApplication extends BasicApplication {
     protected String wingType;
 
     @Field("noOfDrones")
+    @Range(min=1)
     protected int noOfDrones;
 
     @Field("isNew")

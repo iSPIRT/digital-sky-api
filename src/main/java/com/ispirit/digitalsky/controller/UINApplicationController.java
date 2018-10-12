@@ -1,7 +1,5 @@
 package com.ispirit.digitalsky.controller;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.document.UINApplication;
 import com.ispirit.digitalsky.domain.ApplicationStatus;
@@ -63,16 +61,14 @@ public class UINApplicationController {
             ObjectMapper mapper = new ObjectMapper();
             UINApplication uinApplication = mapper.readValue(uinApplicationString, UINApplication.class);
             appendDocs(uinApplication, importPermissionDoc, cinDoc, gstinDoc, panCardDoc, securityClearanceDoc, dotPermissionDoc,etaDoc,opManualDoc,maintenanceGuidelinesDoc);
+
+            validator.validate(uinApplication);
             UINApplication createdForm = uinApplicationService.createApplication(uinApplication);
-            return new ResponseEntity<>(createdForm, HttpStatus.OK);
+            return new ResponseEntity<>(createdForm, HttpStatus.CREATED);
         } catch (OperatorNotAuthorizedException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.UNAUTHORIZED);
         } catch (ValidationException e) {
-            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.PRECONDITION_FAILED);
-        } catch (JsonParseException e) {
-            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.BAD_REQUEST);
-        } catch (JsonMappingException e) {
-            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getErrors(), HttpStatus.PRECONDITION_FAILED);
         } catch (IOException e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.BAD_REQUEST);
         }
@@ -96,7 +92,9 @@ public class UINApplicationController {
             UserPrincipal userPrincipal = UserPrincipal.securityContext();
             UINApplication application = uinApplicationService.get(id);
 
-            if(application == null) throw new EntityNotFoundException("UINApplication", id);
+            if(application == null) {
+                return new ResponseEntity<>(new Errors("UnAuthorized Access"), HttpStatus.NOT_FOUND);
+            }
 
             if (userPrincipal.getId() != application.getApplicantId()) {
                 return new ResponseEntity<>(new Errors("UnAuthorized Access"), HttpStatus.UNAUTHORIZED);
@@ -112,6 +110,7 @@ public class UINApplicationController {
             if(uinApplication.isSubmitted()){
                 validator.validate(uinApplication);
             }
+
             UINApplication updatedForm = uinApplicationService.updateApplication(id, uinApplication);
             return new ResponseEntity<>(updatedForm, HttpStatus.OK);
         } catch (OperatorNotAuthorizedException e) {
@@ -161,10 +160,15 @@ public class UINApplicationController {
 
         UINApplication applicationForm = uinApplicationService.get(id);
 
+        if(applicationForm == null){
+            return new ResponseEntity<>(new Errors("Application Not Found"), HttpStatus.NOT_FOUND);
+        }
+
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         if (userPrincipal.getId() != applicationForm.getApplicantId()) {
             return new ResponseEntity<>(new Errors("UnAuthorized Access"), HttpStatus.UNAUTHORIZED);
         }
+
         return new ResponseEntity<>(applicationForm, HttpStatus.OK);
     }
 
@@ -173,6 +177,10 @@ public class UINApplicationController {
 
         try {
             UINApplication applicationForm = uinApplicationService.get(applicationId);
+
+            if(applicationForm == null){
+                return new ResponseEntity<>(new Errors("Application Not Found"), HttpStatus.BAD_REQUEST);
+            }
 
             UserPrincipal userPrincipal = UserPrincipal.securityContext();
             if (!userPrincipal.isAdmin() && userPrincipal.getId() != applicationForm.getApplicantId()) {
@@ -236,7 +244,6 @@ public class UINApplicationController {
        }
 
     }
-
 
 }
 
