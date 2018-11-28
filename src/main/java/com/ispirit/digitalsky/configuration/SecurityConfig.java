@@ -85,6 +85,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .antMatchers(HttpMethod.POST, "/api/user/resetPassword")
                 .permitAll()
+            //add any api here to be available for clients without login also
                 .antMatchers(HttpMethod.GET,"/api/admin/*")
                 .hasRole("ADMIN")
                 .anyRequest()
