@@ -53,6 +53,13 @@ public class UAOPApplication extends BasicApplication {
     @Transient
     private MultipartFile sopDoc;
 
+    @Field("paymentReceiptDocName")
+    private String paymentReceiptDocName;
+
+    @JsonIgnore
+    @Transient
+    private MultipartFile paymentReceiptDoc;
+
     public UAOPApplication() {
         setCreatedDate(new Date());
     }
@@ -137,6 +144,22 @@ public class UAOPApplication extends BasicApplication {
         this.sopDoc = sopDoc;
     }
 
+    public String getPaymentReceiptDocName() {
+        return paymentReceiptDocName;
+    }
+
+    public void setPaymentReceiptDocName(String paymentReceiptDocName) {
+        this.paymentReceiptDocName = paymentReceiptDocName;
+    }
+
+    public MultipartFile getPaymentReceiptDoc() {
+        return paymentReceiptDoc;
+    }
+
+    public void setPaymentReceiptDoc(MultipartFile paymentReceiptDoc) {
+        this.paymentReceiptDoc = paymentReceiptDoc;
+    }
+
     public List<MultipartFile> getAllDocs() {
         ArrayList<MultipartFile> list = new ArrayList<>();
         if (securityProgramDoc != null && !securityProgramDoc.isEmpty()) {
@@ -150,6 +173,9 @@ public class UAOPApplication extends BasicApplication {
         }
         if (landOwnerPermissionDoc != null && !landOwnerPermissionDoc.isEmpty()) {
             list.add(landOwnerPermissionDoc);
+        }
+        if (paymentReceiptDoc != null && !paymentReceiptDoc.isEmpty()) {
+            list.add(paymentReceiptDoc);
         }
         return list;
     }
