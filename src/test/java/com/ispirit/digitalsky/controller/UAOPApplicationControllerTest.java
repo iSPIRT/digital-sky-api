@@ -80,6 +80,9 @@ public class UAOPApplicationControllerTest {
         InputStream landOwnerPermissionDocContents = IOUtils.toInputStream("landOwnerPermissionDoc", "UTF-8");
         MockMultipartFile landOwnerPermissionDoc = new MockMultipartFile("landOwnerPermissionDoc", "landOwnerPermissionDoc.txt", MediaType.MULTIPART_FORM_DATA_VALUE, landOwnerPermissionDocContents);
 
+        InputStream paymentReceiptDocContents = IOUtils.toInputStream("paymentReceiptContents", "UTF-8");
+        MockMultipartFile paymentReceiptDoc = new MockMultipartFile("paymentReceiptDoc", "paymentReceiptDoc.txt", MediaType.MULTIPART_FORM_DATA_VALUE, paymentReceiptDocContents);
+
         UAOPApplication uaopApplication = new UAOPApplication();
         uaopApplication.setName("name");
         uaopApplication.setDesignation("designation");
@@ -91,6 +94,7 @@ public class UAOPApplicationControllerTest {
                         .file(securityProgramDoc)
                         .file(insuranceDoc)
                         .file(landOwnerPermissionDoc)
+                        .file(paymentReceiptDoc)
                         .param("uaopApplicationForm", objectMapper.writeValueAsString(uaopApplication))
         ).andReturn().getResponse();
 
@@ -110,6 +114,9 @@ public class UAOPApplicationControllerTest {
         assertThat(argumentCaptor.getValue().getSopDocName(), is(sopDoc.getName() + ".txt"));
         assertFileContents(argumentCaptor.getValue().getSopDoc(), sopDoc);
 
+        assertThat(argumentCaptor.getValue().getPaymentReceiptDocName(), is(paymentReceiptDoc.getName() + ".txt"));
+        assertFileContents(argumentCaptor.getValue().getPaymentReceiptDoc(), paymentReceiptDoc);
+
     }
 
     @Test
@@ -127,6 +134,9 @@ public class UAOPApplicationControllerTest {
         InputStream landOwnerPermissionDocContents = IOUtils.toInputStream("landOwnerPermissionDoc", "UTF-8");
         MockMultipartFile landOwnerPermissionDoc = new MockMultipartFile("landOwnerPermissionDoc", "landOwnerPermissionDoc.txt", MediaType.MULTIPART_FORM_DATA_VALUE, landOwnerPermissionDocContents);
 
+        InputStream paymentReceiptDocContents = IOUtils.toInputStream("paymentReceiptContents", "UTF-8");
+        MockMultipartFile paymentReceiptDoc = new MockMultipartFile("paymentReceiptDoc", "paymentReceiptDoc.txt", MediaType.MULTIPART_FORM_DATA_VALUE, paymentReceiptDocContents);
+
         UAOPApplication uaopApplication = new UAOPApplication();
         uaopApplication.setStatus(ApplicationStatus.SUBMITTED);
 
@@ -137,6 +147,7 @@ public class UAOPApplicationControllerTest {
                         .file(securityProgramDoc)
                         .file(insuranceDoc)
                         .file(landOwnerPermissionDoc)
+                        .file(paymentReceiptDoc)
                         .param("uaopApplicationForm", objectMapper.writeValueAsString(uaopApplication))
         ).andReturn().getResponse();
 
@@ -159,6 +170,9 @@ public class UAOPApplicationControllerTest {
         InputStream landOwnerPermissionDocContents = IOUtils.toInputStream("landOwnerPermissionDoc", "UTF-8");
         MockMultipartFile landOwnerPermissionDoc = new MockMultipartFile("landOwnerPermissionDoc", "landOwnerPermissionDoc.txt", MediaType.MULTIPART_FORM_DATA_VALUE, landOwnerPermissionDocContents);
 
+        InputStream paymentReceiptDocContents = IOUtils.toInputStream("paymentReceiptContents", "UTF-8");
+        MockMultipartFile paymentReceiptDoc = new MockMultipartFile("paymentReceiptDoc", "paymentReceiptDoc.txt", MediaType.MULTIPART_FORM_DATA_VALUE, paymentReceiptDocContents);
+
         UAOPApplication uaopApplication = new UAOPApplication();
         uaopApplication.setName("name");
         uaopApplication.setDesignation("designation");
@@ -172,6 +186,7 @@ public class UAOPApplicationControllerTest {
                 .file(securityProgramDoc)
                 .file(insuranceDoc)
                 .file(landOwnerPermissionDoc)
+                .file(paymentReceiptDoc)
                 .param("uaopApplicationForm", objectMapper.writeValueAsString(uaopApplication));
         ReflectionTestUtils.setField(requestBuilder,"method","PATCH",String.class);
 
@@ -214,6 +229,9 @@ public class UAOPApplicationControllerTest {
         InputStream landOwnerPermissionDocContents = IOUtils.toInputStream("landOwnerPermissionDoc", "UTF-8");
         MockMultipartFile landOwnerPermissionDoc = new MockMultipartFile("landOwnerPermissionDoc", "landOwnerPermissionDoc.txt", MediaType.MULTIPART_FORM_DATA_VALUE, landOwnerPermissionDocContents);
 
+        InputStream paymentReceiptDocContents = IOUtils.toInputStream("paymentReceiptContents", "UTF-8");
+        MockMultipartFile paymentReceiptDoc = new MockMultipartFile("paymentReceiptDoc", "paymentReceiptDoc.txt", MediaType.MULTIPART_FORM_DATA_VALUE, paymentReceiptDocContents);
+
         UAOPApplication uaopApplication = new UAOPApplication();
         uaopApplication.setName("name");
         uaopApplication.setDesignation("designation");
@@ -225,6 +243,7 @@ public class UAOPApplicationControllerTest {
                 .file(securityProgramDoc)
                 .file(insuranceDoc)
                 .file(landOwnerPermissionDoc)
+                .file(paymentReceiptDoc)
                 .param("uaopApplicationForm", objectMapper.writeValueAsString(uaopApplication));
         ReflectionTestUtils.setField(requestBuilder,"method","PATCH",String.class);
 
@@ -252,6 +271,9 @@ public class UAOPApplicationControllerTest {
         InputStream landOwnerPermissionDocContents = IOUtils.toInputStream("landOwnerPermissionDoc", "UTF-8");
         MockMultipartFile landOwnerPermissionDoc = new MockMultipartFile("landOwnerPermissionDoc", "landOwnerPermissionDoc.txt", MediaType.MULTIPART_FORM_DATA_VALUE, landOwnerPermissionDocContents);
 
+        InputStream paymentReceiptDocContents = IOUtils.toInputStream("paymentReceiptContents", "UTF-8");
+        MockMultipartFile paymentReceiptDoc = new MockMultipartFile("paymentReceiptDoc", "paymentReceiptDoc.txt", MediaType.MULTIPART_FORM_DATA_VALUE, paymentReceiptDocContents);
+
         UAOPApplication uaopApplication = new UAOPApplication();
         uaopApplication.setName("name");
         uaopApplication.setDesignation("designation");
@@ -265,6 +287,7 @@ public class UAOPApplicationControllerTest {
                 .file(securityProgramDoc)
                 .file(insuranceDoc)
                 .file(landOwnerPermissionDoc)
+                .file(paymentReceiptDoc)
                 .param("uaopApplicationForm", objectMapper.writeValueAsString(uaopApplication));
         ReflectionTestUtils.setField(requestBuilder,"method","PATCH",String.class);
 
@@ -292,6 +315,9 @@ public class UAOPApplicationControllerTest {
         InputStream landOwnerPermissionDocContents = IOUtils.toInputStream("landOwnerPermissionDoc", "UTF-8");
         MockMultipartFile landOwnerPermissionDoc = new MockMultipartFile("landOwnerPermissionDoc", "landOwnerPermissionDoc.txt", MediaType.MULTIPART_FORM_DATA_VALUE, landOwnerPermissionDocContents);
 
+        InputStream paymentReceiptDocContents = IOUtils.toInputStream("paymentReceiptContents", "UTF-8");
+        MockMultipartFile paymentReceiptDoc = new MockMultipartFile("paymentReceiptDoc", "paymentReceiptDoc.txt", MediaType.MULTIPART_FORM_DATA_VALUE, paymentReceiptDocContents);
+
         UAOPApplication uaopApplication = new UAOPApplication();
         uaopApplication.setStatus(ApplicationStatus.SUBMITTED);
 
@@ -304,6 +330,7 @@ public class UAOPApplicationControllerTest {
                 .file(securityProgramDoc)
                 .file(insuranceDoc)
                 .file(landOwnerPermissionDoc)
+                .file(paymentReceiptDoc)
                 .param("uaopApplicationForm", objectMapper.writeValueAsString(uaopApplication));
         ReflectionTestUtils.setField(requestBuilder,"method","PATCH",String.class);
 

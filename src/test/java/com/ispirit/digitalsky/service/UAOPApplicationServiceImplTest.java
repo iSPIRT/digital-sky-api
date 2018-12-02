@@ -107,8 +107,13 @@ public class UAOPApplicationServiceImplTest {
         uaopApplication.setStatus(ApplicationStatus.SUBMITTED);
         MockMultipartFile landOwnerPermissionDoc = new MockMultipartFile("lop", "content1".getBytes());
         MockMultipartFile sopDoc = new MockMultipartFile("sop", "content2".getBytes());
+        MockMultipartFile paymentReceiptDoc = new MockMultipartFile("pr", "content3".getBytes());
         uaopApplication.setLandOwnerPermissionDoc(landOwnerPermissionDoc);
+        uaopApplication.setLandOwnerPermissionDocName("lopDocNew");
         uaopApplication.setSopDoc(sopDoc);
+        uaopApplication.setSopDocName("sopDocNew");
+        uaopApplication.setPaymentReceiptDoc(paymentReceiptDoc);
+        uaopApplication.setPaymentReceiptDocName("prDocNew");
 
         UAOPApplication currentApplication = new UAOPApplication();
         when(repository.findById("id")).thenReturn(currentApplication);
@@ -124,7 +129,10 @@ public class UAOPApplicationServiceImplTest {
         assertThat(argumentCaptor.getValue().getName(), is(uaopApplication.getName()));
         assertThat(argumentCaptor.getValue().getDesignation(), is(uaopApplication.getDesignation()));
         assertThat(argumentCaptor.getValue().getStatus(), is(uaopApplication.getStatus()));
-        verify(storageService).store(asList(sopDoc, landOwnerPermissionDoc), uaopApplication.getId());
+        assertThat(argumentCaptor.getValue().getSopDocName(), is(uaopApplication.getSopDocName()));
+        assertThat(argumentCaptor.getValue().getLandOwnerPermissionDocName(), is(uaopApplication.getLandOwnerPermissionDocName()));
+        assertThat(argumentCaptor.getValue().getPaymentReceiptDocName(), is(uaopApplication.getPaymentReceiptDocName()));
+        verify(storageService).store(asList(sopDoc, landOwnerPermissionDoc, paymentReceiptDoc), uaopApplication.getId());
 
     }
 

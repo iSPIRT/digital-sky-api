@@ -74,6 +74,10 @@ public class UAOPApplicationServiceImpl implements UAOPApplicationService {
             actualForm.setLandOwnerPermissionDocName(uaopApplication.getLandOwnerPermissionDocName());
         }
 
+        if (uaopApplication.getPaymentReceiptDoc() != null) {
+            actualForm.setPaymentReceiptDocName(uaopApplication.getPaymentReceiptDocName());
+        }
+
         if (uaopApplication.getStatus() == ApplicationStatus.SUBMITTED) {
             actualForm.setSubmittedDate(new Date());
         }

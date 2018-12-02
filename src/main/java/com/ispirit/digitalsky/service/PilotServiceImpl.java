@@ -28,6 +28,7 @@ public class PilotServiceImpl implements PilotService {
         if (pilotRepository.loadByResourceOwner(pilot.getResourceOwnerId()) != null) {
             throw new PilotProfileAlreadyExist();
         }
+        pilot.resolveDroneCategoryFromList();
         Pilot savedEntity = pilotRepository.save(pilot);
         MultipartFile trainingCertificate = pilot.getTrainingCertificate();
         if (trainingCertificate != null && !trainingCertificate.isEmpty()) {
@@ -40,6 +41,7 @@ public class PilotServiceImpl implements PilotService {
     @Transactional
     public Pilot updatePilot(long id, Pilot pilot) {
         pilot.setId(id);
+        pilot.resolveDroneCategoryFromList();
         Pilot updatedEntity = pilotRepository.save(pilot);
         MultipartFile trainingCertificate = pilot.getTrainingCertificate();
         if (trainingCertificate != null && !trainingCertificate.isEmpty()) {
@@ -50,12 +52,16 @@ public class PilotServiceImpl implements PilotService {
 
     @Override
     public Pilot find(long id) {
-        return pilotRepository.findOne(id);
+        Pilot pilot = pilotRepository.findOne(id);
+        pilot.resolveResolveListFromDroneCategory();
+        return pilot;
     }
 
     @Override
     public Pilot findByBusinessIdentifier(String id) {
-        return pilotRepository.loadByBusinessIdentifier(id);
+        Pilot pilot = pilotRepository.loadByBusinessIdentifier(id);
+        pilot.resolveResolveListFromDroneCategory();
+        return pilot;
     }
 
     @Override

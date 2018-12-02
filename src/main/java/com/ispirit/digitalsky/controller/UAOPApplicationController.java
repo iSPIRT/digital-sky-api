@@ -49,12 +49,13 @@ public class UAOPApplicationController {
             @RequestParam(value = "sopDoc", required = false) MultipartFile sopDoc,
             @RequestParam(value = "insuranceDoc", required = false) MultipartFile insuranceDoc,
             @RequestParam(value = "landOwnerPermissionDoc", required = false) MultipartFile landOwnerPermissionDoc,
+            @RequestParam(value = "paymentReceiptDoc", required = false) MultipartFile paymentReceiptDoc,
             @RequestParam(value = "uaopApplicationForm") String uaopApplicationFormString) {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
             UAOPApplication uaopApplication = mapper.readValue(uaopApplicationFormString, UAOPApplication.class);
-            appendDocs(uaopApplication, securityProgramDoc, sopDoc, insuranceDoc, landOwnerPermissionDoc);
+            appendDocs(uaopApplication, securityProgramDoc, sopDoc, insuranceDoc, landOwnerPermissionDoc, paymentReceiptDoc);
             if(uaopApplication.isSubmitted()){
                 validator.validate(uaopApplication);
             }
@@ -75,6 +76,7 @@ public class UAOPApplicationController {
             @RequestParam(value = "sopDoc", required = false) MultipartFile sopDoc,
             @RequestParam(value = "insuranceDoc", required = false) MultipartFile insuranceDoc,
             @RequestParam(value = "landOwnerPermissionDoc", required = false) MultipartFile landOwnerPermissionDoc,
+            @RequestParam(value = "paymentReceiptDoc", required = false) MultipartFile paymentReceiptDoc,
             @RequestParam(value = "uaopApplicationForm") String uaopApplicationFormString) {
 
         try {
@@ -93,7 +95,7 @@ public class UAOPApplicationController {
 
             ObjectMapper mapper = new ObjectMapper();
             UAOPApplication uaopApplication = mapper.readValue(uaopApplicationFormString, UAOPApplication.class);
-            appendDocs(uaopApplication, securityProgramDoc, sopDoc, insuranceDoc, landOwnerPermissionDoc);
+            appendDocs(uaopApplication, securityProgramDoc, sopDoc, insuranceDoc, landOwnerPermissionDoc, paymentReceiptDoc);
             if(uaopApplication.isSubmitted()){
                 validator.validate(uaopApplication);
             }
@@ -181,7 +183,7 @@ public class UAOPApplicationController {
         }
     }
 
-    private void appendDocs(UAOPApplication uaopApplication, MultipartFile securityProgramDoc, MultipartFile sopDoc, MultipartFile insuranceDoc, MultipartFile landOwnerPermissionDoc) {
+    private void appendDocs(UAOPApplication uaopApplication, MultipartFile securityProgramDoc, MultipartFile sopDoc, MultipartFile insuranceDoc, MultipartFile landOwnerPermissionDoc, MultipartFile paymentReceiptDoc) {
         uaopApplication.setInsuranceDoc(insuranceDoc);
         uaopApplication.setInsuranceDocName(resolveFileName(insuranceDoc));
 
@@ -193,6 +195,9 @@ public class UAOPApplicationController {
 
         uaopApplication.setSecurityProgramDoc(securityProgramDoc);
         uaopApplication.setSecurityProgramDocName(resolveFileName(securityProgramDoc));
+
+        uaopApplication.setPaymentReceiptDoc(paymentReceiptDoc);
+        uaopApplication.setPaymentReceiptDocName(resolveFileName(paymentReceiptDoc));
     }
 
 }
