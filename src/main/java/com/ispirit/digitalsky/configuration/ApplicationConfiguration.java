@@ -30,7 +30,7 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class ApplicationConfiguration {
 
-    @Value("${DEFAULT_FROM_EMAIL_ID:no-reply@digitalsky.com}")
+    @Value("${DEFAULT_FROM_EMAIL_ID:no-reply@dgca.gov.in}")
     private String defaultFromEmailId;
 
     @Value("${SEND_GRID_API_KEY:default}")

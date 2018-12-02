@@ -8,7 +8,7 @@ import java.util.Map;
 public class AccountVerificationEmail implements EmailMessage {
 
     private String templateName = "email_account_verification_template.ftl";
-    private String subject = "[DigiSky] Account Verification";
+    private String subject = "[Digital Sky] Account Verification";
     private String to;
     private String resetPasswordLink;
 
