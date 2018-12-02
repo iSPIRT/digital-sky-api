@@ -3,6 +3,7 @@ package com.ispirit.digitalsky.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.TestContext;
 import com.ispirit.digitalsky.domain.Address;
+import com.ispirit.digitalsky.domain.DroneCategoryType;
 import com.ispirit.digitalsky.domain.Pilot;
 import com.ispirit.digitalsky.domain.UserPrincipal;
 import com.ispirit.digitalsky.service.api.PilotService;
@@ -26,9 +27,12 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 
 import java.io.InputStream;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Collections;
 
 import static com.ispirit.digitalsky.SecurityContextHelper.setUserSecurityContext;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -61,7 +65,7 @@ public class PilotControllerTest {
 
     @Test
     public void shouldValidateBeforeCreatingPilot() throws Exception {
-        Pilot pilotPayload = new Pilot(0, null, null, null, null, null, null, null, asList());
+        Pilot pilotPayload = new Pilot(0, null, null, null, null, null, null, emptyList(), asList());
 
         InputStream resource = this.getClass().getResourceAsStream("/pilot_training_certificate.txt");
         MockMultipartFile trainingDoc = new MockMultipartFile("trainingCertificateDocument", "pilot_training_certificate.txt", MediaType.MULTIPART_FORM_DATA_VALUE, resource);
@@ -80,10 +84,10 @@ public class PilotControllerTest {
 
         //given
         Address address = new Address("LineOne", "LineTwo", "City", "State", "Country", "560001");
-        Pilot pilotPayload = new Pilot(0, null, "Sample Name", "sample@email.com", "1234567", "India", LocalDate.of(1979, 10, 10), "Medium", asList(address));
+        Pilot pilotPayload = new Pilot(0, null, "Sample Name", "sample@email.com", "1234567", "India", LocalDate.of(1979, 10, 10), asList(DroneCategoryType.MEDIUM), asList(address));
 
 
-        Pilot pilot = new Pilot(userPrincipal.getId(), null, "Sample Name", "sample@email.com", "1234567", "India", LocalDate.of(1979, 10, 10), "Medium", asList(address));
+        Pilot pilot = new Pilot(userPrincipal.getId(), null, "Sample Name", "sample@email.com", "1234567", "India", LocalDate.of(1979, 10, 10), asList(DroneCategoryType.MEDIUM), asList(address));
         pilot.setId(1);
 
         when(pilotService.createNewPilot(any(Pilot.class))).thenReturn(pilot);
@@ -110,7 +114,7 @@ public class PilotControllerTest {
 
     @Test
     public void shouldValidateBeforeUpdatingPilotProfile() throws Exception {
-        Pilot pilotPayload = new Pilot(userPrincipal.getId(), null, null, null, null, null, null, null, asList());
+        Pilot pilotPayload = new Pilot(userPrincipal.getId(), null, null, null, null, null, null, emptyList(), asList());
         pilotPayload.setId(1);
 
         when(pilotService.find(1)).thenReturn(pilotPayload);
@@ -132,7 +136,7 @@ public class PilotControllerTest {
     public void shouldBeAbleToUpdatePilotProfile() throws Exception {
         //given
         Address address = new Address("LineOne", "LineTwo", "City", "State", "Country", "560001");
-        Pilot pilotPayload = new Pilot(userPrincipal.getId(), null, "Sample Name", "sample@email.com", "1234567", "India", LocalDate.of(1979, 10, 10), "Medium", asList(address));
+        Pilot pilotPayload = new Pilot(userPrincipal.getId(), null, "Sample Name", "sample@email.com", "1234567", "India", LocalDate.of(1979, 10, 10), asList(DroneCategoryType.MEDIUM, DroneCategoryType.LARGE), asList(address));
         pilotPayload.setId(1);
 
         when(pilotService.find(1)).thenReturn(pilotPayload);
@@ -163,7 +167,7 @@ public class PilotControllerTest {
     public void shouldNotUpdateIfPilotProfileNotFound() throws Exception {
         //given
         Address address = new Address("LineOne", "LineTwo", "City", "State", "Country", "560001");
-        Pilot pilotPayload = new Pilot(userPrincipal.getId(), null, "Sample Name", "sample@email.com", "1234567", "India", LocalDate.of(1979, 10, 10), "Medium", asList(address));
+        Pilot pilotPayload = new Pilot(userPrincipal.getId(), null, "Sample Name", "sample@email.com", "1234567", "India", LocalDate.of(1979, 10, 10), asList(DroneCategoryType.MEDIUM), asList(address));
         pilotPayload.setId(1);
 
         InputStream resource = this.getClass().getResourceAsStream("/pilot_training_certificate.txt");
@@ -185,7 +189,7 @@ public class PilotControllerTest {
         //given
         Address address = new Address("LineOne", "LineTwo", "City", "State", "Country", "560001");
         long resourceOwnerId = 2L;
-        Pilot pilotPayload = new Pilot(resourceOwnerId, null, "Sample Name", "sample@email.com", "1234567", "India", LocalDate.of(1979, 10, 10), "Medium", asList(address));
+        Pilot pilotPayload = new Pilot(resourceOwnerId, null, "Sample Name", "sample@email.com", "1234567", "India", LocalDate.of(1979, 10, 10), asList(DroneCategoryType.MEDIUM), asList(address));
         pilotPayload.setId(1);
 
         when(pilotService.find(1)).thenReturn(pilotPayload);
@@ -208,7 +212,7 @@ public class PilotControllerTest {
     public void shouldGetPilot() throws Exception {
         //given
         Address address = new Address("LineOne", "LineTwo", "City", "State", "Country", "560001");
-        Pilot pilot = new Pilot(userPrincipal.getId(), null, "Sample Name", "sample@email.com", "1234567", "India", LocalDate.of(1979, 10, 10), "Medium", asList(address));
+        Pilot pilot = new Pilot(userPrincipal.getId(), null, "Sample Name", "sample@email.com", "1234567", "India", LocalDate.of(1979, 10, 10), asList(DroneCategoryType.MEDIUM), asList(address));
         pilot.setId(12);
         when(pilotService.find(1)).thenReturn(pilot);
 
@@ -219,13 +223,14 @@ public class PilotControllerTest {
         assertThat(response.getStatus(), is(HttpStatus.OK.value()));
         assertThat(response.getContentType(), is(MediaType.APPLICATION_JSON_UTF8_VALUE));
         assertThat(objectMapper.readValue(response.getContentAsString(), Pilot.class).getId(), is(pilot.getId()));
+        assertThat(objectMapper.readValue(response.getContentAsString(), Pilot.class).getDroneCategoryTypes(), is(asList(DroneCategoryType.MEDIUM)));
     }
 
     @Test
     public void shouldAllowOnlyResourceOwnerToGet() throws Exception {
         //given
         Address address = new Address("LineOne", "LineTwo", "City", "State", "Country", "560001");
-        Pilot pilot = new Pilot(userPrincipal.getId() + 1, null, "Sample Name", "sample@email.com", "1234567", "India", LocalDate.of(1979, 10, 10), "Medium", asList(address));
+        Pilot pilot = new Pilot(userPrincipal.getId() + 1, null, "Sample Name", "sample@email.com", "1234567", "India", LocalDate.of(1979, 10, 10), asList(DroneCategoryType.MEDIUM), asList(address));
         pilot.setId(12);
         when(pilotService.find(1)).thenReturn(pilot);
 
@@ -241,7 +246,7 @@ public class PilotControllerTest {
 
         //given
         Address address = new Address("LineOne", "LineTwo", "City", "State", "Country", "560001");
-        Pilot pilot = new Pilot(userPrincipal.getId(), null, "Sample Name", "sample@email.com", "1234567", "India", LocalDate.of(1979, 10, 10), "Medium", asList(address));
+        Pilot pilot = new Pilot(userPrincipal.getId(), null, "Sample Name", "sample@email.com", "1234567", "India", LocalDate.of(1979, 10, 10), asList(DroneCategoryType.MEDIUM), asList(address));
         pilot.setId(12);
         when(pilotService.find(1)).thenReturn(pilot);
         when(pilotService.trainingCertificate(any(Pilot.class))).thenReturn(new UrlResource(this.getClass().getResource("/pilot_training_certificate.txt")));
@@ -264,7 +269,7 @@ public class PilotControllerTest {
         //given
         Address address = new Address("LineOne", "LineTwo", "City", "State", "Country", "560001");
         long resourceOwnerId = 2L;
-        Pilot pilot = new Pilot(resourceOwnerId, null, "Sample Name", "sample@email.com", "1234567", "India", LocalDate.of(1979, 10, 10), "Medium", asList(address));
+        Pilot pilot = new Pilot(resourceOwnerId, null, "Sample Name", "sample@email.com", "1234567", "India", LocalDate.of(1979, 10, 10), asList(DroneCategoryType.MEDIUM), asList(address));
         pilot.setId(12);
         when(pilotService.find(1)).thenReturn(pilot);
 

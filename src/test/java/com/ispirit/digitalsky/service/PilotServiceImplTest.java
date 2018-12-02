@@ -1,5 +1,6 @@
 package com.ispirit.digitalsky.service;
 
+import com.ispirit.digitalsky.domain.DroneCategoryType;
 import com.ispirit.digitalsky.domain.Pilot;
 import com.ispirit.digitalsky.exception.PilotProfileAlreadyExist;
 import com.ispirit.digitalsky.repository.PilotRepository;
@@ -12,6 +13,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import java.util.Arrays;
 import java.util.Collections;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -50,12 +52,15 @@ public class PilotServiceImplTest {
         //given
         Pilot pilot = new Pilot(1);
         pilot.setResourceOwnerId(2L);
+        pilot.getDroneCategoryTypes().add(DroneCategoryType.MEDIUM);
+        pilot.getDroneCategoryTypes().add(DroneCategoryType.LARGE);
         when(repository.loadByResourceOwner(pilot.getResourceOwnerId())).thenReturn(null);
 
         //when
         service.createNewPilot(pilot);
 
         //then
+        assertThat(pilot.getDroneCategory(), is("MEDIUM;LARGE"));
         verify(repository).save(pilot);
     }
 
@@ -72,13 +77,13 @@ public class PilotServiceImplTest {
         service.createNewPilot(pilot);
 
         //then
-        verify(storageService).store(Arrays.asList(trainingCertificate),"Pilot-1");
+        verify(storageService).store(asList(trainingCertificate),"Pilot-1");
     }
 
     @Test
     public void shouldUpdateProfile() throws Exception {
         //given
-        Pilot pilot = new Pilot(2L,"","name","email","mobile","country",null,null, Collections.emptyList());
+        Pilot pilot = new Pilot(2L,"","name","email","mobile","country",null, asList(DroneCategoryType.MEDIUM, DroneCategoryType.LARGE), Collections.emptyList());
 
         //when
         service.updatePilot(1L, pilot);
@@ -87,19 +92,20 @@ public class PilotServiceImplTest {
         ArgumentCaptor<Pilot> argumentCaptor = ArgumentCaptor.forClass(Pilot.class);
         verify(repository).save(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue().getId(), is(1L));
+        assertThat(argumentCaptor.getValue().getDroneCategory(), is("MEDIUM;LARGE"));
     }
 
     @Test
     public void shouldSaveTrainingCertificateDuringUpdateProfile() throws Exception {
         //given
         MockMultipartFile trainingCertificate = new MockMultipartFile("trainingCertificate", "content".getBytes());
-        Pilot pilot = new Pilot(2L,"","name","email","mobile","country",null,null, Collections.emptyList());
+        Pilot pilot = new Pilot(2L,"","name","email","mobile","country",null,asList(DroneCategoryType.MEDIUM), Collections.emptyList());
         pilot.setTrainingCertificate(trainingCertificate);
         //when
         service.updatePilot(1L, pilot);
 
         //then
-        verify(storageService).store(Arrays.asList(trainingCertificate),"Pilot-1");
+        verify(storageService).store(asList(trainingCertificate),"Pilot-1");
     }
 
     @Test
@@ -107,6 +113,7 @@ public class PilotServiceImplTest {
         //given
         long id = 1L;
         Pilot pilot = new Pilot(id);
+        pilot.setDroneCategory("MEDIUM");
         when(repository.findOne(id)).thenReturn(pilot);
 
         //when
@@ -115,6 +122,8 @@ public class PilotServiceImplTest {
         //then
         verify(repository).findOne(id);
         assertThat(result, is(pilot));
+        assertThat(result.getDroneCategoryTypes().size(), is(1));
+        assertThat(result.getDroneCategoryTypes().contains(DroneCategoryType.MEDIUM), is(true));
     }
 
     @Test
@@ -122,6 +131,7 @@ public class PilotServiceImplTest {
         //given
         String businessIdentifier="test";
         Pilot pilot = new Pilot(1L);
+        pilot.setDroneCategory("MEDIUM");
         when(repository.loadByBusinessIdentifier(businessIdentifier)).thenReturn(pilot);
 
         //when
@@ -130,6 +140,8 @@ public class PilotServiceImplTest {
         //then
         verify(repository).loadByBusinessIdentifier(businessIdentifier);
         assertThat(result, is(pilot));
+        assertThat(result.getDroneCategoryTypes().size(), is(1));
+        assertThat(result.getDroneCategoryTypes().contains(DroneCategoryType.MEDIUM), is(true));
     }
 
     @Test
