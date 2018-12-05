@@ -47,7 +47,7 @@ public class SendGridEmailServiceTest {
         ArgumentCaptor<Request> argumentCaptor = ArgumentCaptor.forClass(Request.class);
         verify(sendGrid).api(argumentCaptor.capture());
 
-        String expected = "{\"from\":{\"email\":\"no-reply@digitalsky.com\"},\"subject\":\"[DigiSky] Account Verification\",\"personalizations\":[{\"to\":[{\"email\":\"to@sample.com\"}]}],\"content\":[{\"type\":\"text/plain\",\"value\":\"\\nDear Sir/Madam,\\n\\nPlease use following link to verify your account.\\n\\n/link\\n\\nThanks\\nDigiSky Team\\n\\n\"}]}";
+        String expected = "{\"from\":{\"email\":\"no-reply@digitalsky.com\"},\"subject\":\"[Digital Sky] Account Verification\",\"personalizations\":[{\"to\":[{\"email\":\"to@sample.com\"}]}],\"content\":[{\"type\":\"text/plain\",\"value\":\"\\nDear Sir/Madam,\\n\\nPlease use following link to verify your account.\\n\\n/link\\n\\nThanks\\nDigiSky Team\\n\\n\"}]}";
         assertThat(argumentCaptor.getValue().getBody(), is(expected));
     }
 
