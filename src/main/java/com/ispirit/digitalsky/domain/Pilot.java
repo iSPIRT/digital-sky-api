@@ -40,7 +40,7 @@ public class Pilot extends Person {
     private String droneCategory;
 
     @Transient
-    @Size(min = 1, max = 4)
+    @Size(min = 1, max = 5)
     private List<DroneCategoryType> droneCategoryTypes = new ArrayList<>();
 
     @Column(name = "TRAINING_CERTIFICATE_DOC_NAME")

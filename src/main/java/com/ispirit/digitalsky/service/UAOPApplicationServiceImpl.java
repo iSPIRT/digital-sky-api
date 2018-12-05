@@ -4,6 +4,7 @@ import com.ispirit.digitalsky.document.UAOPApplication;
 import com.ispirit.digitalsky.domain.ApplicationStatus;
 import com.ispirit.digitalsky.domain.ApproveRequestBody;
 import com.ispirit.digitalsky.domain.UserPrincipal;
+import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.ApplicationNotFoundException;
 import com.ispirit.digitalsky.exception.StorageException;
 import com.ispirit.digitalsky.exception.StorageFileNotFoundException;
@@ -47,10 +48,21 @@ public class UAOPApplicationServiceImpl implements UAOPApplicationService {
 
     @Override
     @Transactional
-    public UAOPApplication updateApplication(String id, UAOPApplication uaopApplication) throws ApplicationNotFoundException, UnAuthorizedAccessException, StorageException {
+    public UAOPApplication updateApplication(String id, UAOPApplication uaopApplication) throws ApplicationNotFoundException, UnAuthorizedAccessException, StorageException, ValidationException {
         UAOPApplication actualForm = uaopApplicationRepository.findById(id);
         if (actualForm == null) {
             throw new ApplicationNotFoundException();
+        }
+
+        if(uaopApplication.getStatus() == ApplicationStatus.SUBMITTED &&
+            (
+                    (uaopApplication.getSecurityProgramDocName()==null && actualForm.getSecurityProgramDocName()==null) ||
+                    (uaopApplication.getInsuranceDocName()==null && actualForm.getInsuranceDocName()==null) ||
+                    (uaopApplication.getSopDocName()==null && actualForm.getSopDocName()==null) ||
+                    (uaopApplication.getLandOwnerPermissionDocName()==null && actualForm.getLandOwnerPermissionDocName()==null) ||
+                    (uaopApplication.getPaymentReceiptDocName()==null && actualForm.getPaymentReceiptDocName()==null)
+            )){
+            throw new ValidationException(new Errors("All required files not provided"));
         }
 
 

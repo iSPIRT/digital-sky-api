@@ -79,6 +79,7 @@ public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionAp
 
         Date createdDate = actualForm.getCreatedDate();
         long applicantId = actualForm.getApplicantId();
+        //do verifications here
 
         BeanUtils.copyProperties(droneAcquisitionApplicationForm, actualForm);
         if(actualForm.getStatus() == ApplicationStatus.SUBMITTED) {

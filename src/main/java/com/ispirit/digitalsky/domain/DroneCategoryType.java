@@ -3,7 +3,7 @@ package com.ispirit.digitalsky.domain;
 import java.util.Arrays;
 
 public enum  DroneCategoryType {
-    MICRO("MICRO"), SMALL("SMALL"), MEDIUM("MEDIUM"), LARGE("LARGE");
+    NANO("NANO"),MICRO("MICRO"), SMALL("SMALL"), MEDIUM("MEDIUM"), LARGE("LARGE");
 
     private String value;
 
