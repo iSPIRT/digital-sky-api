@@ -1,5 +1,8 @@
 package com.ispirit.digitalsky.service;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.domain.RegisterDroneRequestPayload;
 import com.ispirit.digitalsky.exception.InvalidDigitalCertificateException;
 import com.ispirit.digitalsky.exception.InvalidManufacturerException;
@@ -24,13 +27,17 @@ public class DigitalSignatureVerifierServiceImplTest {
     private String manufacturerAttributeNameInCertificate;
     private boolean digitalCertificateValidationEnabled;
     private DigitalSignatureVerifierServiceImpl digitalSignatureVerifierService;
+    private ObjectMapper objectMapper;
 
     @Before
     public void setUp()  {
         manufacturerAttributeNameInCertificate = "cn";
         digitalCertificateValidatorService = mock(DigitalCertificateValidatorService.class);
         digitalCertificateValidationEnabled = true;
-        digitalSignatureVerifierService = new DigitalSignatureVerifierServiceImpl(digitalCertificateValidatorService, manufacturerAttributeNameInCertificate, digitalCertificateValidationEnabled);
+        objectMapper = new ObjectMapper();
+        objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
+        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+        digitalSignatureVerifierService = new DigitalSignatureVerifierServiceImpl(digitalCertificateValidatorService, manufacturerAttributeNameInCertificate, digitalCertificateValidationEnabled,objectMapper);
     }
 
     @Test
@@ -99,7 +106,7 @@ public class DigitalSignatureVerifierServiceImplTest {
     @Test
     public void shouldNotValidateCertificateIfValidationAttributeIsDisabled() throws SignatureException {
         digitalCertificateValidationEnabled = false;
-        digitalSignatureVerifierService = new DigitalSignatureVerifierServiceImpl(digitalCertificateValidatorService, manufacturerAttributeNameInCertificate, digitalCertificateValidationEnabled);
+        digitalSignatureVerifierService = new DigitalSignatureVerifierServiceImpl(digitalCertificateValidatorService, manufacturerAttributeNameInCertificate, digitalCertificateValidationEnabled,objectMapper);
         RegisterDroneRequestPayload requestPayload = new RegisterDroneRequestPayload(DigitalSignatureVerifierForTest.getValidDroneDevice(), DigitalSignatureVerifierForTest.getValidSignatureString(), DigitalSignatureVerifierForTest.getValidCertificateString());
         when(digitalCertificateValidatorService.isValidCertificate(any(X509Certificate.class), anyString())).thenReturn(false);
 
@@ -110,7 +117,7 @@ public class DigitalSignatureVerifierServiceImplTest {
 
     @Test
     public void shouldThrowInvalidDigitalCertificateExceptionIfCertificateDoesNotContainTheOrganizationAttribute() {
-        digitalSignatureVerifierService = new DigitalSignatureVerifierServiceImpl(digitalCertificateValidatorService, "o", true);
+        digitalSignatureVerifierService = new DigitalSignatureVerifierServiceImpl(digitalCertificateValidatorService, "o", true,objectMapper);
         RegisterDroneRequestPayload requestPayload = new RegisterDroneRequestPayload(DigitalSignatureVerifierForTest.getValidDroneDevice(), DigitalSignatureVerifierForTest.getValidSignatureString(), DigitalSignatureVerifierForTest.getValidCertificateString());
 
         when(digitalCertificateValidatorService.isValidCertificate(any(X509Certificate.class), anyString())).thenReturn(true);

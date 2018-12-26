@@ -1,6 +1,9 @@
 
 package com.ispirit.digitalsky.helper;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.domain.DroneDevice;
 import org.springframework.util.Base64Utils;
 
@@ -14,6 +17,7 @@ public class DigitalSignerForTest {
     private static final String KEY_STORE_TYPE = "JKS";
 
     private KeyStore.PrivateKeyEntry keyEntry;
+    private ObjectMapper objectMapper;
 
     public DigitalSignerForTest(String keyStoreFile, char[] keyStorePassword, String alias) {
         this.keyEntry = getKeyFromKeyStore(keyStoreFile, keyStorePassword, alias);
@@ -22,17 +26,17 @@ public class DigitalSignerForTest {
             throw new RuntimeException("Key could not be read for digital signature. Please check value of signature "
                     + "alias and signature password");
         }
+        objectMapper = new ObjectMapper();
+        objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
+        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
     }
 
     public String sign(DroneDevice drone) throws InvalidKeyException, NoSuchAlgorithmException, IOException, SignatureException {
         Signature rsa = Signature.getInstance("SHA256withRSA");
         rsa.initSign(keyEntry.getPrivateKey());
 
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-             ObjectOutputStream oos = new ObjectOutputStream(baos)) {
-            oos.writeObject(drone);
-            oos.flush();
-            rsa.update(baos.toByteArray());
+        try {
+            rsa.update(objectMapper.writeValueAsString(drone).getBytes());
             byte[] signedDroneDeviceObj = rsa.sign();
             return Base64Utils.encodeToString(signedDroneDeviceObj);
         } catch (IOException e) {

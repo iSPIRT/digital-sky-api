@@ -37,9 +37,7 @@ public class DigitalSignatureVerifierForTest {
     }
 
     public static String getValidSignatureString() {
-        String val = "Wudc74tFowjSMNyVFwnHOw5aDYICx9tfTqknCbLae2XVyn6xKnir6uiOenA+kkIwicGxEQ+ewiVOlFmQSySO9jadxBW18LbmfyhGNaG+CSEo+" +
-                "eWQEpSj+FLzaF2tD7tepL234QN8jWHhoxEtOy+a3NFohEeVS2p8lOonJIKnDKltLXyKCZ+4zn0XTr1o4ThZm8tYWFjBPhTkLhwM3wYtrzcL2sjIDche9/" +
-                "0+9Cv1aqr8gXp6YIrrx6RNqRH3N0S4Zh4hlCpkmAIleBZ0E8fOl9QgU9HHEKk06RuqpnuqTXTBPSBaEvFOgOurWlDOMoCUxHPLjYX5lflb4n8jpDZx5g==";
+        String val = "VuSHsAO2OKHxgDJgk+QXzM20qmLQQFKaaxLYEfAOMpnb4Wknu5MTIkkgGpUUVJnx54CGNIY5/sMOcXWP3M0sxQWlQ85BBqLGAaWpz+4rqTvcZNOO6+jTSrUySinq+VUHmN9io72ZnVS98xJRmXt8CTwJFEAFNHsFOpo/UFbCjJB4iSCKE9mF70HYrkxUJojqf9n1In5MzbHlEWMF9GsGSRnglWKNrvVgaXyI/dVtorSNUqUXhIMLq+MvmtDDL3W1z16HILshrPlV0gEzdn3B0/SxaCLGNQxthq4caPbZ4k29nFYsR5CXWEkVG5dYbq4wbj0GLCYvp+068C98H+wszg==";
         return val;
     }
 

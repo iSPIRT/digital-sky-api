@@ -19,6 +19,8 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -30,13 +32,15 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class ApplicationConfiguration {
 
+    public static final String OBJECT_MAPPER = "object.mapper";
+
     @Value("${DEFAULT_FROM_EMAIL_ID:no-reply@dgca.gov.in}")
     private String defaultFromEmailId;
 
-    @Value("${SEND_GRID_API_KEY:default}")
+    @Value("${SEND_GRID_API_KEY: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}")
     private String sendGridApiKey;
 
-    @Value("${RESET_PASSWORD_PATH:http://192.168.33.10:3000/resetPassword}")
+    @Value("${RESET_PASSWORD_PATH:http://localhost:3000/resetPassword}")
     private String resetPasswordBasePath;
 
     @Value("${ACCOUNT_VERIFICATION_PATH:http://localhost:3000/verifyAccount}")
@@ -66,7 +70,7 @@ public class ApplicationConfiguration {
     @Value("${RE_CAPTCHA_VERIFY_URL:https://www.google.com/recaptcha/api/siteverify}")
     private String reCaptchaVerifyUrl;
 
-    @Value("${RE_CAPTCHA_SITE_SECRET:secret}")
+    @Value("${RE_CAPTCHA_SITE_SECRET:6Lc0KX4UAAAAABYdTWqv1nSg192cqFlW8ipqV-nm}")
     private String reCaptchaSiteSecret;
 
     @Value("${DS_CERT_PATH:classpath:cert.pem}")
@@ -223,8 +227,9 @@ public class ApplicationConfiguration {
     }
 
     @Bean
+    @DependsOn(OBJECT_MAPPER)
     DigitalSignatureVerifierService signatureVerifierService(ManufacturerService manufacturerService, DigitalCertificateValidatorService digitalCertificateValidatorService) {
-        return new DigitalSignatureVerifierServiceImpl(digitalCertificateValidatorService, manufacturerDigitalCertManufacturerAttributeName, manufacturerDigitalCertValidationEnabled);
+        return new DigitalSignatureVerifierServiceImpl(digitalCertificateValidatorService, manufacturerDigitalCertManufacturerAttributeName, manufacturerDigitalCertValidationEnabled,myObjectMapper());
     }
 
     @Bean
@@ -288,7 +293,7 @@ public class ApplicationConfiguration {
         return new RestTemplate(httpRequestFactory);
     }
 
-    @Bean
+    @Bean(OBJECT_MAPPER)
     public ObjectMapper myObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
