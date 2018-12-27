@@ -70,7 +70,7 @@ public class ApplicationConfiguration {
     @Value("${RE_CAPTCHA_VERIFY_URL:https://www.google.com/recaptcha/api/siteverify}")
     private String reCaptchaVerifyUrl;
 
-    @Value("${RE_CAPTCHA_SITE_SECRET:6Lc0KX4UAAAAABYdTWqv1nSg192cqFlW8ipqV-nm}")
+    @Value("${RE_CAPTCHA_SITE_SECRET:secret}")
     private String reCaptchaSiteSecret;
 
     @Value("${DS_CERT_PATH:classpath:cert.pem}")
