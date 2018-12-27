@@ -37,7 +37,7 @@ public class ApplicationConfiguration {
     @Value("${DEFAULT_FROM_EMAIL_ID:no-reply@dgca.gov.in}")
     private String defaultFromEmailId;
 
-    @Value("${SEND_GRID_API_KEY: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}")
+    @Value("${SEND_GRID_API_KEY:default}")
     private String sendGridApiKey;
 
     @Value("${RESET_PASSWORD_PATH:http://localhost:3000/resetPassword}")
