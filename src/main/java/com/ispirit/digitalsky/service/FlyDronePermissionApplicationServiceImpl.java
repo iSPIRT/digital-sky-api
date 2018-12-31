@@ -118,6 +118,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         actualForm.setLastModifiedDate(new Date());
         actualForm.setRecurringTimeExpression(application.getRecurringTimeExpression());
         actualForm.setRecurringTimeDurationInMinutes(application.getRecurringTimeDurationInMinutes());
+        actualForm.setMinAltitude(application.getMinAltitude());
         validateFlyArea(actualForm);
         setPilotId(actualForm);
         if (application.getStatus() == ApplicationStatus.SUBMITTED) {

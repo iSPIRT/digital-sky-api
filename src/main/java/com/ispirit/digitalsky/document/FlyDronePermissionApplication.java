@@ -84,6 +84,10 @@ public class FlyDronePermissionApplication extends BasicApplication {
     @Size(max = 50)
     private String recurringTimeExpressionType;
 
+    @Field("minAltitude")
+
+    private int minAltitude;
+
 
     public FlyDronePermissionApplication() {
         setCreatedDate(new Date());
@@ -189,5 +193,13 @@ public class FlyDronePermissionApplication extends BasicApplication {
 
     public void setPilotId(long pilotId) {
         this.pilotId = pilotId;
+    }
+
+    public int getMinAltitude() {
+        return minAltitude;
+    }
+
+    public void setMinAltitude(int minAltitude) {
+        this.minAltitude = minAltitude;
     }
 }
