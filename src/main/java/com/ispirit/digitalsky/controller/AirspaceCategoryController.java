@@ -29,7 +29,7 @@ public class AirspaceCategoryController {
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> addAirspaceCategory(@Valid @RequestBody AirspaceCategory airspaceCategoryPayload) {
-        AirspaceCategory airspaceCategory = new AirspaceCategory(airspaceCategoryPayload.getName(), airspaceCategoryPayload.getType(), airspaceCategoryPayload.getGeoJson());
+        AirspaceCategory airspaceCategory = new AirspaceCategory(airspaceCategoryPayload.getName(), airspaceCategoryPayload.getType(), airspaceCategoryPayload.getGeoJson(),airspaceCategoryPayload.getMinAltitude());
         AirspaceCategory savedEntity = airspaceCategoryService.createNewAirspaceCategory(airspaceCategory);
         return new ResponseEntity<>(savedEntity, HttpStatus.CREATED);
     }
@@ -37,7 +37,7 @@ public class AirspaceCategoryController {
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateAirspaceCategory(@PathVariable(value = "id") long id, @Valid @RequestBody AirspaceCategory airspaceCategoryPayload) {
-        AirspaceCategory airspaceCategory = new AirspaceCategory(airspaceCategoryPayload.getName(), airspaceCategoryPayload.getType(), airspaceCategoryPayload.getGeoJson());
+        AirspaceCategory airspaceCategory = new AirspaceCategory(airspaceCategoryPayload.getName(), airspaceCategoryPayload.getType(), airspaceCategoryPayload.getGeoJson(),airspaceCategoryPayload.getMinAltitude());
         AirspaceCategory savedEntity = airspaceCategoryService.updateAirspaceCategory(id, airspaceCategory);
         return new ResponseEntity<>(savedEntity, HttpStatus.OK);
     }

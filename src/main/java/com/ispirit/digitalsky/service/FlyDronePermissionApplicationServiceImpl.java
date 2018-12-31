@@ -118,7 +118,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         actualForm.setLastModifiedDate(new Date());
         actualForm.setRecurringTimeExpression(application.getRecurringTimeExpression());
         actualForm.setRecurringTimeDurationInMinutes(application.getRecurringTimeDurationInMinutes());
-        actualForm.setMinAltitude(application.getMinAltitude());
+        actualForm.setMaxAltitude(application.getMaxAltitude());
         validateFlyArea(actualForm);
         setPilotId(actualForm);
         if (application.getStatus() == ApplicationStatus.SUBMITTED) {
@@ -317,6 +317,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             parameters.put("recurrenceTimeExpression", application.getRecurringTimeExpression());
             parameters.put("recurrenceTimeExpressionType", application.getRecurringTimeExpressionType());
             parameters.put("recurringTimeDurationInMinutes", application.getRecurringTimeDurationInMinutes());
+            parameters.put("maxAltitude",application.getMaxAltitude());
 
             List<String> coordinates = new ArrayList<>();
 

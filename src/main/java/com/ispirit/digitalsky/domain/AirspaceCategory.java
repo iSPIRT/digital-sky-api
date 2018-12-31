@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.util.LocalDateTimeAttributeConverter;
 import org.geojson.GeoJsonObject;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -70,6 +71,10 @@ public class AirspaceCategory {
     @Convert(converter = LocalDateTimeAttributeConverter.class)
     private LocalDateTime modifiedDate;
 
+    @Column(name = "MIN_ALTITUDE")
+    @Value("${minAltitude:0}")
+    private long minAltitude;
+
 
 
     private AirspaceCategory() {
@@ -89,6 +94,20 @@ public class AirspaceCategory {
         modifiedDate = LocalDateTime.now();
     }
 
+    public AirspaceCategory(String name, Type type, GeoJsonObject geoJson, long minAltitude) {
+        this.name = name;
+        this.type = type;
+        this.geoJson = geoJson;
+        try {
+            this.geoJsonString = new ObjectMapper().writeValueAsString(geoJson);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        createdDate = LocalDateTime.now();
+        modifiedDate = LocalDateTime.now();
+        this.minAltitude=minAltitude;
+    }
+
     public AirspaceCategory(String name, Type type, String geoJsonString) {
         this.name = name;
         this.type = type;
@@ -100,6 +119,20 @@ public class AirspaceCategory {
         }
         createdDate = LocalDateTime.now();
         modifiedDate = LocalDateTime.now();
+    }
+
+    public AirspaceCategory(String name, Type type, String geoJsonString, long minAltitude) {
+        this.name = name;
+        this.type = type;
+        this.geoJsonString = geoJsonString;
+        try {
+            this.geoJson = new ObjectMapper().readValue(geoJsonString, GeoJsonObject.class);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        createdDate = LocalDateTime.now();
+        modifiedDate = LocalDateTime.now();
+        this.minAltitude=minAltitude;
     }
 
     public long getId() {
@@ -177,5 +210,14 @@ public class AirspaceCategory {
             throw new RuntimeException(e);
         }
     }
+
+    public long getMinAltitude() {
+        return minAltitude;
+    }
+
+    public void setMinAltitude(long minAltitude) {
+        this.minAltitude = minAltitude;
+    }
+
 
 }

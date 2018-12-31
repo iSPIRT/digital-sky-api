@@ -33,6 +33,7 @@ public class AirspaceCategoryServiceImpl implements AirspaceCategoryService {
         airspaceCategory.setModifiedDate(LocalDateTime.now());
         airspaceCategory.setCreatedById(UserPrincipal.securityContext().getId());
         airspaceCategory.setModifiedById(UserPrincipal.securityContext().getId());
+        airspaceCategory.setMinAltitude(airspaceCategory.getMinAltitude());
         return airspaceCategoryRepository.save(airspaceCategory);
     }
 
@@ -46,6 +47,7 @@ public class AirspaceCategoryServiceImpl implements AirspaceCategoryService {
         currentEntity.setType(airspaceCategory.getType());
         currentEntity.setGeoJson(airspaceCategory.getGeoJson());
         currentEntity.setGeoJsonString(airspaceCategory.getGeoJsonString());
+        currentEntity.setMinAltitude(airspaceCategory.getMinAltitude());
         return airspaceCategoryRepository.save(currentEntity);
     }
 
