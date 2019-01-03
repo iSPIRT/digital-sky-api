@@ -18,4 +18,8 @@ public interface AirspaceCategoryService {
     List<AirspaceCategory> findAll();
 
     Map<AirspaceCategory.Type, GeoJsonObject> findGeoJsonMapByType();
+
+    List<AirspaceCategory> findAllAboveHeight(long height);
+
+    Map<AirspaceCategory.Type, GeoJsonObject> findGeoJsonMapByTypeAndHeight(long height);
 }

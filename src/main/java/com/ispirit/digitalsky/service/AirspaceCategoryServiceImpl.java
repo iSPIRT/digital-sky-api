@@ -75,6 +75,21 @@ public class AirspaceCategoryServiceImpl implements AirspaceCategoryService {
     }
 
     @Override
+    public List<AirspaceCategory> findAllAboveHeight(long height) {
+        Iterable<AirspaceCategory> categories = airspaceCategoryRepository.findAll();
+        List<AirspaceCategory> result = new ArrayList<>();
+        for (AirspaceCategory category : categories) {
+            if(height > category.getMinAltitude()) {
+                category.setGeoJsonFromString();
+                result.add(category);
+            }
+        }
+
+        result.sort((o1, o2) -> o2.getModifiedDate().compareTo(o1.getModifiedDate()));
+        return result;
+    }
+
+    @Override
     public Map<AirspaceCategory.Type, GeoJsonObject> findGeoJsonMapByType() {
         HashMap<AirspaceCategory.Type, GeoJsonObject> result = new HashMap<>();
         List<AirspaceCategory> airspaceCategories = findAll();
@@ -84,6 +99,26 @@ public class AirspaceCategoryServiceImpl implements AirspaceCategoryService {
                 featureCollection.getFeatures().addAll(((FeatureCollection) airspaceCategory.getGeoJson()).getFeatures());
             } else {
                 result.put(airspaceCategory.getType(),airspaceCategory.getGeoJson());
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public Map<AirspaceCategory.Type, GeoJsonObject> findGeoJsonMapByTypeAndHeight(long height){
+        HashMap<AirspaceCategory.Type, GeoJsonObject> result = new HashMap<>();
+        List<AirspaceCategory> airspaceCategories = findAll();
+        for (AirspaceCategory airspaceCategory : airspaceCategories) {
+            if (result.containsKey(airspaceCategory.getType())) {
+                if(height > airspaceCategory.getMinAltitude()) {
+                    FeatureCollection featureCollection = (FeatureCollection) result.get(airspaceCategory.getType());
+                    featureCollection.getFeatures().addAll(((FeatureCollection) airspaceCategory.getGeoJson()).getFeatures());
+                }
+            } else {
+                if(height > airspaceCategory.getMinAltitude()) {
+                    result.put(airspaceCategory.getType(), airspaceCategory.getGeoJson());
+                }
             }
         }
 

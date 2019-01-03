@@ -17,6 +17,7 @@ import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.geojson.feature.FeatureJSON;
 import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Polygon;
 import org.opengis.feature.simple.SimpleFeature;
 import org.springframework.core.io.Resource;
@@ -190,7 +191,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
 
     void handleSubmit(FlyDronePermissionApplication application) {
         try {
-            Map<AirspaceCategory.Type, GeoJsonObject> geoJsonMapByType = airspaceCategoryService.findGeoJsonMapByType();
+            Map<AirspaceCategory.Type, GeoJsonObject> geoJsonMapByType = airspaceCategoryService.findGeoJsonMapByTypeAndHeight(application.getMaxAltitude());
 
             GeoJsonObject amberCategories = geoJsonMapByType.get(AirspaceCategory.Type.AMBER);
 
@@ -213,7 +214,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
     void validateFlyArea(FlyDronePermissionApplication application) {
         try {
             if (application.getFlyArea() == null || application.getFlyArea().isEmpty()) return;
-            Map<AirspaceCategory.Type, GeoJsonObject> geoJsonMapByType = airspaceCategoryService.findGeoJsonMapByType();
+            Map<AirspaceCategory.Type, GeoJsonObject> geoJsonMapByType = airspaceCategoryService.findGeoJsonMapByTypeAndHeight(application.getMaxAltitude());
 
             GeoJsonObject greenCategories = geoJsonMapByType.get(AirspaceCategory.Type.GREEN);
             validateFlyAreaWithin(new ObjectMapper().writeValueAsString(greenCategories), application.getFlyArea());
@@ -225,6 +226,19 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    void checkArea(Double areaMax, List<LatLong> flyArea){
+        Coordinate[] flyAreaCoordinates = new Coordinate[flyArea.size()];
+        for (int index = 0; index < flyArea.size(); index++) {
+            LatLong latLong = flyArea.get(index);
+            flyAreaCoordinates[index] = new Coordinate(latLong.getLongitude(), latLong.getLatitude());
+        }
+        GeometryFactory geometryFactory = new GeometryFactory();
+        Polygon poly = geometryFactory.createPolygon(flyAreaCoordinates);
+        if(Math.toRadians(poly.getArea()) * 6371 * 100 + 0.018 < areaMax)
+            return;
+        throw new ValidationException(new Errors("Area is greater than defined area limit for the particular airspace region"));
     }
 
     public void generatePermissionArtifact(FlyDronePermissionApplication application) {
@@ -254,6 +268,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             SimpleFeature feature = featureIterator.next();
             Polygon airspaceCategory = (Polygon) feature.getDefaultGeometry();
             Polygon polygon = airspaceCategory.getFactory().createPolygon(flyAreaCoordinates);
+//            System.out.println(Math.toRadians(polygon.getArea()) * 6371 * 100 + 0.018);//todo: this is a test area which is wrong, find and fix the correct formula
             if (polygon.within(airspaceCategory)) {
                 result = true;
                 break;

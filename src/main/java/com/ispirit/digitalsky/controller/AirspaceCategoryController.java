@@ -52,5 +52,10 @@ public class AirspaceCategoryController {
         return new ResponseEntity<>(airspaceCategoryService.findAll(), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/listHeight", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getAllAirspaceCategoryHeight(@RequestParam("maxHeight")Long height) {
+        return new ResponseEntity<>(airspaceCategoryService.findAllAboveHeight(height), HttpStatus.OK);
+    }
+
 }
 
