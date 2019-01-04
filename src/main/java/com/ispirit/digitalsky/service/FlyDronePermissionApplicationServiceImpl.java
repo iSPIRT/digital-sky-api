@@ -25,12 +25,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.io.IOUtils.toInputStream;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
+//todo move area, max height for micro and nano to config
+//todo write tests for each of the new checks I added
 
 public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermissionApplicationService {
 
@@ -52,6 +57,25 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
     private UserProfileService userProfileService;
 
     private PilotService pilotService;
+
+    public static final int SUNRISE_HOUR = 5;
+
+    public static final int SUNRISE_SUNSET_MINUTE = 30;
+
+    public static final int SUNSET_HOUR = 19;
+
+    public static final int MINIMUM_DAYS_BEFORE_PERMISSION_APPLY=1;
+
+    public static final int MAXIMUM_DAYS_FOR_PERMISSION_APPLY=80;
+
+    public static final int MAXIMUM_FLIGHT_AGL_IN_FT=400;
+
+    public static final int MAXIMUM_AUTO_PERM_MICRO_ALTITUDE_AGL_FT=200;
+
+    public static final int MAXIMUM_AUTO_PERM_NANO_ALTITUDE_AGL_FT=50;
+
+    public static final double MAXIMUM_FLIGHT_AREA_SQ_KM=3.14159;
+
 
 
     public FlyDronePermissionApplicationServiceImpl(
@@ -83,6 +107,11 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         application.setApplicantType(operatorDrone.getOperatorType());
         application.setOperatorId(operatorDrone.getOperatorId());
         setPilotId(application);
+        checkMaxHeight(application);
+        checkTimeWithinSunriseSunset(application);
+        checkWithinAday(application);
+        checkWithinMaxDays(application);
+        checkArea(application.getFlyArea());
         validateFlyArea(application);
 
         if (application.getStatus() == ApplicationStatus.SUBMITTED) {
@@ -99,6 +128,28 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         }
     }
 
+    void checkTimeWithinSunriseSunset(FlyDronePermissionApplication application) {
+        LocalDateTime earliestPossibleTime = LocalDateTime.of(
+            LocalDate.of(application.getStartDateTime().getYear(),application.getStartDateTime().getMonthValue(),application.getStartDateTime().getDayOfMonth()),
+            LocalTime.of(SUNRISE_HOUR,SUNRISE_SUNSET_MINUTE,00));
+        LocalDateTime lastPossibleTime = LocalDateTime.of(
+            LocalDate.of(application.getStartDateTime().getYear(),application.getStartDateTime().getMonthValue(),application.getStartDateTime().getDayOfMonth()),
+            LocalTime.of(SUNSET_HOUR,SUNRISE_SUNSET_MINUTE,00));
+        if(!(application.getStartDateTime().compareTo(earliestPossibleTime) > 0 && application.getEndDateTime().compareTo(lastPossibleTime)<0))
+            throw new ValidationException(new Errors("Flight time not within sunrise and sunset"));
+    }
+
+    void checkWithinAday(FlyDronePermissionApplication application){
+        LocalDateTime checkDay=LocalDateTime.now().plusDays(MINIMUM_DAYS_BEFORE_PERMISSION_APPLY);
+        if(!(application.getStartDateTime().compareTo(checkDay)>0))
+            throw new ValidationException(new Errors("Flight time is before 1 day from now"));
+    }
+
+    void checkWithinMaxDays(FlyDronePermissionApplication application){
+        LocalDateTime checkDay=LocalDateTime.now().plusDays(MAXIMUM_DAYS_FOR_PERMISSION_APPLY);
+        if(application.getStartDateTime().compareTo(checkDay)>0)
+            throw new ValidationException(new Errors("Flight time is beyond maximum days from now"));
+    }
 
 
     @Override
@@ -120,6 +171,11 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         actualForm.setRecurringTimeExpression(application.getRecurringTimeExpression());
         actualForm.setRecurringTimeDurationInMinutes(application.getRecurringTimeDurationInMinutes());
         actualForm.setMaxAltitude(application.getMaxAltitude());
+        checkMaxHeight(application);
+        checkTimeWithinSunriseSunset(application);
+        checkWithinAday(application);
+        checkWithinMaxDays(application);
+        checkArea(application.getFlyArea());
         validateFlyArea(actualForm);
         setPilotId(actualForm);
         if (application.getStatus() == ApplicationStatus.SUBMITTED) {
@@ -189,6 +245,12 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         }
     }
 
+    void checkMaxHeight(FlyDronePermissionApplication application){
+        if(application.getMaxAltitude()>MAXIMUM_FLIGHT_AGL_IN_FT){
+            throw new ValidationException(new Errors("Altitude of flight is more than 400ft which is beyond allowed airspace."));
+        }
+    }
+
     void handleSubmit(FlyDronePermissionApplication application) {
         try {
             Map<AirspaceCategory.Type, GeoJsonObject> geoJsonMapByType = airspaceCategoryService.findGeoJsonMapByTypeAndHeight(application.getMaxAltitude());
@@ -196,7 +258,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             GeoJsonObject amberCategories = geoJsonMapByType.get(AirspaceCategory.Type.AMBER);
 
             boolean result = isFlyAreaIntersects(new ObjectMapper().writeValueAsString(amberCategories), application.getFlyArea());
-            if (!result) {
+            if (!result && !droneCategoryRegulationsCheck(application)) {//todo: check for the drone type regulations here
                 UserPrincipal userPrincipal = UserPrincipal.securityContext();
                 application.setApproverId(userPrincipal.getId());
                 application.setApprover(userPrincipal.getUsername());
@@ -228,7 +290,8 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         }
     }
 
-    void checkArea(Double areaMax, List<LatLong> flyArea){
+    void checkArea(List<LatLong> flyArea){
+        if (flyArea == null || flyArea.isEmpty()) return;
         Coordinate[] flyAreaCoordinates = new Coordinate[flyArea.size()];
         for (int index = 0; index < flyArea.size(); index++) {
             LatLong latLong = flyArea.get(index);
@@ -236,14 +299,25 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         }
         GeometryFactory geometryFactory = new GeometryFactory();
         Polygon poly = geometryFactory.createPolygon(flyAreaCoordinates);
-        if(Math.toRadians(poly.getArea()) * 6371 * 100 + 0.018 < areaMax)
+        if(Math.toRadians(poly.getArea()) * 6371 * 100 + 0.018 < MAXIMUM_FLIGHT_AREA_SQ_KM)
             return;
         throw new ValidationException(new Errors("Area is greater than defined area limit for the particular airspace region"));
     }
 
+    boolean droneCategoryRegulationsCheck(FlyDronePermissionApplication application){
+        OperatorDrone operatorDrone = operatorDroneService.find(application.getDroneId());
+        return operatorDrone.getDroneType().getDroneCategoryType().equals(DroneCategoryType.SMALL)
+            || operatorDrone.getDroneType().getDroneCategoryType().equals(DroneCategoryType.MEDIUM)
+            || operatorDrone.getDroneType().getDroneCategoryType().equals(DroneCategoryType.LARGE)
+            || (operatorDrone.getDroneType().getDroneCategoryType().equals(DroneCategoryType.MICRO) && application.getMaxAltitude()>MAXIMUM_AUTO_PERM_MICRO_ALTITUDE_AGL_FT)
+            || (operatorDrone.getDroneType().getDroneCategoryType().equals(DroneCategoryType.NANO) && application.getMaxAltitude()>MAXIMUM_AUTO_PERM_NANO_ALTITUDE_AGL_FT);
+    }
+
     public void generatePermissionArtifact(FlyDronePermissionApplication application) {
-        if (!application.getStatus().equals(ApplicationStatus.APPROVED)) {
-            throw new ValidationException(new Errors("Cannot generate permission artifact if application is not approved"));
+        if (!application.getStatus().equals(ApplicationStatus.APPROVED)
+            || droneCategoryRegulationsCheck(application)
+            ) {
+            throw new ValidationException(new Errors("Cannot generate permission artifact as this application needs approval, you can check status and download artifact once approved from the list"));
         }
         String artifactContent = getPermissionArtifactContent(application);
         String signedArtifactContent = digitalSignService.sign(artifactContent);
@@ -268,7 +342,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             SimpleFeature feature = featureIterator.next();
             Polygon airspaceCategory = (Polygon) feature.getDefaultGeometry();
             Polygon polygon = airspaceCategory.getFactory().createPolygon(flyAreaCoordinates);
-//            System.out.println(Math.toRadians(polygon.getArea()) * 6371 * 100 + 0.018);//todo: this is a test area which is wrong, find and fix the correct formula
+//            System.out.println(Math.toRadians(polygon.getArea()) * 6371 * 100 + 0.018);//this is a test area which is wrong, find and fix the correct formula
             if (polygon.within(airspaceCategory)) {
                 result = true;
                 break;
