@@ -70,7 +70,10 @@ public class FlyDronePermissionApplicationServiceImplTest {
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
         application.setPilotBusinessIdentifier("1");
         application.setDroneId(1);
-        application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
+        application.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
+        application.setMaxAltitude(20);
+        application.setStartDateTime(LocalDateTime.now().plusDays(2));
+        application.setEndDateTime(LocalDateTime.now().plusDays(2).plusMinutes(45));
         doNothing().when(service).validateFlyArea(application);
         when(operatorDroneService.find(application.getDroneId())).thenReturn(new OperatorDrone());
         when(pilotService.findByBusinessIdentifier("1")).thenReturn(new Pilot(1L));
@@ -93,7 +96,10 @@ public class FlyDronePermissionApplicationServiceImplTest {
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
         application.setPilotBusinessIdentifier("1");
         application.setDroneId(1);
-        application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
+        application.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
+        application.setMaxAltitude(20);
+        application.setStartDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().plusDays(2).getDayOfMonth(), 10, 0));
+        application.setEndDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().plusDays(2).getDayOfMonth(), 10, 45));
         application.setStatus(ApplicationStatus.SUBMITTED);
         doNothing().when(service).validateFlyArea(application);
         doNothing().when(service).handleSubmit(application);
@@ -117,9 +123,9 @@ public class FlyDronePermissionApplicationServiceImplTest {
         LocalDateTime dateTime = LocalDateTime.of(2018, Month.AUGUST, 12, 0, 0);
         FlyDronePermissionApplication applicationPayload = new FlyDronePermissionApplication();
         applicationPayload.setPilotBusinessIdentifier("2");
-        applicationPayload.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
-        applicationPayload.setEndDateTime(LocalDateTime.of(2018, Month.AUGUST, 21, 0, 0));
-        applicationPayload.setEndDateTime(LocalDateTime.of(2018, Month.AUGUST, 22, 0, 0));
+        applicationPayload.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
+        applicationPayload.setStartDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().plusDays(2).getDayOfMonth(), 10, 0));
+        applicationPayload.setEndDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().plusDays(2).getDayOfMonth(), 10, 45));
         applicationPayload.setPayloadWeightInKg(2.5);
         applicationPayload.setPayloadDetails("food");
         applicationPayload.setFlightPurpose("parcel");
@@ -127,7 +133,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
         application.setId("1");
         application.setPilotBusinessIdentifier("1");
-        application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
+        applicationPayload.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
         application.setCreatedDate(Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant()));
         application.setLastModifiedDate(Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant()));
         application.setApplicantId(1);
@@ -161,11 +167,12 @@ public class FlyDronePermissionApplicationServiceImplTest {
         FlyDronePermissionApplication applicationPayload = new FlyDronePermissionApplication();
         applicationPayload.setStatus(ApplicationStatus.SUBMITTED);
         applicationPayload.setPilotBusinessIdentifier("2");
-        applicationPayload.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
-        applicationPayload.setEndDateTime(LocalDateTime.of(2018, Month.AUGUST, 21, 0, 0));
-        applicationPayload.setEndDateTime(LocalDateTime.of(2018, Month.AUGUST, 22, 0, 0));
+        applicationPayload.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
+        applicationPayload.setStartDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().plusDays(2).getDayOfMonth(), 10, 0));
+        applicationPayload.setEndDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().plusDays(2).getDayOfMonth(), 10, 45));
         applicationPayload.setPayloadWeightInKg(2.5);
         applicationPayload.setPayloadDetails("food");
+        applicationPayload.setDroneId(1);
         applicationPayload.setFlightPurpose("parcel");
 
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
@@ -178,6 +185,15 @@ public class FlyDronePermissionApplicationServiceImplTest {
 
         HashMap<AirspaceCategory.Type, GeoJsonObject> airspaceCategoryMap = new HashMap<>();
         airspaceCategoryMap.put(AirspaceCategory.Type.AMBER, new FeatureCollection());
+
+        OperatorDrone operatorDrone = new OperatorDrone();
+        operatorDrone.setOperatorId(application.getOperatorId());
+        operatorDrone.setOperatorType(application.getApplicantType());
+        operatorDrone.setUinApplicationId("sdsd");
+        DroneType type = new DroneType();
+        type.setDroneCategoryType(DroneCategoryType.MICRO);
+        operatorDrone.setDroneType(type);
+        when(operatorDroneService.find(application.getDroneId())).thenReturn(operatorDrone);
 
         when(repository.findById("1")).thenReturn(application);
         when(airspaceCategoryService.findGeoJsonMapByType()).thenReturn(airspaceCategoryMap);
@@ -479,6 +495,15 @@ public class FlyDronePermissionApplicationServiceImplTest {
         List<LatLong> flyArea = asList(one, two, three, four, five);
         application.setFlyArea(flyArea);
 
+        OperatorDrone operatorDrone = new OperatorDrone();
+        operatorDrone.setOperatorId(application.getOperatorId());
+        operatorDrone.setOperatorType(application.getApplicantType());
+        operatorDrone.setUinApplicationId("sdsd");
+        DroneType type = new DroneType();
+        type.setDroneCategoryType(DroneCategoryType.MICRO);
+        operatorDrone.setDroneType(type);
+        when(operatorDroneService.find(application.getDroneId())).thenReturn(operatorDrone);
+
         doReturn(false).when(service).isFlyAreaIntersects(anyString(), eq(flyArea));
 
 
@@ -531,18 +556,23 @@ public class FlyDronePermissionApplicationServiceImplTest {
         application.setPilotBusinessIdentifier("1234");
         application.setDroneId(1);
         application.setOperatorId(1);
-        application.setStartDateTime(LocalDateTime.of(2018, Calendar.AUGUST, 18, 0, 0));
-        application.setEndDateTime(LocalDateTime.of(2018, Calendar.AUGUST, 18, 1, 0));
+        application.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
+        application.setMaxAltitude(20);
+        application.setStartDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().plusDays(2).getDayOfMonth(), 10, 0));
+        application.setEndDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().plusDays(2).getDayOfMonth(), 10, 45));
         application.setPayloadWeightInKg(12);
         application.setFlightPurpose("test");
         application.setPayloadDetails("test");
-        application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
+        application.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
 
 
         OperatorDrone operatorDrone = new OperatorDrone();
         operatorDrone.setOperatorId(application.getOperatorId());
         operatorDrone.setOperatorType(application.getApplicantType());
         operatorDrone.setUinApplicationId("sdsd");
+        DroneType type = new DroneType();
+        type.setDroneCategoryType(DroneCategoryType.MICRO);
+        operatorDrone.setDroneType(type);
         when(operatorDroneService.find(application.getDroneId())).thenReturn(operatorDrone);
 
         when(userProfileService.resolveOperatorBusinessIdentifier(application.getApplicantType(), application.getOperatorId())).thenReturn("xyz");
@@ -551,7 +581,10 @@ public class FlyDronePermissionApplicationServiceImplTest {
 
         ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
         verify(digitalSignService).sign(argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue(), is(IOUtils.toString(this.getClass().getResourceAsStream("/expectedPermissionArtefact"), "UTF-8")));
+        assertThat(argumentCaptor.getValue()
+                .replaceAll("flightStartTime=\"....-..-..T..:..:..\" flightEndTime=\"....-..-..T..:..:..\" ",""),
+            is(IOUtils.toString(this.getClass().getResourceAsStream("/expectedPermissionArtefact"), "UTF-8")
+                .replaceAll("flightStartTime=\"....-..-..T..:..:..\" flightEndTime=\"....-..-..T..:..:..\" ","")));
         verify(storageService).store(anyString(), anyString(), anyString());
     }
 
