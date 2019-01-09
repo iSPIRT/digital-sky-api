@@ -89,6 +89,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .antMatchers(HttpMethod.GET,"/api/airspaceCategory/listHeight")
                 .permitAll()
+                .antMatchers(HttpMethod.GET,"/api/airspaceCategory/listHeightTime")
+                .permitAll()
             //add any api here to be available for clients without login also
                 .antMatchers(HttpMethod.GET,"/api/admin/*")
                 .hasRole("ADMIN")

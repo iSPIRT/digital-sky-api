@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 
 import static org.apache.commons.io.IOUtils.toInputStream;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
-//todo move area, max height for micro and nano to config
 //todo write tests for each of the new checks I added
 
 public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermissionApplicationService {
@@ -66,7 +65,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
 
     public static final int MINIMUM_DAYS_BEFORE_PERMISSION_APPLY=1;
 
-    public static final int MAXIMUM_DAYS_FOR_PERMISSION_APPLY=80;
+    public static final int MAXIMUM_DAYS_FOR_PERMISSION_APPLY=5;
 
     public static final int MAXIMUM_FLIGHT_AGL_IN_FT=400;
 
@@ -253,7 +252,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
 
     void handleSubmit(FlyDronePermissionApplication application) {
         try {
-            Map<AirspaceCategory.Type, GeoJsonObject> geoJsonMapByType = airspaceCategoryService.findGeoJsonMapByTypeAndHeight(application.getMaxAltitude());
+            Map<AirspaceCategory.Type, GeoJsonObject> geoJsonMapByType = airspaceCategoryService.findGeoJsonMapByTypeAndHeightAndTime(application.getMaxAltitude(),application.getStartDateTime(),application.getEndDateTime());
 
             GeoJsonObject amberCategories = geoJsonMapByType.get(AirspaceCategory.Type.AMBER);
 
@@ -276,7 +275,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
     void validateFlyArea(FlyDronePermissionApplication application) {
         try {
             if (application.getFlyArea() == null || application.getFlyArea().isEmpty()) return;
-            Map<AirspaceCategory.Type, GeoJsonObject> geoJsonMapByType = airspaceCategoryService.findGeoJsonMapByTypeAndHeight(application.getMaxAltitude());
+            Map<AirspaceCategory.Type, GeoJsonObject> geoJsonMapByType = airspaceCategoryService.findGeoJsonMapByTypeAndHeightAndTime(application.getMaxAltitude(),application.getStartDateTime(),application.getEndDateTime());
 
             GeoJsonObject greenCategories = geoJsonMapByType.get(AirspaceCategory.Type.GREEN);
             validateFlyAreaWithin(new ObjectMapper().writeValueAsString(greenCategories), application.getFlyArea());

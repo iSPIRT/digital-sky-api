@@ -1,8 +1,13 @@
 package com.ispirit.digitalsky.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.ispirit.digitalsky.util.CustomLocalDateTimeDeSerializer;
+import com.ispirit.digitalsky.util.CustomLocalDateTimeSerializer;
 import com.ispirit.digitalsky.util.LocalDateTimeAttributeConverter;
 import org.geojson.GeoJsonObject;
 import org.springframework.beans.factory.annotation.Value;
@@ -75,6 +80,20 @@ public class AirspaceCategory {
     @Value("${minAltitude:0}")
     private long minAltitude;
 
+    @Column(name = "TEMP_START_TIME")
+    @JsonProperty("tempStartTime")
+    @JsonSerialize(using = CustomLocalDateTimeSerializer.class)
+    @JsonDeserialize(using = CustomLocalDateTimeDeSerializer.class)
+    @Convert(converter = LocalDateTimeAttributeConverter.class)
+    private LocalDateTime tempStartTime;
+
+    @Column(name = "TEMP_END_TIME")
+    @JsonProperty("tempEndTime")
+    @JsonSerialize(using = CustomLocalDateTimeSerializer.class)
+    @JsonDeserialize(using = CustomLocalDateTimeDeSerializer.class)
+    @Convert(converter = LocalDateTimeAttributeConverter.class)
+    private LocalDateTime tempEndTime;
+
 
 
     private AirspaceCategory() {
@@ -121,18 +140,20 @@ public class AirspaceCategory {
         modifiedDate = LocalDateTime.now();
     }
 
-    public AirspaceCategory(String name, Type type, String geoJsonString, long minAltitude) {
+    public AirspaceCategory(String name, Type type, GeoJsonObject geoJson, long minAltitude,LocalDateTime tempStartTime, LocalDateTime tempEndTime) {
         this.name = name;
         this.type = type;
-        this.geoJsonString = geoJsonString;
+        this.geoJson = geoJson;
         try {
-            this.geoJson = new ObjectMapper().readValue(geoJsonString, GeoJsonObject.class);
+            this.geoJsonString = new ObjectMapper().writeValueAsString(geoJson);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         createdDate = LocalDateTime.now();
         modifiedDate = LocalDateTime.now();
-        this.minAltitude=minAltitude;
+        this.minAltitude = minAltitude;
+        this.tempStartTime = tempStartTime;
+        this.tempEndTime = tempEndTime;
     }
 
     public long getId() {
@@ -219,5 +240,20 @@ public class AirspaceCategory {
         this.minAltitude = minAltitude;
     }
 
+    public LocalDateTime getTempStartTime() {
+        return tempStartTime;
+    }
+
+    public void setTempStartTime(LocalDateTime tempStartTime) {
+        this.tempStartTime = tempStartTime;
+    }
+
+    public LocalDateTime getTempEndTime() {
+        return tempEndTime;
+    }
+
+    public void setTempEndTime(LocalDateTime tempEndTime) {
+        this.tempEndTime = tempEndTime;
+    }
 
 }
