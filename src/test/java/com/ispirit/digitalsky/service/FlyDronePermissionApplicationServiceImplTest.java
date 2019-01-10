@@ -17,15 +17,14 @@ import freemarker.template.TemplateExceptionHandler;
 import org.apache.commons.io.IOUtils;
 import org.geojson.FeatureCollection;
 import org.geojson.GeoJsonObject;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.core.io.Resource;
 import org.springframework.security.util.InMemoryResource;
 
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.*;
 
 import static com.ispirit.digitalsky.service.FlyDronePermissionApplicationServiceImpl.PERMISSION_ARTIFACT_XML;
@@ -211,6 +210,86 @@ public class FlyDronePermissionApplicationServiceImplTest {
         assertThat(argumentCaptor.getValue().getStatus(), is(ApplicationStatus.APPROVED));
         verify(service).generatePermissionArtifact(application);
 
+    }
+
+    @Test
+    public void shouldThrowExceptionIfFlyAreaTooBig(){
+        try{
+            FlyDronePermissionApplication application = new FlyDronePermissionApplication();
+            application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2),new LatLong(2,1),new LatLong(1,1)));
+            service.checkArea(application.getFlyArea());
+            fail("should have thrown ValidationException");
+        }catch (ValidationException e){
+
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionIfFlyAltitudeAbove400(){
+        try{
+            FlyDronePermissionApplication application = new FlyDronePermissionApplication();
+            application.setPilotBusinessIdentifier("1");
+            application.setDroneId(1);
+            application.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
+            application.setMaxAltitude(600);
+            application.setStartDateTime(LocalDateTime.now().plusDays(2));
+            application.setEndDateTime(LocalDateTime.now().plusDays(2).plusMinutes(45));
+            service.checkMaxHeight(application);
+            fail("should have thrown ValidationException");
+        }catch (ValidationException e){
+
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionIfFlyDateBeforeADayFromNow(){
+        try{
+            FlyDronePermissionApplication application = new FlyDronePermissionApplication();
+            application.setPilotBusinessIdentifier("1");
+            application.setDroneId(1);
+            application.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
+            application.setMaxAltitude(20);
+            application.setStartDateTime(LocalDateTime.now().plusHours(2));
+            application.setEndDateTime(LocalDateTime.now().plusHours(2).plusMinutes(45));
+            service.checkWithinAday(application);
+            fail("should have thrown ValidationException");
+        }catch (ValidationException e){
+
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionIfFlyDateBeyondFiveDays(){
+        try{
+            FlyDronePermissionApplication application = new FlyDronePermissionApplication();
+            application.setPilotBusinessIdentifier("1");
+            application.setDroneId(1);
+            application.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
+            application.setMaxAltitude(20);
+            application.setStartDateTime(LocalDateTime.now().plusDays(20));
+            application.setEndDateTime(LocalDateTime.now().plusDays(20).plusMinutes(45));
+            service.checkWithinMaxDays(application);
+            fail("should have thrown ValidationException");
+        }catch (ValidationException e){
+
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionIfFlyTimeNotWithinSunriseSunset(){
+        try{
+            FlyDronePermissionApplication application = new FlyDronePermissionApplication();
+            application.setPilotBusinessIdentifier("1");
+            application.setDroneId(1);
+            application.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
+            application.setMaxAltitude(20);
+            application.setStartDateTime(LocalDateTime.of(LocalDate.now(), LocalTime.of(3,0)).plusDays(2));
+            application.setEndDateTime(LocalDateTime.of(LocalDate.now(), LocalTime.of(21,0)).plusDays(2));
+            service.checkTimeWithinSunriseSunset(application);
+            fail("should have thrown ValidationException");
+        }catch (ValidationException e){
+
+        }
     }
 
     @Test

@@ -14,6 +14,8 @@ import org.geojson.GeoJsonObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.TestPropertySource;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,17 +28,24 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
+@TestPropertySource(
+    locations = "classpath:application.yml")
 public class AirspaceCategoryServiceImplTest {
 
     private AirspaceCategoryRepository repository;
     private AirspaceCategoryService airspaceCategoryService;
+    private AirspaceCategoryService unmockedAirspaceCategoryService;
     private UserPrincipal userPrincipal;
+
+    @Autowired
+    private AirspaceCategoryRepository unmockedRepository;
 
     @Before
     public void setUp() throws Exception {
         userPrincipal = SecurityContextHelper.setUserSecurityContext();
         repository = mock(AirspaceCategoryRepository.class);
         airspaceCategoryService = new AirspaceCategoryServiceImpl(repository);
+        unmockedAirspaceCategoryService = new AirspaceCategoryServiceImpl(unmockedRepository);
     }
 
     @Test
@@ -73,6 +82,54 @@ public class AirspaceCategoryServiceImplTest {
     }
 
     @Test
+    public void shouldSaveAirspaceCategoryWithAltitude() throws Exception {
+        //given
+        String geoJson = IOUtils.toString(this.getClass().getResourceAsStream("/geoJsonPolygon.json"), "UTF-8");
+        long altitudeVal = 20;
+        AirspaceCategory airspaceCategory = new AirspaceCategory("Sample", AirspaceCategory.Type.GREEN, new ObjectMapper().readValue(geoJson, GeoJsonObject.class),altitudeVal);
+        System.out.println(new ObjectMapper().writeValueAsString(airspaceCategory));
+        //when
+        airspaceCategoryService.createNewAirspaceCategory(airspaceCategory);
+
+        //then
+        ArgumentCaptor<AirspaceCategory> argumentCaptor = ArgumentCaptor.forClass(AirspaceCategory.class);
+        verify(repository).save(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue().getCreatedById(), is(userPrincipal.getId()));
+        assertThat(argumentCaptor.getValue().getModifiedById(), is(userPrincipal.getId()));
+
+        assertThat(argumentCaptor.getValue().getCreatedDate(), notNullValue());
+        assertThat(argumentCaptor.getValue().getModifiedDate(), notNullValue());
+
+        assertThat(argumentCaptor.getValue().getMinAltitude(),is(altitudeVal));
+    }
+
+    @Test
+    public void shouldSaveAirspaceCategoryWithAltitudeAndTime() throws Exception {
+        //given
+        String geoJson = IOUtils.toString(this.getClass().getResourceAsStream("/geoJsonPolygon.json"), "UTF-8");
+        long altitudeVal = 20;
+        LocalDateTime tempStartTime = LocalDateTime.now().plusDays(2);
+        LocalDateTime tempEndTime = LocalDateTime.now().plusDays(2).plusHours(3);
+        AirspaceCategory airspaceCategory = new AirspaceCategory("Sample", AirspaceCategory.Type.GREEN, new ObjectMapper().readValue(geoJson, GeoJsonObject.class),altitudeVal,tempStartTime,tempEndTime);
+        System.out.println(new ObjectMapper().writeValueAsString(airspaceCategory));
+        //when
+        airspaceCategoryService.createNewAirspaceCategory(airspaceCategory);
+
+        //then
+        ArgumentCaptor<AirspaceCategory> argumentCaptor = ArgumentCaptor.forClass(AirspaceCategory.class);
+        verify(repository).save(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue().getCreatedById(), is(userPrincipal.getId()));
+        assertThat(argumentCaptor.getValue().getModifiedById(), is(userPrincipal.getId()));
+
+        assertThat(argumentCaptor.getValue().getCreatedDate(), notNullValue());
+        assertThat(argumentCaptor.getValue().getModifiedDate(), notNullValue());
+
+        assertThat(argumentCaptor.getValue().getMinAltitude(),is(altitudeVal));
+        assertThat(argumentCaptor.getValue().getTempStartTime(),is(tempStartTime));
+        assertThat(argumentCaptor.getValue().getTempEndTime(),is(tempEndTime));
+    }
+
+    @Test
     public void shouldCheckForExistingAirspaceCategoryBeforeUpdate() throws Exception {
         //given
         String geoJson = IOUtils.toString(this.getClass().getResourceAsStream("/geoJsonMultiShape.json"), "UTF-8");
@@ -106,6 +163,27 @@ public class AirspaceCategoryServiceImplTest {
         //given
         String geoJson = IOUtils.toString(this.getClass().getResourceAsStream("/geoJsonPolygon.json"), "UTF-8");
         AirspaceCategory airspaceCategory = new AirspaceCategory("Sample", AirspaceCategory.Type.GREEN, geoJson);
+        when(repository.findOne(1L)).thenReturn(airspaceCategory);
+
+        //when
+        airspaceCategoryService.updateAirspaceCategory(1L, airspaceCategory);
+
+        //then
+        ArgumentCaptor<AirspaceCategory> argumentCaptor = ArgumentCaptor.forClass(AirspaceCategory.class);
+        verify(repository).save(argumentCaptor.capture());
+
+        assertThat(argumentCaptor.getValue().getModifiedById(), is(userPrincipal.getId()));
+        assertThat(argumentCaptor.getValue().getModifiedDate(), notNullValue());
+    }
+
+    @Test
+    public void shouldUpdateAirspaceCategoryWithDateTime() throws Exception {
+        //given
+        long altitudeVal = 20;
+        LocalDateTime tempStartTime = LocalDateTime.now().plusDays(2);
+        LocalDateTime tempEndTime = LocalDateTime.now().plusDays(2).plusHours(3);
+        String geoJson = IOUtils.toString(this.getClass().getResourceAsStream("/geoJsonPolygon.json"), "UTF-8");
+        AirspaceCategory airspaceCategory = new AirspaceCategory("Sample", AirspaceCategory.Type.GREEN, new ObjectMapper().readValue(geoJson, GeoJsonObject.class),altitudeVal,tempStartTime,tempEndTime);
         when(repository.findOne(1L)).thenReturn(airspaceCategory);
 
         //when
