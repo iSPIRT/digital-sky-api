@@ -1,6 +1,7 @@
 
 package com.ispirit.digitalsky.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.domain.DroneDevice;
 import com.ispirit.digitalsky.domain.RegisterDroneRequestPayload;
 import com.ispirit.digitalsky.exception.InvalidDigitalCertificateException;
@@ -9,6 +10,7 @@ import com.ispirit.digitalsky.exception.InvalidManufacturerException;
 import com.ispirit.digitalsky.service.api.DigitalCertificateValidatorService;
 import com.ispirit.digitalsky.service.api.DigitalSignatureVerifierService;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Base64Utils;
 
 import java.io.*;
@@ -26,13 +28,15 @@ public class DigitalSignatureVerifierServiceImpl implements DigitalSignatureVeri
 	private final String manufacturerAttributeNameInCertificate;
 	private final DigitalCertificateValidatorService digitalCertificateValidatorService;
 	private final boolean digitalCertificateValidationEnabled;
+    private ObjectMapper objectMapper;
 
     public DigitalSignatureVerifierServiceImpl(DigitalCertificateValidatorService digitalCertificateValidatorService,
                                                String manufacturerAttributeNameInCertificate,
-                                               boolean digitalCertificateValidationEnabled) {
+                                               boolean digitalCertificateValidationEnabled, ObjectMapper objectMapper) {
 		this.manufacturerAttributeNameInCertificate = manufacturerAttributeNameInCertificate;
 		this.digitalCertificateValidatorService = digitalCertificateValidatorService;
 		this.digitalCertificateValidationEnabled = digitalCertificateValidationEnabled;
+		this.objectMapper = objectMapper;
 	}
 
 	@Override
@@ -53,11 +57,8 @@ public class DigitalSignatureVerifierServiceImpl implements DigitalSignatureVeri
         try {
             Signature rsa = Signature.getInstance("SHA256withRSA");
             rsa.initVerify(certificate);
-            try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                 ObjectOutputStream oos = new ObjectOutputStream(baos);) {
-                oos.writeObject(drone);
-                oos.flush();
-                rsa.update(baos.toByteArray());
+            try{
+                rsa.update(objectMapper.writeValueAsString(drone).getBytes());
                 isValid = rsa.verify(Base64Utils.decodeFromString(signature));
             } catch (IOException e) {
                throw new InvalidDigitalSignatureException();

@@ -10,13 +10,14 @@ import org.springframework.validation.Validator;
 
 @Configuration
 public class TestContext {
+    public static final String OBJECT_MAPPER = "object.mapper";
 
     @Bean
     CustomValidator customValidator(Validator validator) {
         return new CustomValidator(validator);
     }
 
-    @Bean
+    @Bean(OBJECT_MAPPER)
     public ObjectMapper objectMapper() {
         return new ObjectMapperBuilder().build();
     }
