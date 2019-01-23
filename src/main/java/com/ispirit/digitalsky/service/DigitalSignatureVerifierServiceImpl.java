@@ -55,8 +55,8 @@ public class DigitalSignatureVerifierServiceImpl implements DigitalSignatureVeri
 
         boolean isValid;
         try {
-            Signature rsa = Signature.getInstance("SHA256withRSA");
-            rsa.initVerify(certificate);
+            Signature rsa = Signature.getInstance("SHA1withRSA");
+            rsa.initVerify(certificate.getPublicKey());
             try{
                 rsa.update(objectMapper.writeValueAsString(drone).getBytes());
                 isValid = rsa.verify(Base64Utils.decodeFromString(signature));
