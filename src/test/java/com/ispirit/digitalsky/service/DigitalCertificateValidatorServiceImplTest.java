@@ -27,8 +27,8 @@ public class DigitalCertificateValidatorServiceImplTest {
     @Test
     public void shouldSuccessfullyValidateDigitalCertificate() throws Exception {
         clientCertificate = DigitalSignatureVerifierForTest.generateX509CertificateFromBase64EncodedString(DigitalSignatureVerifierForTest.getValidCertificateString());
-        File resourcesDirectory = new File("src/test/resources");
-        manufacturerCertificateChainPath = resourcesDirectory.getAbsolutePath() + "/trustedCertificateChain.pem";
+        File resourcesDirectory = new File("");
+        manufacturerCertificateChainPath = resourcesDirectory.getAbsolutePath() + "/final.pem";
 
         boolean isValid = digitalCertificateValidatorService.isValidCertificate(clientCertificate, manufacturerCertificateChainPath);
 

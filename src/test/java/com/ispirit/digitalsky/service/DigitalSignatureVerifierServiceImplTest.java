@@ -72,7 +72,7 @@ public class DigitalSignatureVerifierServiceImplTest {
         RegisterDroneRequestPayload requestPayload = new RegisterDroneRequestPayload(DigitalSignatureVerifierForTest.getValidDroneDevice(), DigitalSignatureVerifierForTest.getValidSignatureString(), DigitalSignatureVerifierForTest.getValidCertificateString());
         when(digitalCertificateValidatorService.isValidCertificate(any(X509Certificate.class), anyString())).thenReturn(true);
 
-        boolean val = digitalSignatureVerifierService.isValidSignature(requestPayload, "digitalsky-uat.centralindia.cloudapp.azure.com", "/src/resources/trustedCertificateChain.pem");
+        boolean val = digitalSignatureVerifierService.isValidSignature(requestPayload, "sahajsoftwaresolutions", "/src/resources/trustedCertificateChain.pem");
 
         verify(digitalCertificateValidatorService).isValidCertificate(any(X509Certificate.class), anyString());
     }
@@ -97,7 +97,7 @@ public class DigitalSignatureVerifierServiceImplTest {
         RegisterDroneRequestPayload requestPayload = new RegisterDroneRequestPayload(DigitalSignatureVerifierForTest.getValidDroneDevice(), DigitalSignatureVerifierForTest.getValidSignatureString(), DigitalSignatureVerifierForTest.getValidCertificateString());
         when(digitalCertificateValidatorService.isValidCertificate(any(X509Certificate.class), anyString())).thenReturn(true);
 
-        boolean val = digitalSignatureVerifierService.isValidSignature(requestPayload, "digitalsky-uat.centralindia.cloudapp.azure.com", "/src/resources/trustedCertificateChain.pem");
+        boolean val = digitalSignatureVerifierService.isValidSignature(requestPayload, "sahajsoftwaresolutions", "final.pem");
 
         assertTrue(val);
         verify(digitalCertificateValidatorService).isValidCertificate(any(X509Certificate.class), anyString());
@@ -110,20 +110,20 @@ public class DigitalSignatureVerifierServiceImplTest {
         RegisterDroneRequestPayload requestPayload = new RegisterDroneRequestPayload(DigitalSignatureVerifierForTest.getValidDroneDevice(), DigitalSignatureVerifierForTest.getValidSignatureString(), DigitalSignatureVerifierForTest.getValidCertificateString());
         when(digitalCertificateValidatorService.isValidCertificate(any(X509Certificate.class), anyString())).thenReturn(false);
 
-        boolean val = digitalSignatureVerifierService.isValidSignature(requestPayload, "digitalsky-uat.centralindia.cloudapp.azure.com", "/src/resources/trustedCertificateChain.pem");
+        boolean val = digitalSignatureVerifierService.isValidSignature(requestPayload, "sahajsoftwaresolutions", "final.pem");
 
         verify(digitalCertificateValidatorService, never()).isValidCertificate(any(X509Certificate.class), anyString());
     }
 
     @Test
     public void shouldThrowInvalidDigitalCertificateExceptionIfCertificateDoesNotContainTheOrganizationAttribute() {
-        digitalSignatureVerifierService = new DigitalSignatureVerifierServiceImpl(digitalCertificateValidatorService, "o", true,objectMapper);
+        digitalSignatureVerifierService = new DigitalSignatureVerifierServiceImpl(digitalCertificateValidatorService, "ab", true,objectMapper);
         RegisterDroneRequestPayload requestPayload = new RegisterDroneRequestPayload(DigitalSignatureVerifierForTest.getValidDroneDevice(), DigitalSignatureVerifierForTest.getValidSignatureString(), DigitalSignatureVerifierForTest.getValidCertificateString());
 
         when(digitalCertificateValidatorService.isValidCertificate(any(X509Certificate.class), anyString())).thenReturn(true);
 
         try {
-            boolean val = digitalSignatureVerifierService.isValidSignature(requestPayload, "digitalsky-uat.centralindia.cloudapp.azure.com", "/src/resources/trustedCertificateChain.pem");
+            boolean val = digitalSignatureVerifierService.isValidSignature(requestPayload, "sahajsoftwaresolutions", "final.pem");
 
             fail("should throw InvalidDigitalCertificateException");
         } catch(InvalidDigitalCertificateException e) {

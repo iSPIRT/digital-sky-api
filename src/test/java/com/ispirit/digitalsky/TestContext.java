@@ -19,6 +19,7 @@ public class TestContext {
 
     @Bean(OBJECT_MAPPER)
     public ObjectMapper objectMapper() {
+        System.out.println("Creating mapper");
         return new ObjectMapperBuilder().build();
     }
 
