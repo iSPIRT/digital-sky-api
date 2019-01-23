@@ -642,6 +642,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
         application.setPayloadWeightInKg(12);
         application.setFlightPurpose("test");
         application.setPayloadDetails("test");
+        application.setMaxAltitude(50);
         application.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
 
 

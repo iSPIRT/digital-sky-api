@@ -7,7 +7,7 @@
         <UADetails uinNo="sdsd"/>
         <FlightPurpose shortDesc="test"/>
         <PayloadDetails payLoadWeightInKg="12" payloadDetails="test"/>
-        <FlightParameters flightStartTime="2018-07-18T00:00:00" flightEndTime="2018-07-18T01:00:00" recurrenceTimeExpression="" recurrenceTimeExpressionType="CRON_QUARTZ" recurringTimeDurationInMinutes="">
+        <FlightParameters flightStartTime="2018-07-18T00:00:00" flightEndTime="2018-07-18T01:00:00" recurrenceTimeExpression="" recurrenceTimeExpressionType="CRON_QUARTZ" recurringTimeDurationInMinutes="" maxAltitude="50">
             <Coordinates>
                 <Coordinate latitude="1.0E-4" longitude="1.0E-4"/><Coordinate latitude="2.0E-4" longitude="2.0E-4"/><Coordinate latitude="2.0E-4" longitude="1.0E-4"/><Coordinate latitude="1.0E-4" longitude="1.0E-4"/>
             </Coordinates>
