@@ -3,7 +3,10 @@ package com.ispirit.digitalsky.service;
 import com.ispirit.digitalsky.exception.InvalidDigitalCertificateException;
 import com.ispirit.digitalsky.service.api.DigitalCertificateValidatorService;
 import org.apache.commons.io.IOUtils;
-import org.bouncycastle.openssl.PEMReader;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.X509TrustedCertificateBlock;
 
 import java.io.*;
 import java.security.*;
@@ -28,12 +31,15 @@ public class DigitalCertificateValidatorServiceImpl implements DigitalCertificat
             String certificateChainString = IOUtils.toString(inputstream, "UTF-8");
             Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
             final List<X509Certificate> certs = new ArrayList<>();
-            final PEMReader reader = new PEMReader(new StringReader(certificateChainString));
-            Certificate crt;
+            final PEMParser reader = new PEMParser(new StringReader(certificateChainString));
+            X509CertificateHolder crt;
+            Certificate cert;
 
-            while ((crt = (Certificate) reader.readObject()) != null) {
-                if (crt instanceof X509Certificate) {
-                    certs.add((X509Certificate) crt);
+            while ((crt = (X509CertificateHolder) reader.readObject()) != null) {
+                cert = new JcaX509CertificateConverter().setProvider( "BC" )
+                    .getCertificate( crt );
+                if (cert instanceof X509Certificate) {
+                    certs.add((X509Certificate) cert);
                 }
             }
             if (certs.size() == 0) {
@@ -43,8 +49,8 @@ public class DigitalCertificateValidatorServiceImpl implements DigitalCertificat
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
             CertPathValidator validator = CertPathValidator.getInstance("PKIX", "BC");
             Set<TrustAnchor> anchors = new HashSet<>();
-            for (X509Certificate cert : certs) {
-                anchors.add(new TrustAnchor(cert, null));
+            for (X509Certificate certif : certs) {
+                anchors.add(new TrustAnchor(certif, null));
             }
             CertPath path = cf.generateCertPath(certs);
             PKIXParameters params = new PKIXParameters(anchors);
