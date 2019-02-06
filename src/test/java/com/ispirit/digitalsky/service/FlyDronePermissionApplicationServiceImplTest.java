@@ -24,6 +24,9 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.core.io.Resource;
 import org.springframework.security.util.InMemoryResource;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.time.*;
 import java.util.*;
 
@@ -48,6 +51,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
     private UserProfileService userProfileService;
     private PilotService pilotService;
     private Configuration freemarkerConfiguration;
+    private List<FlightInformationRegion> firs = new ArrayList<>();
 
     @Before
     public void setUp() throws Exception {
@@ -59,7 +63,19 @@ public class FlyDronePermissionApplicationServiceImplTest {
         userProfileService = mock(UserProfileService.class);
         pilotService = mock(PilotService.class);
         freemarkerConfiguration = freemarkerConfiguration();
-        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration));
+        File file = new File("chennaiFir.json");
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        firs.add(0, new FlightInformationRegion("Chennai", reader.readLine(), 'O'));
+        file = new File("delhiFir.json");
+        reader = new BufferedReader(new FileReader(file));
+        firs.add(1, new FlightInformationRegion("Delhi",reader.readLine() , 'I'));
+        file = new File("mumbaiFir.json");
+        reader = new BufferedReader(new FileReader(file));
+        firs.add(2, new FlightInformationRegion("Mumbai", reader.readLine(), 'A'));
+        file = new File("kolkataFir.json");
+        reader = new BufferedReader(new FileReader(file));
+        firs.add(3, new FlightInformationRegion("Kolkata", reader.readLine(), 'E'));
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs));
         userPrincipal = SecurityContextHelper.setUserSecurityContext();
     }
 
@@ -103,7 +119,11 @@ public class FlyDronePermissionApplicationServiceImplTest {
         doNothing().when(service).validateFlyArea(application);
         doNothing().when(service).handleSubmit(application);
         doNothing().when(service).generatePermissionArtifact(any());
-        when(operatorDroneService.find(application.getDroneId())).thenReturn(new OperatorDrone());
+        OperatorDrone drone = new OperatorDrone(123,ApplicantType.INDIVIDUAL,"abc",false);
+        DroneType a = new DroneType();
+        a.setDroneCategoryType(DroneCategoryType.MICRO);
+        drone.setDroneType(a);
+        when(operatorDroneService.find(application.getDroneId())).thenReturn(drone);
         when(pilotService.findByBusinessIdentifier("1")).thenReturn(new Pilot(2));
         //when
         service.createApplication(application);
@@ -484,7 +504,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
     @Test
     public void shouldValidateIfFlyAreaWithinGreenZones() throws Exception {
         //given
-        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration));
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs));
         LatLong one = new LatLong(11.630715737981486, 68.88427734374999);
         LatLong two = new LatLong(7.18810087117902, 68.70849609375);
         LatLong three = new LatLong(11.695272733029402, 77.89306640625);
@@ -510,7 +530,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
     @Test
     public void shouldValidateIfFlyAreaIntersectWithRedZones() throws Exception {
         //given
-        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration));
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs));
         LatLong one = new LatLong(11.630715737981486, 68.88427734374999);
         LatLong two = new LatLong(7.18810087117902, 68.70849609375);
         LatLong three = new LatLong(11.695272733029402, 77.89306640625);
@@ -537,7 +557,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
     @Test
     public void handleSubmitShouldCheckIfFlyAreaIntersectWithAmberZones() throws Exception {
         //given
-        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration));
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs));
         LatLong one = new LatLong(11.630715737981486, 68.88427734374999);
         LatLong two = new LatLong(7.18810087117902, 68.70849609375);
         LatLong three = new LatLong(11.695272733029402, 77.89306640625);
@@ -565,7 +585,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
     public void shouldApproveApplicationAfterSubmit() throws Exception {
         //given
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
-        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration));
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs));
         LatLong one = new LatLong(11.630715737981486, 68.88427734374999);
         LatLong two = new LatLong(7.18810087117902, 68.70849609375);
         LatLong three = new LatLong(11.695272733029402, 77.89306640625);

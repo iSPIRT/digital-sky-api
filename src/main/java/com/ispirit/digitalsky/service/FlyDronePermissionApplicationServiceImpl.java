@@ -57,6 +57,8 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
 
     private PilotService pilotService;
 
+    private List<FlightInformationRegion> firs;
+
     public static final int SUNRISE_HOUR = 5;
 
     public static final int SUNRISE_SUNSET_MINUTE = 30;
@@ -75,6 +77,8 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
 
     public static final double MAXIMUM_FLIGHT_AREA_SQ_KM=3.14159;
 
+    public static final char []adcPossibleChars = {'A','B','C','D','E','F','G','H','J','K','L','M','N','P','Q','R','S','T','U','V','W','X','Y','Z'};
+
 
 
     public FlyDronePermissionApplicationServiceImpl(
@@ -84,7 +88,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             DigitalSignService digitalSignService,
             OperatorDroneService operatorDroneService,
             UserProfileService userProfileService,
-            PilotService pilotService, Configuration freemarkerConfiguration) {
+            PilotService pilotService, Configuration freemarkerConfiguration,List<FlightInformationRegion> firs) {
         this.repository = repository;
         this.storageService = storageService;
         this.airspaceCategoryService = airspaceCategoryService;
@@ -93,6 +97,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         this.userProfileService = userProfileService;
         this.pilotService = pilotService;
         this.configuration = freemarkerConfiguration;
+        this.firs=firs;
     }
 
     @Override
@@ -117,9 +122,30 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             if (application.getFlyArea() == null || application.getFlyArea().isEmpty()) {
                 throw new ValidationException(new Errors("Fly Area coordinates required"));
             }
+            FlightInformationRegion matchingFir = null;
+            for(int i =1;i<firs.size()-1;i++){
+                try{
+                    if(isFlyAreaIntersects(firs.get(i).getGeoJsonString(),application.getFlyArea())) {
+                        matchingFir = firs.get(i);
+                        break;
+                    }
+                }
+                catch (IOException e){
+                    throw new RuntimeException(e);
+                }
+            }
+            if(matchingFir==null){
+//                throw new RuntimeException("Not under any FIR"); todo: this comment has to be removed later as it has to be one of the 4 FIRs
+                matchingFir=firs.get(firs.size()-1);
+            }
             application.setSubmittedDate(new Date());
             handleSubmit(application);
             FlyDronePermissionApplication document = repository.insert(application);
+            if(droneCategoryRegulationsCheck(application)) {
+                String ficNumber = generateFicNumber(matchingFir);
+                String adcNumber = generateAdcNumber(matchingFir);
+                generatePermissionArtifactWithAdcAndFic(application,ficNumber,adcNumber);
+            }
             generatePermissionArtifact(document);
             return document;
         } else {
@@ -181,14 +207,46 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             if (actualForm.getFlyArea() == null || actualForm.getFlyArea().isEmpty()) {
                 throw new ValidationException(new Errors("Fly Area coordinates required"));
             }
+            FlightInformationRegion matchingFir = null;
+            for(int i =0;i<firs.size();i++){
+                try{
+                    if(isFlyAreaIntersects(firs.get(i).getGeoJsonString(),application.getFlyArea())) {
+                        matchingFir = firs.get(i);
+                        break;
+                    }
+                }
+                catch (IOException e){
+                    throw new RuntimeException(e);
+                }
+            }
+            if(matchingFir==null){
+//                throw new RuntimeException("Not under any FIR"); todo: this comment has to be removed later as it has to be one of the 4 FIRs
+                matchingFir=firs.get(firs.size()-1);
+            }
             actualForm.setSubmittedDate(new Date());
             handleSubmit(actualForm);
             FlyDronePermissionApplication savedForm = repository.save(actualForm);
+            if(droneCategoryRegulationsCheck(actualForm)) {
+                String ficNumber = generateFicNumber(matchingFir);
+                String adcNumber = generateAdcNumber(matchingFir);
+                generatePermissionArtifactWithAdcAndFic(actualForm,ficNumber,adcNumber);
+            }
             generatePermissionArtifact(actualForm);
             return savedForm;
         } else {
             return repository.save(actualForm);
         }
+    }
+
+    private String generateAdcNumber(FlightInformationRegion matchingFir) {
+        String finalAdcNumber = "R";
+        finalAdcNumber= finalAdcNumber + matchingFir.getName().charAt(0);
+        int index ;//todo: this index needs to be obtained from the db
+        return finalAdcNumber;
+    }
+
+    private String generateFicNumber(FlightInformationRegion matchingFir) {
+        return "fic";
     }
 
     @Override
@@ -257,7 +315,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             GeoJsonObject amberCategories = geoJsonMapByType.get(AirspaceCategory.Type.AMBER);
 
             boolean result = isFlyAreaIntersects(new ObjectMapper().writeValueAsString(amberCategories), application.getFlyArea());
-            if (!result && !droneCategoryRegulationsCheck(application)) {//todo: check for the drone type regulations here
+            if (!result && !droneCategoryRegulationsCheck(application)) {
                 UserPrincipal userPrincipal = UserPrincipal.securityContext();
                 application.setApproverId(userPrincipal.getId());
                 application.setApprover(userPrincipal.getUsername());
@@ -319,6 +377,17 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             throw new ValidationException(new Errors("Cannot generate permission artifact as this application needs approval, you can check status and download artifact once approved from the list"));
         }
         String artifactContent = getPermissionArtifactContent(application);
+        String signedArtifactContent = digitalSignService.sign(artifactContent);
+        storageService.store(PERMISSION_ARTIFACT_XML, signedArtifactContent, application.getId());
+    }
+
+    public void generatePermissionArtifactWithAdcAndFic(FlyDronePermissionApplication application,String ficNumber,String adcNumber) {
+        if (!application.getStatus().equals(ApplicationStatus.APPROVED)
+            || droneCategoryRegulationsCheck(application)
+            ) {
+            throw new ValidationException(new Errors("Cannot generate permission artifact as this application needs approval, you can check status and download artifact once approved from the list"));
+        }
+        String artifactContent = getPermissionArtifactContentWithFicAdc(application,ficNumber,adcNumber);
         String signedArtifactContent = digitalSignService.sign(artifactContent);
         storageService.store(PERMISSION_ARTIFACT_XML, signedArtifactContent, application.getId());
     }
@@ -394,26 +463,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             OperatorDrone operatorDrone = operatorDroneService.find(application.getDroneId());
             String operatorId = userProfileService.resolveOperatorBusinessIdentifier(operatorDrone.getOperatorType(), operatorDrone.getOperatorId());
 
-            parameters.put("operatorId", operatorId);
-            parameters.put("pilotId", application.getPilotBusinessIdentifier());
-            parameters.put("uinNumber", operatorDrone.getUinApplicationId());
-            parameters.put("purposeOfFlight", application.getFlightPurpose());
-            parameters.put("payloadWeightInKg", application.getPayloadWeightInKg());
-            parameters.put("payloadDetails", application.getPayloadDetails());
-            parameters.put("startDateTime", application.getStartDateTime().format(DateTimeFormatter.ISO_DATE_TIME));
-            parameters.put("endDateTime", application.getEndDateTime().format(DateTimeFormatter.ISO_DATE_TIME));
-            parameters.put("recurrenceTimeExpression", application.getRecurringTimeExpression());
-            parameters.put("recurrenceTimeExpressionType", application.getRecurringTimeExpressionType());
-            parameters.put("recurringTimeDurationInMinutes", application.getRecurringTimeDurationInMinutes());
-            parameters.put("maxAltitude",application.getMaxAltitude());
-
-            List<String> coordinates = new ArrayList<>();
-
-            for (LatLong latLong : application.getFlyArea()) {
-                coordinates.add(String.format("<Coordinate latitude=\"%s\" longitude=\"%s\"/>", latLong.getLatitude(), latLong.getLongitude()));
-            }
-            parameters.put("coordinates", StringUtils.join(coordinates, ""));
-
+            appendCommonparameters(parameters,application,operatorId,operatorDrone);
 
             StringWriter stringWriter = new StringWriter();
             template.process(parameters, stringWriter);
@@ -421,6 +471,49 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+
+    private String getPermissionArtifactContentWithFicAdc(FlyDronePermissionApplication application, String ficNumber, String adcNumber ) {
+        try {
+            Template template = configuration.getTemplate("permissionArtifactFicAdcXmlTemplate.ftl");
+            HashMap<Object, Object> parameters = new HashMap<>();
+
+            OperatorDrone operatorDrone = operatorDroneService.find(application.getDroneId());
+            String operatorId = userProfileService.resolveOperatorBusinessIdentifier(operatorDrone.getOperatorType(), operatorDrone.getOperatorId());
+
+            appendCommonparameters(parameters,application,operatorId,operatorDrone);
+            parameters.put("adcNumber",adcNumber);
+            parameters.put("ficNumber",ficNumber);
+
+            StringWriter stringWriter = new StringWriter();
+            template.process(parameters, stringWriter);
+            return stringWriter.toString();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void appendCommonparameters(HashMap<Object, Object> parameters, FlyDronePermissionApplication application, String operatorId, OperatorDrone operatorDrone) {
+        parameters.put("operatorId", operatorId);
+        parameters.put("pilotId", application.getPilotBusinessIdentifier());
+        parameters.put("uinNumber", operatorDrone.getUinApplicationId());
+        parameters.put("purposeOfFlight", application.getFlightPurpose());
+        parameters.put("payloadWeightInKg", application.getPayloadWeightInKg());
+        parameters.put("payloadDetails", application.getPayloadDetails());
+        parameters.put("startDateTime", application.getStartDateTime().format(DateTimeFormatter.ISO_DATE_TIME));
+        parameters.put("endDateTime", application.getEndDateTime().format(DateTimeFormatter.ISO_DATE_TIME));
+        parameters.put("recurrenceTimeExpression", application.getRecurringTimeExpression());
+        parameters.put("recurrenceTimeExpressionType", application.getRecurringTimeExpressionType());
+        parameters.put("recurringTimeDurationInMinutes", application.getRecurringTimeDurationInMinutes());
+        parameters.put("maxAltitude",application.getMaxAltitude());
+
+        List<String> coordinates = new ArrayList<>();
+
+        for (LatLong latLong : application.getFlyArea()) {
+            coordinates.add(String.format("<Coordinate latitude=\"%s\" longitude=\"%s\"/>", latLong.getLatitude(), latLong.getLongitude()));
+        }
+        parameters.put("coordinates", StringUtils.join(coordinates, ""));
     }
 
     private void setPilotId(FlyDronePermissionApplication application) {
