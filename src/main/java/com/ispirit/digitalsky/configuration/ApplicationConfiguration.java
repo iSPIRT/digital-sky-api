@@ -191,6 +191,11 @@ public class ApplicationConfiguration {
     }
 
     @Bean
+    AdcNumberService adcNumberService(AdcNumberRepository adcNumberRepository){
+        return new AdcNumberServiceImpl(adcNumberRepository);
+    }
+
+    @Bean
     DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneAcquisitionService(
             LocalDroneAcquisitionApplicationRepository droneAcquisitionRepository,
             StorageService storageService,

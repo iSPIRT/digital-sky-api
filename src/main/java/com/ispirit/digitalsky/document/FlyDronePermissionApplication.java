@@ -85,8 +85,10 @@ public class FlyDronePermissionApplication extends BasicApplication {
     private String recurringTimeExpressionType;
 
     @Field("maxAltitude")
-
     private int maxAltitude;
+
+    @Field("fir")
+    private String fir;
 
 
     public FlyDronePermissionApplication() {
@@ -201,5 +203,13 @@ public class FlyDronePermissionApplication extends BasicApplication {
 
     public void setMaxAltitude(int maxAltitude) {
         this.maxAltitude = maxAltitude;
+    }
+
+    public String getFir() {
+        return fir;
+    }
+
+    public void setFir(String fir) {
+        this.fir = fir;
     }
 }

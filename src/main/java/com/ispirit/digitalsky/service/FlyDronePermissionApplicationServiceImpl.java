@@ -77,10 +77,6 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
 
     public static final double MAXIMUM_FLIGHT_AREA_SQ_KM=3.14159;
 
-    public static final char []adcPossibleChars = {'A','B','C','D','E','F','G','H','J','K','L','M','N','P','Q','R','S','T','U','V','W','X','Y','Z'};
-
-
-
     public FlyDronePermissionApplicationServiceImpl(
             FlyDronePermissionApplicationRepository repository,
             StorageService storageService,
@@ -119,31 +115,14 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         validateFlyArea(application);
 
         if (application.getStatus() == ApplicationStatus.SUBMITTED) {
-            if (application.getFlyArea() == null || application.getFlyArea().isEmpty()) {
-                throw new ValidationException(new Errors("Fly Area coordinates required"));
-            }
-            FlightInformationRegion matchingFir = null;
-            for(int i =1;i<firs.size()-1;i++){
-                try{
-                    if(isFlyAreaIntersects(firs.get(i).getGeoJsonString(),application.getFlyArea())) {
-                        matchingFir = firs.get(i);
-                        break;
-                    }
-                }
-                catch (IOException e){
-                    throw new RuntimeException(e);
-                }
-            }
-            if(matchingFir==null){
-//                throw new RuntimeException("Not under any FIR"); todo: this comment has to be removed later as it has to be one of the 4 FIRs
-                matchingFir=firs.get(firs.size()-1);
-            }
+            FlightInformationRegion matchingFir = getFirForFlightArea(application);
             application.setSubmittedDate(new Date());
             handleSubmit(application);
+            application.setFir(matchingFir.getName());
             FlyDronePermissionApplication document = repository.insert(application);
             if(droneCategoryRegulationsCheck(application)) {
                 String ficNumber = generateFicNumber(matchingFir);
-                String adcNumber = generateAdcNumber(matchingFir);
+                String adcNumber = generateAdcNumber(matchingFir);//todo: this has to be changed to the actual adc number object
                 generatePermissionArtifactWithAdcAndFic(application,ficNumber,adcNumber);
             }
             generatePermissionArtifact(document);
@@ -204,31 +183,14 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         validateFlyArea(actualForm);
         setPilotId(actualForm);
         if (application.getStatus() == ApplicationStatus.SUBMITTED) {
-            if (actualForm.getFlyArea() == null || actualForm.getFlyArea().isEmpty()) {
-                throw new ValidationException(new Errors("Fly Area coordinates required"));
-            }
-            FlightInformationRegion matchingFir = null;
-            for(int i =0;i<firs.size();i++){
-                try{
-                    if(isFlyAreaIntersects(firs.get(i).getGeoJsonString(),application.getFlyArea())) {
-                        matchingFir = firs.get(i);
-                        break;
-                    }
-                }
-                catch (IOException e){
-                    throw new RuntimeException(e);
-                }
-            }
-            if(matchingFir==null){
-//                throw new RuntimeException("Not under any FIR"); todo: this comment has to be removed later as it has to be one of the 4 FIRs
-                matchingFir=firs.get(firs.size()-1);
-            }
+            FlightInformationRegion matchingFir = getFirForFlightArea(actualForm);
             actualForm.setSubmittedDate(new Date());
             handleSubmit(actualForm);
+            actualForm.setFir(matchingFir.getName());
             FlyDronePermissionApplication savedForm = repository.save(actualForm);
             if(droneCategoryRegulationsCheck(actualForm)) {
                 String ficNumber = generateFicNumber(matchingFir);
-                String adcNumber = generateAdcNumber(matchingFir);
+                String adcNumber = generateAdcNumber(matchingFir);//todo: this has to be changed to the actual adc number object
                 generatePermissionArtifactWithAdcAndFic(actualForm,ficNumber,adcNumber);
             }
             generatePermissionArtifact(actualForm);
@@ -247,6 +209,29 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
 
     private String generateFicNumber(FlightInformationRegion matchingFir) {
         return "fic";
+    }
+
+    public FlightInformationRegion getFirForFlightArea(FlyDronePermissionApplication application){
+        if (application.getFlyArea() == null || application.getFlyArea().isEmpty()) {
+            throw new ValidationException(new Errors("Fly Area coordinates required"));
+        }
+        FlightInformationRegion matchingFir = null;
+        for(int i =0;i<firs.size();i++){
+            try{
+                if(isFlyAreaIntersects(firs.get(i).getGeoJsonString(),application.getFlyArea())) {
+                    matchingFir = firs.get(i);
+                    break;
+                }
+            }
+            catch (IOException e){
+                throw new RuntimeException(e);
+            }
+        }
+        if(matchingFir==null){
+//                throw new RuntimeException("Not under any FIR"); todo: this comment has to be removed later as it has to be one of the 4 FIRs
+            matchingFir=firs.get(firs.size()-1);
+        }
+        return matchingFir;
     }
 
     @Override
