@@ -7,10 +7,8 @@ import java.time.LocalDate;
 
 public interface AdcNumberService {
 
-  String generateNewAdcNumber(LocalDate validFor,FlyDronePermissionApplication dronePermissionApplication);
+  String generateNewAdcNumber(FlyDronePermissionApplication dronePermissionApplication);
 
-  AdcNumber getDetailsOfAdcNumber(long adcNumber);
-
-  AdcNumber find(long id);
+//  AdcNumber getDetailsOfAdcNumber(long adcNumber);
 
 }

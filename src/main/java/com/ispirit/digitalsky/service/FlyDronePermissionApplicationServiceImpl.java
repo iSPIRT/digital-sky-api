@@ -59,6 +59,8 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
 
     private List<FlightInformationRegion> firs;
 
+    private AdcNumberServiceImpl adcNumberServiceImpl;
+
     public static final int SUNRISE_HOUR = 5;
 
     public static final int SUNRISE_SUNSET_MINUTE = 30;
@@ -84,7 +86,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             DigitalSignService digitalSignService,
             OperatorDroneService operatorDroneService,
             UserProfileService userProfileService,
-            PilotService pilotService, Configuration freemarkerConfiguration,List<FlightInformationRegion> firs) {
+            PilotService pilotService, Configuration freemarkerConfiguration,List<FlightInformationRegion> firs, AdcNumberServiceImpl adcNumberServiceImpl) {
         this.repository = repository;
         this.storageService = storageService;
         this.airspaceCategoryService = airspaceCategoryService;
@@ -94,6 +96,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         this.pilotService = pilotService;
         this.configuration = freemarkerConfiguration;
         this.firs=firs;
+        this.adcNumberServiceImpl = adcNumberServiceImpl;
     }
 
     @Override
@@ -122,10 +125,12 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             FlyDronePermissionApplication document = repository.insert(application);
             if(droneCategoryRegulationsCheck(application)) {
                 String ficNumber = generateFicNumber(matchingFir);
-                String adcNumber = generateAdcNumber(matchingFir);//todo: this has to be changed to the actual adc number object
+                String adcNumber = adcNumberServiceImpl.generateNewAdcNumber(application);
                 generatePermissionArtifactWithAdcAndFic(application,ficNumber,adcNumber);
             }
-            generatePermissionArtifact(document);
+            else {
+                generatePermissionArtifact(document);
+            }
             return document;
         } else {
             return repository.insert(application);
@@ -190,26 +195,21 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             FlyDronePermissionApplication savedForm = repository.save(actualForm);
             if(droneCategoryRegulationsCheck(actualForm)) {
                 String ficNumber = generateFicNumber(matchingFir);
-                String adcNumber = generateAdcNumber(matchingFir);//todo: this has to be changed to the actual adc number object
+                String adcNumber = adcNumberServiceImpl.generateNewAdcNumber(actualForm);
                 generatePermissionArtifactWithAdcAndFic(actualForm,ficNumber,adcNumber);
             }
-            generatePermissionArtifact(actualForm);
+            else {
+                generatePermissionArtifact(actualForm);
+            }
             return savedForm;
         } else {
             return repository.save(actualForm);
         }
     }
 
-    private String generateAdcNumber(FlightInformationRegion matchingFir) {
-        String finalAdcNumber = "R";
-        finalAdcNumber= finalAdcNumber + matchingFir.getName().charAt(0);
-        int index ;//todo: this index needs to be obtained from the db
-        return finalAdcNumber;
-    }
-
     private String generateFicNumber(FlightInformationRegion matchingFir) {
         return "fic";
-    }
+    }//todo : complete the actual implementation of this
 
     public FlightInformationRegion getFirForFlightArea(FlyDronePermissionApplication application){
         if (application.getFlyArea() == null || application.getFlyArea().isEmpty()) {
@@ -356,22 +356,12 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
     }
 
     public void generatePermissionArtifact(FlyDronePermissionApplication application) {
-        if (!application.getStatus().equals(ApplicationStatus.APPROVED)
-            || droneCategoryRegulationsCheck(application)
-            ) {
-            throw new ValidationException(new Errors("Cannot generate permission artifact as this application needs approval, you can check status and download artifact once approved from the list"));
-        }
         String artifactContent = getPermissionArtifactContent(application);
         String signedArtifactContent = digitalSignService.sign(artifactContent);
         storageService.store(PERMISSION_ARTIFACT_XML, signedArtifactContent, application.getId());
     }
 
     public void generatePermissionArtifactWithAdcAndFic(FlyDronePermissionApplication application,String ficNumber,String adcNumber) {
-        if (!application.getStatus().equals(ApplicationStatus.APPROVED)
-            || droneCategoryRegulationsCheck(application)
-            ) {
-            throw new ValidationException(new Errors("Cannot generate permission artifact as this application needs approval, you can check status and download artifact once approved from the list"));
-        }
         String artifactContent = getPermissionArtifactContentWithFicAdc(application,ficNumber,adcNumber);
         String signedArtifactContent = digitalSignService.sign(artifactContent);
         storageService.store(PERMISSION_ARTIFACT_XML, signedArtifactContent, application.getId());
@@ -395,7 +385,6 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             SimpleFeature feature = featureIterator.next();
             Polygon airspaceCategory = (Polygon) feature.getDefaultGeometry();
             Polygon polygon = airspaceCategory.getFactory().createPolygon(flyAreaCoordinates);
-//            System.out.println(Math.toRadians(polygon.getArea()) * 6371 * 100 + 0.018);//this is a test area which is wrong, find and fix the correct formula
             if (polygon.within(airspaceCategory)) {
                 result = true;
                 break;

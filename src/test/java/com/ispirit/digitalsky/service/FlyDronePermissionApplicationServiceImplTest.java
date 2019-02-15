@@ -9,6 +9,7 @@ import com.ispirit.digitalsky.exception.ApplicationNotFoundException;
 import com.ispirit.digitalsky.exception.ApplicationNotInSubmittedStatusException;
 import com.ispirit.digitalsky.exception.StorageFileNotFoundException;
 import com.ispirit.digitalsky.exception.ValidationException;
+import com.ispirit.digitalsky.repository.AdcNumberRepository;
 import com.ispirit.digitalsky.repository.FlyDronePermissionApplicationRepository;
 import com.ispirit.digitalsky.repository.storage.StorageService;
 import com.ispirit.digitalsky.service.api.*;
@@ -51,6 +52,8 @@ public class FlyDronePermissionApplicationServiceImplTest {
     private UserProfileService userProfileService;
     private PilotService pilotService;
     private Configuration freemarkerConfiguration;
+    private AdcNumberRepository adcNumberRepository;
+    private AdcNumberServiceImpl adcNumberService;
     private List<FlightInformationRegion> firs = new ArrayList<>();
 
     @Before
@@ -63,6 +66,8 @@ public class FlyDronePermissionApplicationServiceImplTest {
         userProfileService = mock(UserProfileService.class);
         pilotService = mock(PilotService.class);
         freemarkerConfiguration = freemarkerConfiguration();
+        adcNumberRepository = mock(AdcNumberRepository.class);
+        adcNumberService = mock(AdcNumberServiceImpl.class);
         File file = new File("chennaiFir.json");
         BufferedReader reader = new BufferedReader(new FileReader(file));
         firs.add(0, new FlightInformationRegion("Chennai", reader.readLine(), 'O'));
@@ -72,10 +77,10 @@ public class FlyDronePermissionApplicationServiceImplTest {
         file = new File("mumbaiFir.json");
         reader = new BufferedReader(new FileReader(file));
         firs.add(2, new FlightInformationRegion("Mumbai", reader.readLine(), 'A'));
-        file = new File("kolkataFir.json");
-        reader = new BufferedReader(new FileReader(file));
-        firs.add(3, new FlightInformationRegion("Kolkata", reader.readLine(), 'E'));
-        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs));
+//        file = new File("kolkataFir.json");
+//        reader = new BufferedReader(new FileReader(file));
+//        firs.add(3, new FlightInformationRegion("Kolkata", reader.readLine(), 'E')); todo: this is ignored as the kolkata fir geojson is hard to make it into a polygon
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs,adcNumberService));
         userPrincipal = SecurityContextHelper.setUserSecurityContext();
     }
 
@@ -504,7 +509,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
     @Test
     public void shouldValidateIfFlyAreaWithinGreenZones() throws Exception {
         //given
-        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs));
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs,adcNumberService));
         LatLong one = new LatLong(11.630715737981486, 68.88427734374999);
         LatLong two = new LatLong(7.18810087117902, 68.70849609375);
         LatLong three = new LatLong(11.695272733029402, 77.89306640625);
@@ -530,7 +535,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
     @Test
     public void shouldValidateIfFlyAreaIntersectWithRedZones() throws Exception {
         //given
-        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs));
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs,adcNumberService));
         LatLong one = new LatLong(11.630715737981486, 68.88427734374999);
         LatLong two = new LatLong(7.18810087117902, 68.70849609375);
         LatLong three = new LatLong(11.695272733029402, 77.89306640625);
@@ -557,7 +562,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
     @Test
     public void handleSubmitShouldCheckIfFlyAreaIntersectWithAmberZones() throws Exception {
         //given
-        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs));
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs,adcNumberService));
         LatLong one = new LatLong(11.630715737981486, 68.88427734374999);
         LatLong two = new LatLong(7.18810087117902, 68.70849609375);
         LatLong three = new LatLong(11.695272733029402, 77.89306640625);
@@ -585,7 +590,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
     public void shouldApproveApplicationAfterSubmit() throws Exception {
         //given
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
-        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs));
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs,adcNumberService));
         LatLong one = new LatLong(11.630715737981486, 68.88427734374999);
         LatLong two = new LatLong(7.18810087117902, 68.70849609375);
         LatLong three = new LatLong(11.695272733029402, 77.89306640625);

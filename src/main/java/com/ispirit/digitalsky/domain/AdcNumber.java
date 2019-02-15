@@ -1,12 +1,10 @@
 package com.ispirit.digitalsky.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.ispirit.digitalsky.document.FlyDronePermissionApplication;
-import com.ispirit.digitalsky.service.api.FlyDronePermissionApplicationService;
 import com.ispirit.digitalsky.util.LocalDateTimeAttributeConverter;
 
 import javax.persistence.*;
-import java.time.LocalDate;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Entity
@@ -15,20 +13,21 @@ public class AdcNumber {
 
   public static final char []adcPossibleChars = {'A','B','C','D','E','F','G','H','J','K','L','M','N','P','Q','R','S','T','U','V','W','X','Y','Z'};
 
-  private FlyDronePermissionApplicationService flyDronePermissionApplicationService;
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  @JsonIgnore
   private long id;
 
-  @Column(name = "FIRST_CHAR")
-  private String type = "R";
+  private static final String TYPE = "R";
 
   @Column(name = "SECOND_CHAR")
+  @NotNull
+  @Size(max = 1)
   private String fir;
 
   @Column(name = "THIRD_CHAR")
+  @NotNull
+  @Size(max = 1)
   private String alphabet;
 
   @Column(name = "FOURTH_FIFTH_SIXTH_NUM")
@@ -37,6 +36,7 @@ public class AdcNumber {
   @Column(name= "SEVENTH_NUMBER")
   private int seventhNumber;
 
+  @Size(max = 30)
   @Column(name= "ASSIGNED_FLY_PERMISSION_ID")
   private String flyDronePermissionApplicationId;
 
@@ -46,25 +46,22 @@ public class AdcNumber {
 
   @Column(name = "VALID_FOR_DATE")
   @Convert(converter = LocalDateTimeAttributeConverter.class)
-  private LocalDate validForDate = LocalDate.now();
+  private LocalDateTime validForDate;
 
   @Column(name = "ADC_NUMBER")
+  @Size(max = 7)
   private String adcNumber;
 
 
-  public AdcNumber(String fir, String alphabet, int fourthFifthSixthNumber, int seventhNumber,String flyDronePermissionApplicationId,FlyDronePermissionApplicationService flyDronePermissionApplicationService) {
+  public AdcNumber(String fir, String alphabet, int fourthFifthSixthNumber, int seventhNumber, String flyDronePermissionApplicationId,LocalDateTime validForDate) {
     checkIfDomainValid(alphabet,seventhNumber,fir);
     this.fir = fir;
     this.alphabet = alphabet.toUpperCase();
     this.fourthFifthSixthNumber = fourthFifthSixthNumber;
     this.seventhNumber = seventhNumber;
     this.flyDronePermissionApplicationId = flyDronePermissionApplicationId;
-    FlyDronePermissionApplication application = flyDronePermissionApplicationService.get(flyDronePermissionApplicationId);
-    if(application==null)
-      throw new RuntimeException("No such flyDroneApplication Exists");
-    this.validForDate= LocalDate.of(application.getStartDateTime().getYear(),application.getStartDateTime().getMonthValue(),application.getStartDateTime().getDayOfMonth());
-    setAdcNumber(this.type+fir+alphabet+String.format("%03d", fourthFifthSixthNumber)+seventhNumber);
-    this.flyDronePermissionApplicationService = flyDronePermissionApplicationService;
+    this.validForDate= validForDate;
+    setAdcNumber(this.TYPE +fir+alphabet+String.format("%03d", fourthFifthSixthNumber)+seventhNumber);
   }
 
   private void checkIfDomainValid(String alphabet, int seventhNumber,String fir) {
@@ -76,7 +73,7 @@ public class AdcNumber {
       throw new RuntimeException("Not a valid FIR");
   }
 
-  public AdcNumber(String adcNumber, LocalDate validForDate , FlyDronePermissionApplicationService flyDronePermissionApplicationService){
+  public AdcNumber(String adcNumber, LocalDateTime validForDate){
     if(adcNumber.length()!=7)
       throw new RuntimeException("Length of ADC number is not 7");
     if(adcNumber.charAt(0)!='R')
@@ -92,41 +89,12 @@ public class AdcNumber {
     }
     checkIfDomainValid(this.alphabet,this.seventhNumber,this.fir);
     this.validForDate = validForDate;
-    this.flyDronePermissionApplicationService = flyDronePermissionApplicationService;
-    setAdcNumber(this.type+fir+alphabet+String.format("%03d", fourthFifthSixthNumber)+seventhNumber);
+    setAdcNumber(this.TYPE +fir+alphabet+String.format("%03d", fourthFifthSixthNumber)+seventhNumber);
   }
 
-//  public String getFir() {
-//    return fir;
-//  }
+  private AdcNumber(){
 
-//  public void setFir(String fir) {
-//    this.fir = fir;
-//  }
-
-//  public String getAlphabet() {
-//    return alphabet;
-//  }
-
-//  public void setAlphabet(String alphabet) {
-//    this.alphabet = alphabet;
-//  }
-
-//  public int getFourthFifthSixthNumber() {
-//    return fourthFifthSixthNumber;
-//  }
-
-//  public void setFourthFifthSixthNumber(int fourthFifthSixthNumber) {
-//    this.fourthFifthSixthNumber = fourthFifthSixthNumber;
-//  }
-
-//  public int getSeventhNumber() {
-//    return seventhNumber;
-//  }
-
-//  public void setSeventhNumber(int seventhNumber) {
-//    this.seventhNumber = seventhNumber;
-//  }
+  }
 
   public String getAdcNumber(){
     return this.adcNumber;
@@ -141,7 +109,7 @@ public class AdcNumber {
     else{
       seventhNumber=newNumber;
     }
-    setAdcNumber(this.type+fir+alphabet+String.format("%03d", fourthFifthSixthNumber)+seventhNumber);
+    setAdcNumber(this.TYPE +fir+alphabet+String.format("%03d", fourthFifthSixthNumber)+seventhNumber);
   }
 
   private void incrementFourthFifthSixthNumber() {
@@ -153,7 +121,7 @@ public class AdcNumber {
     else{
       fourthFifthSixthNumber=newNumber;
     }
-    setAdcNumber(this.type+fir+alphabet+String.format("%03d", fourthFifthSixthNumber)+seventhNumber);
+    setAdcNumber(this.TYPE +fir+alphabet+String.format("%03d", fourthFifthSixthNumber)+seventhNumber);
   }
 
   private void incrementAlphabet() {
@@ -164,7 +132,7 @@ public class AdcNumber {
     else{
       alphabet = Character.toString(adcPossibleChars[newCharIndex]);
     }
-    setAdcNumber(this.type+fir+alphabet+String.format("%03d", fourthFifthSixthNumber)+seventhNumber);
+    setAdcNumber(this.TYPE +fir+alphabet+String.format("%03d", fourthFifthSixthNumber)+seventhNumber);
   }
 
   private void setAdcNumber(String adcNumber) {
@@ -182,7 +150,7 @@ public class AdcNumber {
     }
 
     final AdcNumber other = (AdcNumber) obj;
-    if (this.type != other.type || !this.fir.equals(other.fir) || !this.alphabet.equals(other.alphabet)  || this.fourthFifthSixthNumber != other.fourthFifthSixthNumber || this.seventhNumber!=other.seventhNumber || !this.validForDate.isEqual(other.validForDate) || !this.adcNumber.equals(other.adcNumber)) {
+    if (this.TYPE != other.TYPE || !this.fir.equals(other.fir) || !this.alphabet.equals(other.alphabet)  || this.fourthFifthSixthNumber != other.fourthFifthSixthNumber || this.seventhNumber!=other.seventhNumber || !this.validForDate.isEqual(other.validForDate) || !this.adcNumber.equals(other.adcNumber)) {
       return false;
     }
 

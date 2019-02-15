@@ -7,7 +7,7 @@
         <UADetails uinNo="${uinNumber}"/>
         <FlightPurpose shortDesc="${purposeOfFlight}"/>
         <PayloadDetails payLoadWeightInKg="${payloadWeightInKg}" payloadDetails="${payloadDetails}"/>
-        <FlightParameters flightStartTime="${startDateTime}" flightEndTime="${endDateTime}" recurrenceTimeExpression="${(recurrenceTimeExpression)!}" recurrenceTimeExpressionType="${(recurrenceTimeExpressionType)!}" recurringTimeDurationInMinutes="${(recurringTimeDurationInMinutes)!}" maxAltitude="${maxAltitude}" ficNumber="${ficNumber}" adcNumber="${adcNumber}"}>
+        <FlightParameters flightStartTime="${startDateTime}" flightEndTime="${endDateTime}" recurrenceTimeExpression="${(recurrenceTimeExpression)!}" recurrenceTimeExpressionType="${(recurrenceTimeExpressionType)!}" recurringTimeDurationInMinutes="${(recurringTimeDurationInMinutes)!}" maxAltitude="${maxAltitude}" ficNumber="${ficNumber}" adcNumber="${adcNumber}">
             <Coordinates>
                 ${coordinates}
             </Coordinates>

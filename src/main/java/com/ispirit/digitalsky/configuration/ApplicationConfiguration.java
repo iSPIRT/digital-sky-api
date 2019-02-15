@@ -191,7 +191,7 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    AdcNumberService adcNumberService(AdcNumberRepository adcNumberRepository){
+    AdcNumberServiceImpl adcNumberService(AdcNumberRepository adcNumberRepository){
         return new AdcNumberServiceImpl(adcNumberRepository);
     }
 
@@ -286,8 +286,8 @@ public class ApplicationConfiguration {
     }
 
     @Bean(FLY_DRONE_SERVICE)
-    FlyDronePermissionApplicationService flyDronePermissionApplicationService(FlyDronePermissionApplicationRepository repository, StorageService storageService, AirspaceCategoryService airspaceCategoryService, freemarker.template.Configuration freemarkerConfiguration, DigitalSignService digitalSignService, OperatorDroneService operatorDroneService, UserProfileService userProfileService, PilotService pilotService, List<FlightInformationRegion> firs){
-        return new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,this.firs);
+    FlyDronePermissionApplicationService flyDronePermissionApplicationService(FlyDronePermissionApplicationRepository repository, StorageService storageService, AirspaceCategoryService airspaceCategoryService, freemarker.template.Configuration freemarkerConfiguration, DigitalSignService digitalSignService, OperatorDroneService operatorDroneService, UserProfileService userProfileService, PilotService pilotService,AdcNumberRepository adcNumberRepository){
+        return new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,this.firs,adcNumberService(adcNumberRepository) );
     }
 
     @Bean
@@ -332,9 +332,9 @@ public class ApplicationConfiguration {
             file = new File("mumbaiFir.json");
             reader = new BufferedReader(new FileReader(file));
             firs.add(2, new FlightInformationRegion("Mumbai", reader.readLine(), 'A'));
-            file = new File("kolkataFir.json");
-            reader = new BufferedReader(new FileReader(file));
-            firs.add(3, new FlightInformationRegion("Kolkata", reader.readLine(), 'E'));
+//            file = new File("kolkataFir.json");
+//            reader = new BufferedReader(new FileReader(file));
+//            firs.add(3, new FlightInformationRegion("Kolkata", reader.readLine(), 'E')); todo: replace with actual kolkata geojson when we get it properly
         }
         catch (IOException e){
             e.printStackTrace();
