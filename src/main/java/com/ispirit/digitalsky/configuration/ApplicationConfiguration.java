@@ -196,6 +196,11 @@ public class ApplicationConfiguration {
     }
 
     @Bean
+    FicNumberServiceImpl ficNumberService(FicNumberRepository ficNumberRepository){
+        return new FicNumberServiceImpl(ficNumberRepository);
+    }
+
+    @Bean
     DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneAcquisitionService(
             LocalDroneAcquisitionApplicationRepository droneAcquisitionRepository,
             StorageService storageService,
@@ -286,8 +291,8 @@ public class ApplicationConfiguration {
     }
 
     @Bean(FLY_DRONE_SERVICE)
-    FlyDronePermissionApplicationService flyDronePermissionApplicationService(FlyDronePermissionApplicationRepository repository, StorageService storageService, AirspaceCategoryService airspaceCategoryService, freemarker.template.Configuration freemarkerConfiguration, DigitalSignService digitalSignService, OperatorDroneService operatorDroneService, UserProfileService userProfileService, PilotService pilotService,AdcNumberRepository adcNumberRepository){
-        return new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,this.firs,adcNumberService(adcNumberRepository) );
+    FlyDronePermissionApplicationService flyDronePermissionApplicationService(FlyDronePermissionApplicationRepository repository, StorageService storageService, AirspaceCategoryService airspaceCategoryService, freemarker.template.Configuration freemarkerConfiguration, DigitalSignService digitalSignService, OperatorDroneService operatorDroneService, UserProfileService userProfileService, PilotService pilotService, AdcNumberRepository adcNumberRepository, FicNumberRepository ficNumberRepository){
+        return new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration, this.firs, adcNumberService(adcNumberRepository), ficNumberService(ficNumberRepository) );
     }
 
     @Bean

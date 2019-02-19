@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 
 import static org.apache.commons.io.IOUtils.toInputStream;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
-//todo write tests for each of the new checks I added
 
 public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermissionApplicationService {
 
@@ -61,6 +60,8 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
 
     private AdcNumberServiceImpl adcNumberServiceImpl;
 
+    private FicNumberServiceImpl ficNumberServiceImpl;
+
     public static final int SUNRISE_HOUR = 5;
 
     public static final int SUNRISE_SUNSET_MINUTE = 30;
@@ -86,7 +87,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             DigitalSignService digitalSignService,
             OperatorDroneService operatorDroneService,
             UserProfileService userProfileService,
-            PilotService pilotService, Configuration freemarkerConfiguration,List<FlightInformationRegion> firs, AdcNumberServiceImpl adcNumberServiceImpl) {
+            PilotService pilotService, Configuration freemarkerConfiguration,List<FlightInformationRegion> firs, AdcNumberServiceImpl adcNumberServiceImpl, FicNumberServiceImpl ficNumberServiceImpl) {
         this.repository = repository;
         this.storageService = storageService;
         this.airspaceCategoryService = airspaceCategoryService;
@@ -97,6 +98,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         this.configuration = freemarkerConfiguration;
         this.firs=firs;
         this.adcNumberServiceImpl = adcNumberServiceImpl;
+        this.ficNumberServiceImpl = ficNumberServiceImpl;
     }
 
     @Override
@@ -124,7 +126,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             application.setFir(matchingFir.getName());
             FlyDronePermissionApplication document = repository.insert(application);
             if(droneCategoryRegulationsCheck(application)) {
-                String ficNumber = generateFicNumber(matchingFir);
+                String ficNumber = ficNumberServiceImpl.generateNewFicNumber(application);
                 String adcNumber = adcNumberServiceImpl.generateNewAdcNumber(application);
                 generatePermissionArtifactWithAdcAndFic(application,ficNumber,adcNumber);
             }
@@ -194,7 +196,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             actualForm.setFir(matchingFir.getName());
             FlyDronePermissionApplication savedForm = repository.save(actualForm);
             if(droneCategoryRegulationsCheck(actualForm)) {
-                String ficNumber = generateFicNumber(matchingFir);
+                String ficNumber = ficNumberServiceImpl.generateNewFicNumber(actualForm);
                 String adcNumber = adcNumberServiceImpl.generateNewAdcNumber(actualForm);
                 generatePermissionArtifactWithAdcAndFic(actualForm,ficNumber,adcNumber);
             }
@@ -206,10 +208,6 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             return repository.save(actualForm);
         }
     }
-
-    private String generateFicNumber(FlightInformationRegion matchingFir) {
-        return "fic";
-    }//todo : complete the actual implementation of this
 
     public FlightInformationRegion getFirForFlightArea(FlyDronePermissionApplication application){
         if (application.getFlyArea() == null || application.getFlyArea().isEmpty()) {
