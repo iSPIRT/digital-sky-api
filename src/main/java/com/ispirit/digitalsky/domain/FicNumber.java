@@ -81,7 +81,8 @@ public class FicNumber {
       throw new RuntimeException("Length of fic number is not 7");
     if(ficNumber.charAt(5)!='R')
       throw new RuntimeException("FIC number doesn't have R at position 6");
-    this.lastChar = firToAlphabet.getFromFir(Character.toString(ficNumber.charAt(6)));
+    this.lastChar = Character.toString(ficNumber.charAt(6));
+    domainCheck(lastChar);
     try {
       this.firstToFifthNumbers = Integer.parseInt(ficNumber.substring(0,5));
     }
@@ -90,6 +91,16 @@ public class FicNumber {
     }
     this.validForDate = validForDate;
     setFicNumber(String.format("%05d", firstToFifthNumbers)+this.TYPE+lastChar);
+  }
+
+  private void domainCheck(String lastChar) {
+    switch (lastChar){
+      case "A":
+      case "E":
+      case "I":
+      case "O":return;
+      default: throw new RuntimeException("Not a valid FIR representative character it needs to be A,E,I,O only");
+    }
   }
 
   public String getFicNumber() {
