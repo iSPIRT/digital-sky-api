@@ -259,6 +259,52 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
     }
 
     @Override
+    @Transactional
+    public FlyDronePermissionApplication approveByAtcApplication(ApproveRequestBody approveRequestBody) throws ApplicationNotFoundException, UnAuthorizedAccessException {
+        UserPrincipal userPrincipal = UserPrincipal.securityContext();
+        FlyDronePermissionApplication actualForm = repository.findById(approveRequestBody.getApplicationFormId());
+        if (actualForm == null) {
+            throw new ApplicationNotFoundException();
+        }
+
+        if (actualForm.getStatus() != ApplicationStatus.SUBMITTED) {
+            throw new ApplicationNotInSubmittedStatusException();
+        }
+
+        actualForm.setApproverId(userPrincipal.getId());
+        actualForm.setApprover(userPrincipal.getUsername());
+        actualForm.setApprovedDate(new Date());
+        actualForm.setApproverComments(approveRequestBody.getComments());
+        actualForm.setStatus(approveRequestBody.getStatus());
+
+        FlyDronePermissionApplication savedForm = repository.save(actualForm);
+        return savedForm;
+    }
+
+    @Override
+    @Transactional
+    public FlyDronePermissionApplication approveByAfmluApplication(ApproveRequestBody approveRequestBody) throws ApplicationNotFoundException, UnAuthorizedAccessException {
+        UserPrincipal userPrincipal = UserPrincipal.securityContext();
+        FlyDronePermissionApplication actualForm = repository.findById(approveRequestBody.getApplicationFormId());
+        if (actualForm == null) {
+            throw new ApplicationNotFoundException();
+        }
+
+        if (actualForm.getStatus() != ApplicationStatus.APPROVEDBYATC) {
+            throw new ApplicationNotApprovedByAtc();
+        }
+
+        actualForm.setApproverId(userPrincipal.getId());
+        actualForm.setApprover(userPrincipal.getUsername());
+        actualForm.setApprovedDate(new Date());
+        actualForm.setApproverComments(approveRequestBody.getComments());
+        actualForm.setStatus(approveRequestBody.getStatus());
+
+        FlyDronePermissionApplication savedForm = repository.save(actualForm);
+        return savedForm;
+    }
+
+    @Override
     public FlyDronePermissionApplication get(String id) {
         return repository.findById(id);
 
@@ -308,6 +354,13 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
                 application.setApprovedDate(new Date());
                 application.setApproverComments("Self approval, within green zone");
                 application.setStatus(ApplicationStatus.APPROVED);
+            }
+            else{
+                application.setStatus(ApplicationStatus.SUBMITTED);
+                UserPrincipal userPrincipal = UserPrincipal.securityContext();
+                application.setApproverId(userPrincipal.getId());
+                application.setApprover(userPrincipal.getUsername());
+                application.setApprovedDate(new Date());
             }
         } catch (RuntimeException e) {
             throw e;

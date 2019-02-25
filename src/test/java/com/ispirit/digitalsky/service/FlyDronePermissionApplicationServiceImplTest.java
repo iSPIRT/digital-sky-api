@@ -5,10 +5,7 @@ import com.ispirit.digitalsky.document.FlyDronePermissionApplication;
 import com.ispirit.digitalsky.document.LatLong;
 import com.ispirit.digitalsky.domain.*;
 import com.ispirit.digitalsky.dto.Errors;
-import com.ispirit.digitalsky.exception.ApplicationNotFoundException;
-import com.ispirit.digitalsky.exception.ApplicationNotInSubmittedStatusException;
-import com.ispirit.digitalsky.exception.StorageFileNotFoundException;
-import com.ispirit.digitalsky.exception.ValidationException;
+import com.ispirit.digitalsky.exception.*;
 import com.ispirit.digitalsky.repository.FlyDronePermissionApplicationRepository;
 import com.ispirit.digitalsky.repository.storage.StorageService;
 import com.ispirit.digitalsky.service.api.*;
@@ -20,6 +17,7 @@ import org.geojson.GeoJsonObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.security.util.InMemoryResource;
 
@@ -33,6 +31,7 @@ import static com.ispirit.digitalsky.service.FlyDronePermissionApplicationServic
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
@@ -357,6 +356,147 @@ public class FlyDronePermissionApplicationServiceImplTest {
     }
 
     @Test
+    public void shouldMarkApplicationAsApprovedByAtc() throws Exception {
+        //given
+        ApproveRequestBody approveRequestBody = new ApproveRequestBody();
+        approveRequestBody.setApplicationFormId("1");
+        approveRequestBody.setStatus(ApplicationStatus.APPROVEDBYATC);
+        approveRequestBody.setComments("comments");
+
+        FlyDronePermissionApplication application = new FlyDronePermissionApplication();
+        application.setId("1");
+        application.setPilotBusinessIdentifier("1");
+        application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
+        application.setApplicantId(1);
+        application.setStatus(ApplicationStatus.SUBMITTED);
+        when(repository.findById("1")).thenReturn(application);
+
+        //when
+        service.approveByAtcApplication(approveRequestBody);
+
+        //then
+        ArgumentCaptor<FlyDronePermissionApplication> argumentCaptor = ArgumentCaptor.forClass(FlyDronePermissionApplication.class);
+        verify(repository).save(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue().getApprover(), is(userPrincipal.getUsername()));
+        assertThat(argumentCaptor.getValue().getApproverId(), is(userPrincipal.getId()));
+        assertThat(argumentCaptor.getValue().getApprovedDate(), notNullValue());
+        assertThat(argumentCaptor.getValue().getApproverComments(), is(approveRequestBody.getComments()));
+        assertThat(argumentCaptor.getValue().getStatus(), is(ApplicationStatus.APPROVEDBYATC));
+    }
+
+    @Test
+    public void shouldMarkApplicationAsApprovedByAfmlu() throws Exception {
+        //given
+        ApproveRequestBody approveRequestBody = new ApproveRequestBody();
+        approveRequestBody.setApplicationFormId("1");
+        approveRequestBody.setStatus(ApplicationStatus.APPROVEDBYAFMLU);
+        approveRequestBody.setComments("comments");
+
+        FlyDronePermissionApplication application = new FlyDronePermissionApplication();
+        application.setId("1");
+        application.setPilotBusinessIdentifier("1");
+        application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
+        application.setApplicantId(1);
+        application.setStatus(ApplicationStatus.APPROVEDBYATC);
+        when(repository.findById("1")).thenReturn(application);
+
+        //when
+        service.approveByAfmluApplication(approveRequestBody);
+
+        //then
+        ArgumentCaptor<FlyDronePermissionApplication> argumentCaptor = ArgumentCaptor.forClass(FlyDronePermissionApplication.class);
+        verify(repository).save(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue().getApprover(), is(userPrincipal.getUsername()));
+        assertThat(argumentCaptor.getValue().getApproverId(), is(userPrincipal.getId()));
+        assertThat(argumentCaptor.getValue().getApprovedDate(), notNullValue());
+        assertThat(argumentCaptor.getValue().getApproverComments(), is(approveRequestBody.getComments()));
+        assertThat(argumentCaptor.getValue().getStatus(), is(ApplicationStatus.APPROVEDBYAFMLU));
+    }
+
+    @Test
+    public void shouldThrowExceptionIfApplicationNotFoundDuringApproveByAfmlu() throws Exception {
+        //given
+        ApproveRequestBody approveRequestBody = new ApproveRequestBody();
+        approveRequestBody.setApplicationFormId("1");
+        approveRequestBody.setStatus(ApplicationStatus.APPROVEDBYAFMLU);
+        approveRequestBody.setComments("comments");
+
+        try {
+            service.approveByAfmluApplication(approveRequestBody);
+            fail("should have thrown ApplicationNotFoundException");
+        }
+        catch (ApplicationNotFoundException e) {
+
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionIfApplicationNotFoundDuringApproveByAtc() throws Exception {
+        //given
+        ApproveRequestBody approveRequestBody = new ApproveRequestBody();
+        approveRequestBody.setApplicationFormId("1");
+        approveRequestBody.setStatus(ApplicationStatus.APPROVEDBYATC);
+        approveRequestBody.setComments("comments");
+
+
+        try {
+            service.approveByAfmluApplication(approveRequestBody);
+            fail("should have thrown ApplicationNotFoundException");
+        }
+        catch (ApplicationNotFoundException e) {
+
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionIfApplicationNotInSubmittedDuringApproveByAtc() throws Exception {
+        //given
+        ApproveRequestBody approveRequestBody = new ApproveRequestBody();
+        approveRequestBody.setApplicationFormId("1");
+        approveRequestBody.setStatus(ApplicationStatus.APPROVEDBYATC);
+        approveRequestBody.setComments("comments");
+
+        FlyDronePermissionApplication application = new FlyDronePermissionApplication();
+        application.setId("1");
+        application.setPilotBusinessIdentifier("1");
+        application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
+        application.setApplicantId(1);
+        application.setStatus(ApplicationStatus.APPROVEDBYATC);
+        when(repository.findById("1")).thenReturn(application);
+        try {
+            service.approveByAtcApplication(approveRequestBody);
+            fail("should have thrown ApplicationNotInSubmittedException");
+        }
+        catch (ApplicationNotInSubmittedStatusException e) {
+
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionIfApplicationNotInApprovedByAtcDuringApproveByAfmlu() throws Exception {
+        //given
+        ApproveRequestBody approveRequestBody = new ApproveRequestBody();
+        approveRequestBody.setApplicationFormId("1");
+        approveRequestBody.setStatus(ApplicationStatus.APPROVEDBYAFMLU);
+        approveRequestBody.setComments("comments");
+
+        FlyDronePermissionApplication application = new FlyDronePermissionApplication();
+        application.setId("1");
+        application.setPilotBusinessIdentifier("1");
+        application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
+        application.setApplicantId(1);
+        application.setStatus(ApplicationStatus.SUBMITTED);
+        when(repository.findById("1")).thenReturn(application);
+        try {
+            service.approveByAfmluApplication(approveRequestBody);
+            fail("should have thrown ApplicationNotApprovedByAtcException");
+        }
+        catch (ApplicationNotApprovedByAtc e) {
+
+        }
+    }
+
+    @Test
     public void shouldThrowExceptionIfApplicationNotFoundDuringApprove() throws Exception {
         //given
         ApproveRequestBody approveRequestBody = new ApproveRequestBody();
@@ -618,6 +758,102 @@ public class FlyDronePermissionApplicationServiceImplTest {
         assertThat(application.getApproverId(), is(userPrincipal.getId()));
         assertThat(application.getApprovedDate(), notNullValue());
         assertThat(application.getApproverComments(), is("Self approval, within green zone"));
+    }
+
+    @Test
+    public void shouldWithholdApprovalForApplicationAfterSubmit() throws Exception {
+        //given
+        FlyDronePermissionApplication application = new FlyDronePermissionApplication();
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs,adcNumberService,ficNumberService));
+        LatLong one = new LatLong(11.630715737981486, 68.88427734374999);
+        LatLong two = new LatLong(7.18810087117902, 68.70849609375);
+        LatLong three = new LatLong(11.695272733029402, 77.89306640625);
+        LatLong four = new LatLong(14.817370620155254, 77.58544921874999);
+        LatLong five = new LatLong(11.630715737981486, 68.88427734374999);
+        List<LatLong> flyArea = asList(one, two, three, four, five);
+        application.setFlyArea(flyArea);
+        application.setMaxAltitude(300);
+
+        OperatorDrone operatorDrone = new OperatorDrone();
+        operatorDrone.setOperatorId(application.getOperatorId());
+        operatorDrone.setOperatorType(application.getApplicantType());
+        operatorDrone.setUinApplicationId("sdsd");
+        DroneType type = new DroneType();
+        type.setDroneCategoryType(DroneCategoryType.MICRO);
+        operatorDrone.setDroneType(type);
+        when(operatorDroneService.find(application.getDroneId())).thenReturn(operatorDrone);
+
+        doReturn(false).when(service).isFlyAreaIntersects(anyString(), eq(flyArea));
+
+        //when
+        try {
+            service.handleSubmit(application);
+        } catch (ValidationException e) {
+        }
+        assertThat(application.getStatus(), is(ApplicationStatus.SUBMITTED));
+        assertThat(application.getApproverId(), is(userPrincipal.getId()));
+        assertThat(application.getApprovedDate(), notNullValue());
+        assertThat(application.getApproverComments(), nullValue());
+    }
+
+    @Test
+    public void shouldCreateAdcAndFicWhenSubmitted() throws Exception {
+        //given
+
+        FlyDronePermissionApplication application = new FlyDronePermissionApplication();
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs,adcNumberService,ficNumberService));
+        LatLong one = new LatLong(12.979901552822549, 77.59938597679138);
+        LatLong two = new LatLong(12.979263815142966, 77.5983452796936);
+        LatLong three = new LatLong(12.977517869190518, 77.5990104675293);
+        LatLong four = new LatLong(12.97822879477083, 77.60073781013487);
+        LatLong five = new LatLong(12.979864961360581, 77.60029792785645);
+        LatLong six = new LatLong(12.979901552822549, 77.59938597679138);
+        List<LatLong> flyArea = asList(one, two, three, four, five, six);
+        application.setFlyArea(flyArea);
+        application.setMaxAltitude(300);
+        application.setPilotBusinessIdentifier("abcba");
+        application.setStartDateTime(LocalDateTime.of(LocalDate.now(), LocalTime.of(13,0)).plusDays(2));
+        application.setEndDateTime(LocalDateTime.of(LocalDate.now(), LocalTime.of(13,0)).plusDays(2).plusMinutes(30));
+        application.setStatus(ApplicationStatus.SUBMITTED);
+        application.setFlightPurpose("Fun");
+        application.setPayloadDetails("fun");
+
+        OperatorDrone operatorDrone = new OperatorDrone();
+        operatorDrone.setOperatorId(application.getOperatorId());
+        operatorDrone.setOperatorType(application.getApplicantType());
+        operatorDrone.setUinApplicationId("sdsd");
+        DroneType type = new DroneType();
+        type.setDroneCategoryType(DroneCategoryType.MICRO);
+        operatorDrone.setDroneType(type);
+
+        when(operatorDroneService.find(application.getDroneId())).thenReturn(operatorDrone);
+        when(pilotService.findByBusinessIdentifier(application.getPilotBusinessIdentifier())).thenReturn(new Pilot(1l));
+        when(service.get("1")).thenReturn(application);
+        when(adcNumberService.generateNewAdcNumber(any(FlyDronePermissionApplication.class))).thenReturn("RCA0001");
+        when(ficNumberService.generateNewFicNumber(any(FlyDronePermissionApplication.class))).thenReturn("00000RO");
+        when(userProfileService.resolveOperatorBusinessIdentifier(operatorDrone.getOperatorType(), operatorDrone.getOperatorId())).thenReturn("abc");
+
+        doNothing().when(service).validateFlyArea(application);
+        doReturn(false).when(service).isFlyAreaIntersects(anyString(), eq(flyArea));
+
+
+        //when
+        try {
+            service.updateApplication("1",application);
+        } catch (ValidationException e) {
+        }
+        assertThat(application.getStatus(), is(ApplicationStatus.SUBMITTED));
+        assertThat(application.getApproverId(), is(userPrincipal.getId()));
+        assertThat(application.getApprovedDate(), notNullValue());
+        assertThat(application.getApproverComments(), nullValue());
+
+        ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
+        verify(digitalSignService).sign(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue()
+                .replaceAll("flightStartTime=\"....-..-..T..:..:..\" flightEndTime=\"....-..-..T..:..:..\" ",""),
+            is(IOUtils.toString(this.getClass().getResourceAsStream("/expectedPermissionArtefactWithFicAdc"), "UTF-8")
+                .replaceAll("flightStartTime=\"....-..-..T..:..:..\" flightEndTime=\"....-..-..T..:..:..\" ","")));
+        verify(storageService).store(anyString(), anyString(), anyString());
     }
 
     @Test

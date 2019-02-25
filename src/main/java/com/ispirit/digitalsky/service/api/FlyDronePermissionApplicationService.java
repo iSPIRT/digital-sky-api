@@ -18,6 +18,10 @@ public interface FlyDronePermissionApplicationService {
 
     FlyDronePermissionApplication approveApplication(ApproveRequestBody approveRequestBody) throws ApplicationNotFoundException,UnAuthorizedAccessException;
 
+    FlyDronePermissionApplication approveByAtcApplication(ApproveRequestBody approveRequestBody) throws ApplicationNotFoundException, UnAuthorizedAccessException;
+
+    FlyDronePermissionApplication approveByAfmluApplication(ApproveRequestBody approveRequestBody) throws ApplicationNotFoundException, UnAuthorizedAccessException;
+
     FlyDronePermissionApplication get(String id);
 
     Collection<FlyDronePermissionApplication> getApplicationsOfDrone(long droneId);
