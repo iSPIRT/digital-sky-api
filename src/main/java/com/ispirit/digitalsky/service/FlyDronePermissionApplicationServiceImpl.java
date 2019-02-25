@@ -128,6 +128,8 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             if(droneCategoryRegulationsCheck(application)) {
                 String ficNumber = ficNumberServiceImpl.generateNewFicNumber(application);
                 String adcNumber = adcNumberServiceImpl.generateNewAdcNumber(application);
+                application.setAdcNumber(adcNumber);
+                application.setFicNumber(ficNumber);
                 generatePermissionArtifactWithAdcAndFic(application,ficNumber,adcNumber);
             }
             else {
@@ -194,16 +196,17 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             actualForm.setSubmittedDate(new Date());
             handleSubmit(actualForm);
             actualForm.setFir(matchingFir.getName());
-            FlyDronePermissionApplication savedForm = repository.save(actualForm);
             if(droneCategoryRegulationsCheck(actualForm)) {
                 String ficNumber = ficNumberServiceImpl.generateNewFicNumber(actualForm);
                 String adcNumber = adcNumberServiceImpl.generateNewAdcNumber(actualForm);
+                actualForm.setAdcNumber(adcNumber);
+                actualForm.setFicNumber(ficNumber);
                 generatePermissionArtifactWithAdcAndFic(actualForm,ficNumber,adcNumber);
             }
             else {
                 generatePermissionArtifact(actualForm);
             }
-            return savedForm;
+            return repository.save(actualForm);
         } else {
             return repository.save(actualForm);
         }

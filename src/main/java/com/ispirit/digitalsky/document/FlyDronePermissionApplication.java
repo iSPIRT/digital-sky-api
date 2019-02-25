@@ -90,6 +90,12 @@ public class FlyDronePermissionApplication extends BasicApplication {
     @Field("fir")
     private String fir;
 
+    @Field("adcNumber")
+    private String adcNumber;
+
+    @Field("ficNumber")
+    private String ficNumber;
+
 
     public FlyDronePermissionApplication() {
         setCreatedDate(new Date());
@@ -211,5 +217,21 @@ public class FlyDronePermissionApplication extends BasicApplication {
 
     public void setFir(String fir) {
         this.fir = fir;
+    }
+
+    public String getAdcNumber() {
+        return adcNumber;
+    }
+
+    public void setAdcNumber(String adcNumber) {
+        this.adcNumber = adcNumber;
+    }
+
+    public String getFicNumber() {
+        return ficNumber;
+    }
+
+    public void setFicNumber(String ficNumber) {
+        this.ficNumber = ficNumber;
     }
 }
