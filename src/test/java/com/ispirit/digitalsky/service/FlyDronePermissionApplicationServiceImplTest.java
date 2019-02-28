@@ -89,8 +89,8 @@ public class FlyDronePermissionApplicationServiceImplTest {
         application.setDroneId(1);
         application.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
         application.setMaxAltitude(20);
-        application.setStartDateTime(LocalDateTime.now().plusDays(2));
-        application.setEndDateTime(LocalDateTime.now().plusDays(2).plusMinutes(45));
+        application.setStartDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 10, 0).plusDays(2));
+        application.setEndDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 10, 45).plusDays(2));
         doNothing().when(service).validateFlyArea(application);
         when(operatorDroneService.find(application.getDroneId())).thenReturn(new OperatorDrone());
         when(pilotService.findByBusinessIdentifier("1")).thenReturn(new Pilot(1L));
@@ -115,8 +115,8 @@ public class FlyDronePermissionApplicationServiceImplTest {
         application.setDroneId(1);
         application.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
         application.setMaxAltitude(20);
-        application.setStartDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().plusDays(2).getDayOfMonth(), 10, 0));
-        application.setEndDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().plusDays(2).getDayOfMonth(), 10, 45));
+        application.setStartDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 10, 0).plusDays(2));
+        application.setEndDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 10, 45).plusDays(2));
         application.setStatus(ApplicationStatus.SUBMITTED);
         doNothing().when(service).validateFlyArea(application);
         doNothing().when(service).handleSubmit(application);
@@ -145,8 +145,8 @@ public class FlyDronePermissionApplicationServiceImplTest {
         FlyDronePermissionApplication applicationPayload = new FlyDronePermissionApplication();
         applicationPayload.setPilotBusinessIdentifier("2");
         applicationPayload.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
-        applicationPayload.setStartDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().plusDays(2).getDayOfMonth(), 10, 0));
-        applicationPayload.setEndDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().plusDays(2).getDayOfMonth(), 10, 45));
+        applicationPayload.setStartDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 10, 0).plusDays(2));
+        applicationPayload.setEndDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 10, 45).plusDays(2));
         applicationPayload.setPayloadWeightInKg(2.5);
         applicationPayload.setPayloadDetails("food");
         applicationPayload.setFlightPurpose("parcel");
@@ -189,8 +189,8 @@ public class FlyDronePermissionApplicationServiceImplTest {
         applicationPayload.setStatus(ApplicationStatus.SUBMITTED);
         applicationPayload.setPilotBusinessIdentifier("2");
         applicationPayload.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
-        applicationPayload.setStartDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().plusDays(2).getDayOfMonth(), 10, 0));
-        applicationPayload.setEndDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().plusDays(2).getDayOfMonth(), 10, 45));
+        applicationPayload.setStartDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 10, 0).plusDays(2));
+        applicationPayload.setEndDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 10, 45).plusDays(2));
         applicationPayload.setPayloadWeightInKg(2.5);
         applicationPayload.setPayloadDetails("food");
         applicationPayload.setDroneId(1);

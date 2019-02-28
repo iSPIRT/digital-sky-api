@@ -28,6 +28,11 @@ public class AuthenticationUtil {
                     TokenResponse.adminUserResponse(accessToken, userPrincipal.getId(), userPrincipal.getUsername())
             );
         }
+        else if(userPrincipal.isAtcAdmin()){
+            return ResponseEntity.ok(
+                TokenResponse.atcAdminUserResponse(accessToken, userPrincipal.getId(), userPrincipal.getUsername())
+            );
+        }
 
         return ResponseEntity.ok(new TokenResponse(
                 accessToken,

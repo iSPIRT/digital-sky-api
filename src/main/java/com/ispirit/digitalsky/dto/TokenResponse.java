@@ -20,6 +20,8 @@ public class TokenResponse {
 
     private boolean isAdmin = false;
 
+    private boolean isAtcAdmin = false;
+
     private TokenResponse() {
         //for serialization and de-serialization
     }
@@ -40,6 +42,16 @@ public class TokenResponse {
         tokenResponse.id = id;
         tokenResponse.username = username;
         tokenResponse.isAdmin = true;
+        return tokenResponse;
+    }// todo: convert this to a switch sort of scenario
+
+    public static TokenResponse atcAdminUserResponse(String accessToken, long id, String username){
+        TokenResponse tokenResponse = new TokenResponse();
+        tokenResponse.accessToken = accessToken;
+        tokenResponse.id = id;
+        tokenResponse.username = username;
+        tokenResponse.isAdmin = false;
+        tokenResponse.isAtcAdmin = true;
         return tokenResponse;
     }
 

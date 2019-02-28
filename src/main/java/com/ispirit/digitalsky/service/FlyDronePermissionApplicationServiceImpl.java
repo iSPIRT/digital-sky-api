@@ -474,7 +474,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             SimpleFeature feature = featureIterator.next();
             Polygon airspaceCategory = (Polygon) feature.getDefaultGeometry();
             Polygon polygon = airspaceCategory.getFactory().createPolygon(flyAreaCoordinates);
-            if (polygon.intersects(airspaceCategory)) {
+            if (polygon.intersects(airspaceCategory)) {//todo check if this would be intersects or should be contains
                 result = true;
                 break;
             }

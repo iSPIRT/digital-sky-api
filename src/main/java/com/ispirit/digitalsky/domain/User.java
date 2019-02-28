@@ -67,6 +67,10 @@ public class User {
     @NotNull
     private String reCaptcha;
 
+    @Column(name="FIR")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String fir;
+
     private User() {
         //for serialization and de-serialization
     }
@@ -148,5 +152,9 @@ public class User {
 
     public void setReCaptcha(String reCaptcha) {
         this.reCaptcha = reCaptcha;
+    }
+
+    public String getFir() {
+        return fir;
     }
 }
