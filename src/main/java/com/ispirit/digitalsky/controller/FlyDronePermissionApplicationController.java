@@ -105,12 +105,9 @@ public class FlyDronePermissionApplicationController {
     }
 
     @RequestMapping(value = "/approveByAtc/{id}", method = RequestMethod.PATCH, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('ATC_ADMIN')")//todo: this has to be implemented in some way
+    @PreAuthorize("hasRole('ATC_ADMIN')")
     public ResponseEntity<?> approveApplicationByAtc(@PathVariable String id, @Valid @RequestBody ApproveRequestBody approveRequestBody) {
         try {
-            UserPrincipal userPrincipal = UserPrincipal.securityContext();
-            if(!userPrincipal.getRegion().equals(service.get(id).getFir()))
-                throw  new UnAuthorizedAccessException();
             FlyDronePermissionApplication application = service.approveByAtcApplication(approveRequestBody);
             return new ResponseEntity<>(application, HttpStatus.OK);
         } catch (ApplicationNotFoundException e) {
@@ -123,12 +120,9 @@ public class FlyDronePermissionApplicationController {
     }
 
     @RequestMapping(value = "/approveByAfmlu/{id}", method = RequestMethod.PATCH, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('AFMLU_ADMIN')")//todo: this has to be implemented in some way
+    @PreAuthorize("hasRole('AFMLU_ADMIN')")
     public ResponseEntity<?> approveApplicationByAfmlu(@PathVariable String id, @Valid @RequestBody ApproveRequestBody approveRequestBody) {
         try {
-            UserPrincipal userPrincipal = UserPrincipal.securityContext();
-            if(!userPrincipal.getRegion().equals(service.get(id).getFir()))
-                throw  new UnAuthorizedAccessException();
             FlyDronePermissionApplication application = service.approveByAfmluApplication(approveRequestBody);
             return new ResponseEntity<>(application, HttpStatus.OK);
         } catch (ApplicationNotFoundException e) {
@@ -169,7 +163,7 @@ public class FlyDronePermissionApplicationController {
             if (!userPrincipal.isAdmin() && userPrincipal.getId() != application.getApplicantId()) {
                 return new ResponseEntity<>(new Errors("UnAuthorized Access"), HttpStatus.UNAUTHORIZED);
             }
-            if (!application.getStatus().equals(ApplicationStatus.APPROVED)) {
+            if (!application.getStatus().equals(ApplicationStatus.APPROVED)&& !application.getStatus().equals(ApplicationStatus.APPROVEDBYAFMLU)) {
                 return new ResponseEntity<>(new Errors("Application Not Approved Yet"), HttpStatus.BAD_REQUEST);
             }
             Resource resourceFile = service.getPermissionArtifact(applicationId);
@@ -194,29 +188,25 @@ public class FlyDronePermissionApplicationController {
         return new ResponseEntity<>(submittedApplications, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/getRegionAllAtc", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/getAllAtc", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ATC_ADMIN') or hasRole('ATC_VIEW_ADMIN')")
     public ResponseEntity<?> listAllFromRegionForAtcAdmin() {
-        UserPrincipal userPrincipal = UserPrincipal.securityContext();
         Collection<?> applicationForms = service.getAllApplications();
         List<?> submittedApplications = applicationForms.stream().filter(applicationForm -> {
             ApplicationStatus status = ((FlyDronePermissionApplication) applicationForm).getStatus();
-            String fir = ((FlyDronePermissionApplication) applicationForm).getFir();
-            return status != null && status != ApplicationStatus.DRAFT && userPrincipal.getRegion().equals(fir);
+            return status != null && (status==ApplicationStatus.SUBMITTED || status==ApplicationStatus.APPROVEDBYATC || status==ApplicationStatus.REJECTEDBYATC);
         }).collect(Collectors.toList());
 
         return new ResponseEntity<>(submittedApplications, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/getRegionAllAfmlu", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('AFMNLU_ADMIN') or hasRole('AFMNLU_VIEW_ADMIN')")
+    @RequestMapping(value = "/getAllAfmlu", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('AFMLU_ADMIN') or hasRole('AFMNLU_VIEW_ADMIN')")
     public ResponseEntity<?> listAllFromRegionForAfmluAdmin() {
-        UserPrincipal userPrincipal = UserPrincipal.securityContext();
         Collection<?> applicationForms = service.getAllApplications();
         List<?> submittedApplications = applicationForms.stream().filter(applicationForm -> {
             ApplicationStatus status = ((FlyDronePermissionApplication) applicationForm).getStatus();
-            String fir = ((FlyDronePermissionApplication) applicationForm).getFir();
-            return status != null && status != ApplicationStatus.DRAFT && userPrincipal.getRegion().equals(fir);
+            return status != null && (status==ApplicationStatus.APPROVEDBYATC || status==ApplicationStatus.APPROVEDBYAFMLU || status==ApplicationStatus.REJECTEDBYAFMLU);
         }).collect(Collectors.toList());
 
         return new ResponseEntity<>(submittedApplications, HttpStatus.OK);

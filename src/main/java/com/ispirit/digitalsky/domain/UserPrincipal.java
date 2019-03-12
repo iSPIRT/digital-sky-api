@@ -103,6 +103,13 @@ public class UserPrincipal implements UserDetails {
         return false;
     }
 
+    public boolean isAfmluAdmin() {
+        for (GrantedAuthority grantedAuthority : authorityList) {
+            if (grantedAuthority.getAuthority().equals("ROLE_AFMLU_ADMIN")) return true;
+        }
+        return false;
+    }
+
     public String getRegion() {
         return region;
     }
