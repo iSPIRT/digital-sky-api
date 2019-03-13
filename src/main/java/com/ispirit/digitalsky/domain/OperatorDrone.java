@@ -50,12 +50,14 @@ public class OperatorDrone {
     @Column(name = "UNIQUE_DEVICE_ID")
     private String deviceId;
 
+    @Column(name = "UIN_NO")
+    private String uinNo;
+
     public OperatorDrone() {
 
     }
 
     public OperatorDrone(long operatorId, ApplicantType operatorType, String acquisitionApplicationId, boolean isImported) {
-
         this.operatorId =  operatorId;
         this.operatorType = operatorType;
         this.acquisitionApplicationId = acquisitionApplicationId;
@@ -130,4 +132,11 @@ public class OperatorDrone {
 
     public void setDeviceId(String deviceId) { this.deviceId = deviceId; }
 
+    public String getUinNo() {
+        return uinNo;
+    }
+
+    public void setUinNo(String uinNo) {
+        this.uinNo = uinNo;
+    }
 }

@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import javax.persistence.Convert;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
@@ -45,6 +46,7 @@ public class FlyDronePermissionApplication extends BasicApplication {
 
     @Field("payloadWeightInKg")
     @NotNull
+    @Min(value = 0)
     private double payloadWeightInKg;
 
     @Field("payloadDetails")

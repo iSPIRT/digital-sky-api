@@ -1,1 +1,0 @@
-ALTER TABLE ds_user ADD FIR VARCHAR(20);

@@ -114,6 +114,8 @@ public class UINApplicationServiceImpl implements UINApplicationService {
         actualForm.setApproverComments(approveRequestBody.getComments());
         actualForm.setStatus(approveRequestBody.getStatus());
 
+        if(approveRequestBody.getStatus() == ApplicationStatus.APPROVED)
+            operatorDroneService.createUinNumberForDevice(actualForm.getOperatorDroneId());
         OperatorDroneStatus opdroneStatus = approveRequestBody.getStatus() == ApplicationStatus.APPROVED ? OperatorDroneStatus.UIN_APPROVED : OperatorDroneStatus.UIN_REJECTED;
         operatorDroneService.updateStatus(actualForm.getOperatorDroneId(), opdroneStatus);
 

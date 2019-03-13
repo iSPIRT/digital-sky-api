@@ -12,4 +12,7 @@ public interface OperatorDroneRepository extends CrudRepository<OperatorDrone, L
 
     @Query("SELECT od FROM OperatorDrone od WHERE od.operatorId = :operatorId and od.operatorType = :operatorType")
     List<OperatorDrone> loadByOperator(@Param("operatorId") long operatorId, @Param("operatorType") ApplicantType operatorType);
+
+    @Query("SELECT MAX(id) FROM OperatorDrone od WHERE od.operatorDroneStatus ='UIN_APPROVED'")
+    long findLatestUIN();
 }
