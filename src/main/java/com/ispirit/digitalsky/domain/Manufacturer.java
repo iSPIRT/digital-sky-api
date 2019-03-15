@@ -33,7 +33,6 @@ public class Manufacturer extends Organisation {
     private MultipartFile trustedCertificateDoc;
 
     @Column(name = "BUSINESS_IDENTIFIER")
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String businessIdentifier;
 
     private Manufacturer() {

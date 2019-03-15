@@ -26,7 +26,6 @@ public class OrganizationOperator extends Organisation {
 
 
     @Column(name = "BUSINESS_IDENTIFIER")
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private final String businessIdentifier;
 
     private OrganizationOperator() {
