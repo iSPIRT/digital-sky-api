@@ -110,6 +110,13 @@ public class UserPrincipal implements UserDetails {
         return false;
     }
 
+    public boolean isViewerAdmin(){
+        for (GrantedAuthority grantedAuthority : authorityList) {
+            if (grantedAuthority.getAuthority().equals("ROLE_VIEWER_ADMIN")) return true;
+        }
+        return false;
+    }
+
     public String getRegion() {
         return region;
     }

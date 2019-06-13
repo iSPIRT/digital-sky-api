@@ -38,6 +38,11 @@ public class AuthenticationUtil {
                 TokenResponse.afmluAdminUserResponse(accessToken,userPrincipal.getId(),userPrincipal.getUsername())
             );
         }
+        else if(userPrincipal.isViewerAdmin()){
+            return ResponseEntity.ok(
+                TokenResponse.viewerAdminUserResponse(accessToken,userPrincipal.getId(),userPrincipal.getUsername())
+            );
+        }
         //todo change this to a switch with the user principal returning the granted authority
 
         return ResponseEntity.ok(new TokenResponse(

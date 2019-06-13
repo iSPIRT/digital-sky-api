@@ -24,6 +24,8 @@ public class TokenResponse {
 
     private boolean isAfmluAdmin = false;
 
+    private boolean isViewerAdmin = false;
+
     private TokenResponse() {
         //for serialization and de-serialization
     }
@@ -62,6 +64,15 @@ public class TokenResponse {
         tokenResponse.id = id;
         tokenResponse.username = username;
         tokenResponse.isAfmluAdmin = true;
+        return tokenResponse;
+    }
+
+    public static TokenResponse viewerAdminUserResponse(String accessToken, long id, String username){
+        TokenResponse tokenResponse = new TokenResponse();
+        tokenResponse.accessToken = accessToken;
+        tokenResponse.id = id;
+        tokenResponse.username = username;
+        tokenResponse.isViewerAdmin = true;
         return tokenResponse;
     }
 
