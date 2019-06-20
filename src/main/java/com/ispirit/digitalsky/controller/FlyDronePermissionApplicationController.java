@@ -14,14 +14,13 @@ import com.ispirit.digitalsky.service.api.UserProfileService;
 import com.ispirit.digitalsky.util.CustomValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -153,7 +152,7 @@ public class FlyDronePermissionApplicationController {
         return new ResponseEntity<>(new Errors("Invalid Drone Id"), HttpStatus.BAD_REQUEST);
     }
 
-    @RequestMapping(value = "/{applicationId}/document/permissionArtifact", method = RequestMethod.GET)
+    @RequestMapping(value = "/{applicationId}/document/permissionArtifact", method = RequestMethod.GET, produces = MediaType.APPLICATION_XML_VALUE)
     public ResponseEntity<?> getFile(@PathVariable String applicationId) { //todo: write test for this
 
         try {
@@ -169,8 +168,8 @@ public class FlyDronePermissionApplicationController {
             Resource resourceFile = service.getPermissionArtifact(applicationId);
 
             return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
-                    "attachment; filename=\"" + resourceFile.getFilename() + "\"").body(resourceFile);
-        } catch (StorageFileNotFoundException e) {
+                    "attachment; filename=" + resourceFile.getFilename()).contentLength(resourceFile.contentLength()).cacheControl(CacheControl.noCache()).body(resourceFile);
+        } catch (Exception e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.NOT_FOUND);
         }
     }
