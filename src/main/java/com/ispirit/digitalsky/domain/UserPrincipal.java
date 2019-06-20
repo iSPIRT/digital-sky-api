@@ -18,6 +18,7 @@ public class UserPrincipal implements UserDetails {
     private String password;
     private List<GrantedAuthority> authorityList;
     private boolean accountVerified = false;
+    private String region;
 
     public static UserPrincipal securityContext() {
         return (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -30,7 +31,7 @@ public class UserPrincipal implements UserDetails {
         this.password = user.getPassword();
         this.accountVerified = user.isAccountVerified();
         this.authorityList = unmodifiableList(toAuthorityGrantList(user.getRoleNames()));
-
+        this.region = user.getFir();
 
     }
 
@@ -93,5 +94,30 @@ public class UserPrincipal implements UserDetails {
             if (grantedAuthority.getAuthority().equals("ROLE_ADMIN")) return true;
         }
         return false;
+    }
+
+    public boolean isAtcAdmin() {
+        for (GrantedAuthority grantedAuthority : authorityList) {
+            if (grantedAuthority.getAuthority().equals("ROLE_ATC_ADMIN")) return true;
+        }
+        return false;
+    }
+
+    public boolean isAfmluAdmin() {
+        for (GrantedAuthority grantedAuthority : authorityList) {
+            if (grantedAuthority.getAuthority().equals("ROLE_AFMLU_ADMIN")) return true;
+        }
+        return false;
+    }
+
+    public boolean isViewerAdmin(){
+        for (GrantedAuthority grantedAuthority : authorityList) {
+            if (grantedAuthority.getAuthority().equals("ROLE_VIEWER_ADMIN")) return true;
+        }
+        return false;
+    }
+
+    public String getRegion() {
+        return region;
     }
 }

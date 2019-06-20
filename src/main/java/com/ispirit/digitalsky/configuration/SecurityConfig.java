@@ -85,8 +85,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .antMatchers(HttpMethod.POST, "/api/user/resetPassword")
                 .permitAll()
-                .antMatchers(HttpMethod.GET,"/api/airspaceCategory/list")
-                .permitAll()
+//                .antMatchers(HttpMethod.GET,"/api/airspaceCategory/list")
+//                .permitAll()
+//                .antMatchers(HttpMethod.GET,"/api/airspaceCategory/listHeight")
+//                .permitAll()
+//                .antMatchers(HttpMethod.GET,"/api/airspaceCategory/listHeightTime")
+//                .permitAll()
+            // todo: re-confirm if this is necessary to be public again and ways to avoid giving out information
             //add any api here to be available for clients without login also
                 .antMatchers(HttpMethod.GET,"/api/admin/*")
                 .hasRole("ADMIN")

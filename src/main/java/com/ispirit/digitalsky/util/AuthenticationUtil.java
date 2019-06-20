@@ -28,6 +28,22 @@ public class AuthenticationUtil {
                     TokenResponse.adminUserResponse(accessToken, userPrincipal.getId(), userPrincipal.getUsername())
             );
         }
+        else if(userPrincipal.isAtcAdmin()){
+            return ResponseEntity.ok(
+                TokenResponse.atcAdminUserResponse(accessToken, userPrincipal.getId(), userPrincipal.getUsername())
+            );
+        }
+        else if(userPrincipal.isAfmluAdmin()){
+            return ResponseEntity.ok(
+                TokenResponse.afmluAdminUserResponse(accessToken,userPrincipal.getId(),userPrincipal.getUsername())
+            );
+        }
+        else if(userPrincipal.isViewerAdmin()){
+            return ResponseEntity.ok(
+                TokenResponse.viewerAdminUserResponse(accessToken,userPrincipal.getId(),userPrincipal.getUsername())
+            );
+        }
+        //todo change this to a switch with the user principal returning the granted authority
 
         return ResponseEntity.ok(new TokenResponse(
                 accessToken,

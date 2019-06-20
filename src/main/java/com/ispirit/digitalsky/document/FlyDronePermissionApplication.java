@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import javax.persistence.Convert;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
@@ -45,6 +46,7 @@ public class FlyDronePermissionApplication extends BasicApplication {
 
     @Field("payloadWeightInKg")
     @NotNull
+    @Min(value = 0)
     private double payloadWeightInKg;
 
     @Field("payloadDetails")
@@ -83,6 +85,18 @@ public class FlyDronePermissionApplication extends BasicApplication {
     @Field("recurringPatternType")
     @Size(max = 50)
     private String recurringTimeExpressionType;
+
+    @Field("maxAltitude")
+    private int maxAltitude;
+
+    @Field("fir")
+    private String fir;
+
+    @Field("adcNumber")
+    private String adcNumber;
+
+    @Field("ficNumber")
+    private String ficNumber;
 
 
     public FlyDronePermissionApplication() {
@@ -189,5 +203,37 @@ public class FlyDronePermissionApplication extends BasicApplication {
 
     public void setPilotId(long pilotId) {
         this.pilotId = pilotId;
+    }
+
+    public int getMaxAltitude() {
+        return maxAltitude;
+    }
+
+    public void setMaxAltitude(int maxAltitude) {
+        this.maxAltitude = maxAltitude;
+    }
+
+    public String getFir() {
+        return fir;
+    }
+
+    public void setFir(String fir) {
+        this.fir = fir;
+    }
+
+    public String getAdcNumber() {
+        return adcNumber;
+    }
+
+    public void setAdcNumber(String adcNumber) {
+        this.adcNumber = adcNumber;
+    }
+
+    public String getFicNumber() {
+        return ficNumber;
+    }
+
+    public void setFicNumber(String ficNumber) {
+        this.ficNumber = ficNumber;
     }
 }

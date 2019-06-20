@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.document.ImportDroneApplication;
 import com.ispirit.digitalsky.document.LocalDroneAcquisitionApplication;
+import com.ispirit.digitalsky.domain.FlightInformationRegion;
 import com.ispirit.digitalsky.repository.*;
 import com.ispirit.digitalsky.repository.storage.FileSystemStorageService;
 import com.ispirit.digitalsky.repository.storage.StorageService;
@@ -29,10 +30,20 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.Validator;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 @Configuration
 public class ApplicationConfiguration {
 
     public static final String OBJECT_MAPPER = "object.mapper";
+    public static final String FLY_DRONE_SERVICE = "fly.drone.service";
 
     @Value("${DEFAULT_FROM_EMAIL_ID:no-reply@dgca.gov.in}")
     private String defaultFromEmailId;
@@ -84,6 +95,8 @@ public class ApplicationConfiguration {
 
     @Value("${MANUFACTURER_DIGITAL_CERT_VALIDATION_ENABLED:true}")
     private boolean manufacturerDigitalCertValidationEnabled;
+
+    private List<FlightInformationRegion> firs = new ArrayList<>();
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -178,6 +191,16 @@ public class ApplicationConfiguration {
     }
 
     @Bean
+    AdcNumberServiceImpl adcNumberService(AdcNumberRepository adcNumberRepository){
+        return new AdcNumberServiceImpl(adcNumberRepository);
+    }
+
+    @Bean
+    FicNumberServiceImpl ficNumberService(FicNumberRepository ficNumberRepository){
+        return new FicNumberServiceImpl(ficNumberRepository);
+    }
+
+    @Bean
     DroneAcquisitionApplicationService<LocalDroneAcquisitionApplication> localDroneAcquisitionService(
             LocalDroneAcquisitionApplicationRepository droneAcquisitionRepository,
             StorageService storageService,
@@ -267,9 +290,9 @@ public class ApplicationConfiguration {
         return new AirspaceCategoryServiceImpl(airspaceCategoryRepository);
     }
 
-    @Bean
-    FlyDronePermissionApplicationService flyDronePermissionApplicationService(FlyDronePermissionApplicationRepository repository, StorageService storageService, AirspaceCategoryService airspaceCategoryService, freemarker.template.Configuration freemarkerConfiguration, DigitalSignService digitalSignService, OperatorDroneService operatorDroneService, UserProfileService userProfileService, PilotService pilotService){
-        return new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration);
+    @Bean(FLY_DRONE_SERVICE)
+    FlyDronePermissionApplicationService flyDronePermissionApplicationService(FlyDronePermissionApplicationRepository repository, StorageService storageService, AirspaceCategoryService airspaceCategoryService, freemarker.template.Configuration freemarkerConfiguration, DigitalSignService digitalSignService, OperatorDroneService operatorDroneService, UserProfileService userProfileService, PilotService pilotService, AdcNumberRepository adcNumberRepository, FicNumberRepository ficNumberRepository){
+        return new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration, this.firs, adcNumberService(adcNumberRepository), ficNumberService(ficNumberRepository) );
     }
 
     @Bean
@@ -300,4 +323,28 @@ public class ApplicationConfiguration {
         objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         return objectMapper;
     }
+
+    @Bean
+    @DependsOn(OBJECT_MAPPER)
+    public List<FlightInformationRegion> getFirs(){
+        try {
+            File file = new File("chennaiFir.json");
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            firs.add(0, new FlightInformationRegion("Chennai", reader.readLine(), 'O'));
+            file = new File("delhiFir.json");
+            reader = new BufferedReader(new FileReader(file));
+            firs.add(1, new FlightInformationRegion("Delhi",reader.readLine() , 'I'));
+            file = new File("mumbaiFir.json");
+            reader = new BufferedReader(new FileReader(file));
+            firs.add(2, new FlightInformationRegion("Mumbai", reader.readLine(), 'A'));
+//            file = new File("kolkataFir.json");
+//            reader = new BufferedReader(new FileReader(file));
+//            firs.add(3, new FlightInformationRegion("Kolkata", reader.readLine(), 'E')); todo: replace with actual kolkata geojson when we get it properly
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+        return firs;
+    }
+
 }

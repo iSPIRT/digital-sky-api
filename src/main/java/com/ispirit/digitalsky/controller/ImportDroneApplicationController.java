@@ -105,7 +105,7 @@ public class ImportDroneApplicationController {
     }
 
     @RequestMapping(value = "/getAll", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('VIEWER_ADMIN')")
     public ResponseEntity<?> listAll() {
 
         Collection<?> applicationForms = droneAcquisitionFormService.getAllApplications();

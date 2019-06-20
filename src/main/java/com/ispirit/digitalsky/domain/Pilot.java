@@ -52,7 +52,6 @@ public class Pilot extends Person {
     private MultipartFile trainingCertificate;
 
     @Column(name = "BUSINESS_IDENTIFIER")
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private final String businessIdentifier;
 
     private Pilot() {

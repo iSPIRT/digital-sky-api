@@ -3,7 +3,7 @@ package com.ispirit.digitalsky.domain;
 import java.util.Arrays;
 
 public enum ApplicationStatus {
-    DRAFT("DRAFT"),SUBMITTED("SUBMITTED"),APPROVED("APPROVED"),REJECTED("REJECTED");
+    DRAFT("DRAFT"),SUBMITTED("SUBMITTED"),APPROVED("APPROVED"),REJECTED("REJECTED"),APPROVEDBYATC("APPROVEDBYATC"),APPROVEDBYAFMLU("APPROVEDBYAFMLU"),REJECTEDBYAFMLU("REJECTEDBYAFMLU"),REJECTEDBYATC("REJECTEDBYATC");
 
     private String value;
     private ApplicationStatus(String value) {

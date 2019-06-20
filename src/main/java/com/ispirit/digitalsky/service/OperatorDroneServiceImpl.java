@@ -20,7 +20,6 @@ public class OperatorDroneServiceImpl implements OperatorDroneService {
     private final UserProfileService userProfileService;
 
     public OperatorDroneServiceImpl(OperatorDroneRepository operatorDroneRepository, UserProfileService userProfileService) {
-
         this.operatorDroneRepository = operatorDroneRepository;
         this.userProfileService = userProfileService;
     }
@@ -119,6 +118,26 @@ public class OperatorDroneServiceImpl implements OperatorDroneService {
                         opDrone.getDeviceId().equals(deviceUniqueDeviceId)
                 ));
         return anyMatchExists;
+    }
+
+    @Override
+    public void createUinNumberForDevice(long id){
+        OperatorDrone drone = operatorDroneRepository.findOne(id);
+        long operatorDroneid =operatorDroneRepository.findLatestUIN();
+        OperatorDrone lastdrone = operatorDroneRepository.findOne(operatorDroneid);
+        if(lastdrone==null || lastdrone.getUinNo()==null) {
+            drone.setUinNo("U"+String.format("%07d", 1));
+            operatorDroneRepository.save(drone);
+            return;
+        }
+        else{
+            int currentInt = Integer.parseInt(lastdrone.getUinNo().substring(1));
+            if(currentInt+1>9999999)
+                throw new RuntimeException("Out of bounds for UIN number");
+            drone.setUinNo("U"+String.format("%07d",currentInt+1));
+            operatorDroneRepository.save(drone);
+            return;
+        }
     }
 
 }

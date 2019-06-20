@@ -1,0 +1,40 @@
+
+spring:
+    application:
+        name: digitalsky
+    datasource:
+        url: jdbc:h2:mem:test
+        username: digitalsky
+        password: digitalsky
+        driverClassName: com.mysql.jdbc.Driver
+    jpa:
+      hibernate:
+        naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+        ddl-auto: none
+      properties:
+        javax:
+          persistence:
+            validation:
+              mode: none
+        hibernate:
+          dialect: org.hibernate.dialect.H2Dialect
+    http:
+      multipart:
+        max-file-size: 10MB
+        max-request-size: 10MB
+
+    logging:
+        file: logs/dev_app.log
+        level:
+            org: DEBUG
+    data:
+      mongodb:
+        host: ${MONGO_DB_HOST:localhost}
+        port: ${MONGO_DB_PORT:27017}
+        database: digitalsky
+flyway:
+  enabled: true
+  url: jdbc:h2:mem:test
+  user: digitalsky
+  password: digitalsky
+  locations: classpath:/db/migration

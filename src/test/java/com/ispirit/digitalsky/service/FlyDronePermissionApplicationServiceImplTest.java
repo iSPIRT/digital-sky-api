@@ -5,10 +5,7 @@ import com.ispirit.digitalsky.document.FlyDronePermissionApplication;
 import com.ispirit.digitalsky.document.LatLong;
 import com.ispirit.digitalsky.domain.*;
 import com.ispirit.digitalsky.dto.Errors;
-import com.ispirit.digitalsky.exception.ApplicationNotFoundException;
-import com.ispirit.digitalsky.exception.ApplicationNotInSubmittedStatusException;
-import com.ispirit.digitalsky.exception.StorageFileNotFoundException;
-import com.ispirit.digitalsky.exception.ValidationException;
+import com.ispirit.digitalsky.exception.*;
 import com.ispirit.digitalsky.repository.FlyDronePermissionApplicationRepository;
 import com.ispirit.digitalsky.repository.storage.StorageService;
 import com.ispirit.digitalsky.service.api.*;
@@ -20,18 +17,21 @@ import org.geojson.GeoJsonObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.security.util.InMemoryResource;
 
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.time.ZoneId;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.time.*;
 import java.util.*;
 
 import static com.ispirit.digitalsky.service.FlyDronePermissionApplicationServiceImpl.PERMISSION_ARTIFACT_XML;
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
@@ -49,6 +49,9 @@ public class FlyDronePermissionApplicationServiceImplTest {
     private UserProfileService userProfileService;
     private PilotService pilotService;
     private Configuration freemarkerConfiguration;
+    private AdcNumberServiceImpl adcNumberService;
+    private FicNumberServiceImpl ficNumberService;
+    private List<FlightInformationRegion> firs = new ArrayList<>();
 
     @Before
     public void setUp() throws Exception {
@@ -60,7 +63,21 @@ public class FlyDronePermissionApplicationServiceImplTest {
         userProfileService = mock(UserProfileService.class);
         pilotService = mock(PilotService.class);
         freemarkerConfiguration = freemarkerConfiguration();
-        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration));
+        adcNumberService = mock(AdcNumberServiceImpl.class);
+        ficNumberService = mock(FicNumberServiceImpl.class);
+        File file = new File("chennaiFir.json");
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        firs.add(0, new FlightInformationRegion("Chennai", reader.readLine(), 'O'));
+        file = new File("delhiFir.json");
+        reader = new BufferedReader(new FileReader(file));
+        firs.add(1, new FlightInformationRegion("Delhi",reader.readLine() , 'I'));
+        file = new File("mumbaiFir.json");
+        reader = new BufferedReader(new FileReader(file));
+        firs.add(2, new FlightInformationRegion("Mumbai", reader.readLine(), 'A'));
+//        file = new File("kolkataFir.json");
+//        reader = new BufferedReader(new FileReader(file));
+//        firs.add(3, new FlightInformationRegion("Kolkata", reader.readLine(), 'E')); todo: this is ignored as the kolkata fir geojson is hard to make it into a polygon
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs,adcNumberService,ficNumberService));
         userPrincipal = SecurityContextHelper.setUserSecurityContext();
     }
 
@@ -70,7 +87,10 @@ public class FlyDronePermissionApplicationServiceImplTest {
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
         application.setPilotBusinessIdentifier("1");
         application.setDroneId(1);
-        application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
+        application.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
+        application.setMaxAltitude(20);
+        application.setStartDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 10, 0).plusDays(2));
+        application.setEndDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 10, 45).plusDays(2));
         doNothing().when(service).validateFlyArea(application);
         when(operatorDroneService.find(application.getDroneId())).thenReturn(new OperatorDrone());
         when(pilotService.findByBusinessIdentifier("1")).thenReturn(new Pilot(1L));
@@ -93,12 +113,19 @@ public class FlyDronePermissionApplicationServiceImplTest {
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
         application.setPilotBusinessIdentifier("1");
         application.setDroneId(1);
-        application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
+        application.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
+        application.setMaxAltitude(20);
+        application.setStartDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 10, 0).plusDays(2));
+        application.setEndDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 10, 45).plusDays(2));
         application.setStatus(ApplicationStatus.SUBMITTED);
         doNothing().when(service).validateFlyArea(application);
         doNothing().when(service).handleSubmit(application);
         doNothing().when(service).generatePermissionArtifact(any());
-        when(operatorDroneService.find(application.getDroneId())).thenReturn(new OperatorDrone());
+        OperatorDrone drone = new OperatorDrone(123,ApplicantType.INDIVIDUAL,"abc",false);
+        DroneType a = new DroneType();
+        a.setDroneCategoryType(DroneCategoryType.MICRO);
+        drone.setDroneType(a);
+        when(operatorDroneService.find(application.getDroneId())).thenReturn(drone);
         when(pilotService.findByBusinessIdentifier("1")).thenReturn(new Pilot(2));
         //when
         service.createApplication(application);
@@ -117,9 +144,9 @@ public class FlyDronePermissionApplicationServiceImplTest {
         LocalDateTime dateTime = LocalDateTime.of(2018, Month.AUGUST, 12, 0, 0);
         FlyDronePermissionApplication applicationPayload = new FlyDronePermissionApplication();
         applicationPayload.setPilotBusinessIdentifier("2");
-        applicationPayload.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
-        applicationPayload.setEndDateTime(LocalDateTime.of(2018, Month.AUGUST, 21, 0, 0));
-        applicationPayload.setEndDateTime(LocalDateTime.of(2018, Month.AUGUST, 22, 0, 0));
+        applicationPayload.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
+        applicationPayload.setStartDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 10, 0).plusDays(2));
+        applicationPayload.setEndDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 10, 45).plusDays(2));
         applicationPayload.setPayloadWeightInKg(2.5);
         applicationPayload.setPayloadDetails("food");
         applicationPayload.setFlightPurpose("parcel");
@@ -127,7 +154,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
         application.setId("1");
         application.setPilotBusinessIdentifier("1");
-        application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
+        applicationPayload.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
         application.setCreatedDate(Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant()));
         application.setLastModifiedDate(Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant()));
         application.setApplicantId(1);
@@ -161,11 +188,12 @@ public class FlyDronePermissionApplicationServiceImplTest {
         FlyDronePermissionApplication applicationPayload = new FlyDronePermissionApplication();
         applicationPayload.setStatus(ApplicationStatus.SUBMITTED);
         applicationPayload.setPilotBusinessIdentifier("2");
-        applicationPayload.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
-        applicationPayload.setEndDateTime(LocalDateTime.of(2018, Month.AUGUST, 21, 0, 0));
-        applicationPayload.setEndDateTime(LocalDateTime.of(2018, Month.AUGUST, 22, 0, 0));
+        applicationPayload.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
+        applicationPayload.setStartDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 10, 0).plusDays(2));
+        applicationPayload.setEndDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 10, 45).plusDays(2));
         applicationPayload.setPayloadWeightInKg(2.5);
         applicationPayload.setPayloadDetails("food");
+        applicationPayload.setDroneId(1);
         applicationPayload.setFlightPurpose("parcel");
 
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
@@ -178,6 +206,15 @@ public class FlyDronePermissionApplicationServiceImplTest {
 
         HashMap<AirspaceCategory.Type, GeoJsonObject> airspaceCategoryMap = new HashMap<>();
         airspaceCategoryMap.put(AirspaceCategory.Type.AMBER, new FeatureCollection());
+
+        OperatorDrone operatorDrone = new OperatorDrone();
+        operatorDrone.setOperatorId(application.getOperatorId());
+        operatorDrone.setOperatorType(application.getApplicantType());
+        operatorDrone.setUinApplicationId("sdsd");
+        DroneType type = new DroneType();
+        type.setDroneCategoryType(DroneCategoryType.MICRO);
+        operatorDrone.setDroneType(type);
+        when(operatorDroneService.find(application.getDroneId())).thenReturn(operatorDrone);
 
         when(repository.findById("1")).thenReturn(application);
         when(airspaceCategoryService.findGeoJsonMapByType()).thenReturn(airspaceCategoryMap);
@@ -195,6 +232,86 @@ public class FlyDronePermissionApplicationServiceImplTest {
         assertThat(argumentCaptor.getValue().getStatus(), is(ApplicationStatus.APPROVED));
         verify(service).generatePermissionArtifact(application);
 
+    }
+
+    @Test
+    public void shouldThrowExceptionIfFlyAreaTooBig(){
+        try{
+            FlyDronePermissionApplication application = new FlyDronePermissionApplication();
+            application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2),new LatLong(2,1),new LatLong(1,1)));
+            service.checkArea(application.getFlyArea());
+            fail("should have thrown ValidationException");
+        }catch (ValidationException e){
+
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionIfFlyAltitudeAbove400(){
+        try{
+            FlyDronePermissionApplication application = new FlyDronePermissionApplication();
+            application.setPilotBusinessIdentifier("1");
+            application.setDroneId(1);
+            application.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
+            application.setMaxAltitude(600);
+            application.setStartDateTime(LocalDateTime.now().plusDays(2));
+            application.setEndDateTime(LocalDateTime.now().plusDays(2).plusMinutes(45));
+            service.checkMaxHeight(application);
+            fail("should have thrown ValidationException");
+        }catch (ValidationException e){
+
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionIfFlyDateBeforeADayFromNow(){
+        try{
+            FlyDronePermissionApplication application = new FlyDronePermissionApplication();
+            application.setPilotBusinessIdentifier("1");
+            application.setDroneId(1);
+            application.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
+            application.setMaxAltitude(20);
+            application.setStartDateTime(LocalDateTime.now().plusHours(2));
+            application.setEndDateTime(LocalDateTime.now().plusHours(2).plusMinutes(45));
+            service.checkWithinAday(application);
+            fail("should have thrown ValidationException");
+        }catch (ValidationException e){
+
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionIfFlyDateBeyondFiveDays(){
+        try{
+            FlyDronePermissionApplication application = new FlyDronePermissionApplication();
+            application.setPilotBusinessIdentifier("1");
+            application.setDroneId(1);
+            application.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
+            application.setMaxAltitude(20);
+            application.setStartDateTime(LocalDateTime.now().plusDays(20));
+            application.setEndDateTime(LocalDateTime.now().plusDays(20).plusMinutes(45));
+            service.checkWithinMaxDays(application);
+            fail("should have thrown ValidationException");
+        }catch (ValidationException e){
+
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionIfFlyTimeNotWithinSunriseSunset(){
+        try{
+            FlyDronePermissionApplication application = new FlyDronePermissionApplication();
+            application.setPilotBusinessIdentifier("1");
+            application.setDroneId(1);
+            application.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
+            application.setMaxAltitude(20);
+            application.setStartDateTime(LocalDateTime.of(LocalDate.now(), LocalTime.of(3,0)).plusDays(2));
+            application.setEndDateTime(LocalDateTime.of(LocalDate.now(), LocalTime.of(21,0)).plusDays(2));
+            service.checkTimeWithinSunriseSunset(application);
+            fail("should have thrown ValidationException");
+        }catch (ValidationException e){
+
+        }
     }
 
     @Test
@@ -236,6 +353,147 @@ public class FlyDronePermissionApplicationServiceImplTest {
         assertThat(argumentCaptor.getValue().getApprovedDate(), notNullValue());
         assertThat(argumentCaptor.getValue().getApproverComments(), is(approveRequestBody.getComments()));
         assertThat(argumentCaptor.getValue().getStatus(), is(ApplicationStatus.APPROVED));
+    }
+
+    @Test
+    public void shouldMarkApplicationAsApprovedByAtc() throws Exception {
+        //given
+        ApproveRequestBody approveRequestBody = new ApproveRequestBody();
+        approveRequestBody.setApplicationFormId("1");
+        approveRequestBody.setStatus(ApplicationStatus.APPROVEDBYATC);
+        approveRequestBody.setComments("comments");
+
+        FlyDronePermissionApplication application = new FlyDronePermissionApplication();
+        application.setId("1");
+        application.setPilotBusinessIdentifier("1");
+        application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
+        application.setApplicantId(1);
+        application.setStatus(ApplicationStatus.SUBMITTED);
+        when(repository.findById("1")).thenReturn(application);
+
+        //when
+        service.approveByAtcApplication(approveRequestBody);
+
+        //then
+        ArgumentCaptor<FlyDronePermissionApplication> argumentCaptor = ArgumentCaptor.forClass(FlyDronePermissionApplication.class);
+        verify(repository).save(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue().getApprover(), is(userPrincipal.getUsername()));
+        assertThat(argumentCaptor.getValue().getApproverId(), is(userPrincipal.getId()));
+        assertThat(argumentCaptor.getValue().getApprovedDate(), notNullValue());
+        assertThat(argumentCaptor.getValue().getApproverComments(), is(approveRequestBody.getComments()));
+        assertThat(argumentCaptor.getValue().getStatus(), is(ApplicationStatus.APPROVEDBYATC));
+    }
+
+    @Test
+    public void shouldMarkApplicationAsApprovedByAfmlu() throws Exception {
+        //given
+        ApproveRequestBody approveRequestBody = new ApproveRequestBody();
+        approveRequestBody.setApplicationFormId("1");
+        approveRequestBody.setStatus(ApplicationStatus.APPROVEDBYAFMLU);
+        approveRequestBody.setComments("comments");
+
+        FlyDronePermissionApplication application = new FlyDronePermissionApplication();
+        application.setId("1");
+        application.setPilotBusinessIdentifier("1");
+        application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
+        application.setApplicantId(1);
+        application.setStatus(ApplicationStatus.APPROVEDBYATC);
+        when(repository.findById("1")).thenReturn(application);
+
+        //when
+        service.approveByAfmluApplication(approveRequestBody);
+
+        //then
+        ArgumentCaptor<FlyDronePermissionApplication> argumentCaptor = ArgumentCaptor.forClass(FlyDronePermissionApplication.class);
+        verify(repository).save(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue().getApprover(), is(userPrincipal.getUsername()));
+        assertThat(argumentCaptor.getValue().getApproverId(), is(userPrincipal.getId()));
+        assertThat(argumentCaptor.getValue().getApprovedDate(), notNullValue());
+        assertThat(argumentCaptor.getValue().getApproverComments(), is(approveRequestBody.getComments()));
+        assertThat(argumentCaptor.getValue().getStatus(), is(ApplicationStatus.APPROVEDBYAFMLU));
+    }
+
+    @Test
+    public void shouldThrowExceptionIfApplicationNotFoundDuringApproveByAfmlu() throws Exception {
+        //given
+        ApproveRequestBody approveRequestBody = new ApproveRequestBody();
+        approveRequestBody.setApplicationFormId("1");
+        approveRequestBody.setStatus(ApplicationStatus.APPROVEDBYAFMLU);
+        approveRequestBody.setComments("comments");
+
+        try {
+            service.approveByAfmluApplication(approveRequestBody);
+            fail("should have thrown ApplicationNotFoundException");
+        }
+        catch (ApplicationNotFoundException e) {
+
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionIfApplicationNotFoundDuringApproveByAtc() throws Exception {
+        //given
+        ApproveRequestBody approveRequestBody = new ApproveRequestBody();
+        approveRequestBody.setApplicationFormId("1");
+        approveRequestBody.setStatus(ApplicationStatus.APPROVEDBYATC);
+        approveRequestBody.setComments("comments");
+
+
+        try {
+            service.approveByAfmluApplication(approveRequestBody);
+            fail("should have thrown ApplicationNotFoundException");
+        }
+        catch (ApplicationNotFoundException e) {
+
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionIfApplicationNotInSubmittedDuringApproveByAtc() throws Exception {
+        //given
+        ApproveRequestBody approveRequestBody = new ApproveRequestBody();
+        approveRequestBody.setApplicationFormId("1");
+        approveRequestBody.setStatus(ApplicationStatus.APPROVEDBYATC);
+        approveRequestBody.setComments("comments");
+
+        FlyDronePermissionApplication application = new FlyDronePermissionApplication();
+        application.setId("1");
+        application.setPilotBusinessIdentifier("1");
+        application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
+        application.setApplicantId(1);
+        application.setStatus(ApplicationStatus.APPROVEDBYATC);
+        when(repository.findById("1")).thenReturn(application);
+        try {
+            service.approveByAtcApplication(approveRequestBody);
+            fail("should have thrown ApplicationNotInSubmittedException");
+        }
+        catch (ApplicationNotInSubmittedStatusException e) {
+
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionIfApplicationNotInApprovedByAtcDuringApproveByAfmlu() throws Exception {
+        //given
+        ApproveRequestBody approveRequestBody = new ApproveRequestBody();
+        approveRequestBody.setApplicationFormId("1");
+        approveRequestBody.setStatus(ApplicationStatus.APPROVEDBYAFMLU);
+        approveRequestBody.setComments("comments");
+
+        FlyDronePermissionApplication application = new FlyDronePermissionApplication();
+        application.setId("1");
+        application.setPilotBusinessIdentifier("1");
+        application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
+        application.setApplicantId(1);
+        application.setStatus(ApplicationStatus.SUBMITTED);
+        when(repository.findById("1")).thenReturn(application);
+        try {
+            service.approveByAfmluApplication(approveRequestBody);
+            fail("should have thrown ApplicationNotApprovedByAtcException");
+        }
+        catch (ApplicationNotApprovedByAtc e) {
+
+        }
     }
 
     @Test
@@ -389,7 +647,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
     @Test
     public void shouldValidateIfFlyAreaWithinGreenZones() throws Exception {
         //given
-        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration));
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs,adcNumberService,ficNumberService));
         LatLong one = new LatLong(11.630715737981486, 68.88427734374999);
         LatLong two = new LatLong(7.18810087117902, 68.70849609375);
         LatLong three = new LatLong(11.695272733029402, 77.89306640625);
@@ -415,7 +673,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
     @Test
     public void shouldValidateIfFlyAreaIntersectWithRedZones() throws Exception {
         //given
-        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration));
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs,adcNumberService,ficNumberService));
         LatLong one = new LatLong(11.630715737981486, 68.88427734374999);
         LatLong two = new LatLong(7.18810087117902, 68.70849609375);
         LatLong three = new LatLong(11.695272733029402, 77.89306640625);
@@ -442,7 +700,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
     @Test
     public void handleSubmitShouldCheckIfFlyAreaIntersectWithAmberZones() throws Exception {
         //given
-        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration));
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs,adcNumberService,ficNumberService));
         LatLong one = new LatLong(11.630715737981486, 68.88427734374999);
         LatLong two = new LatLong(7.18810087117902, 68.70849609375);
         LatLong three = new LatLong(11.695272733029402, 77.89306640625);
@@ -470,7 +728,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
     public void shouldApproveApplicationAfterSubmit() throws Exception {
         //given
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
-        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration));
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs,adcNumberService,ficNumberService));
         LatLong one = new LatLong(11.630715737981486, 68.88427734374999);
         LatLong two = new LatLong(7.18810087117902, 68.70849609375);
         LatLong three = new LatLong(11.695272733029402, 77.89306640625);
@@ -478,6 +736,15 @@ public class FlyDronePermissionApplicationServiceImplTest {
         LatLong five = new LatLong(11.630715737981486, 68.88427734374999);
         List<LatLong> flyArea = asList(one, two, three, four, five);
         application.setFlyArea(flyArea);
+
+        OperatorDrone operatorDrone = new OperatorDrone();
+        operatorDrone.setOperatorId(application.getOperatorId());
+        operatorDrone.setOperatorType(application.getApplicantType());
+        operatorDrone.setUinApplicationId("sdsd");
+        DroneType type = new DroneType();
+        type.setDroneCategoryType(DroneCategoryType.MICRO);
+        operatorDrone.setDroneType(type);
+        when(operatorDroneService.find(application.getDroneId())).thenReturn(operatorDrone);
 
         doReturn(false).when(service).isFlyAreaIntersects(anyString(), eq(flyArea));
 
@@ -491,6 +758,102 @@ public class FlyDronePermissionApplicationServiceImplTest {
         assertThat(application.getApproverId(), is(userPrincipal.getId()));
         assertThat(application.getApprovedDate(), notNullValue());
         assertThat(application.getApproverComments(), is("Self approval, within green zone"));
+    }
+
+    @Test
+    public void shouldWithholdApprovalForApplicationAfterSubmit() throws Exception {
+        //given
+        FlyDronePermissionApplication application = new FlyDronePermissionApplication();
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs,adcNumberService,ficNumberService));
+        LatLong one = new LatLong(11.630715737981486, 68.88427734374999);
+        LatLong two = new LatLong(7.18810087117902, 68.70849609375);
+        LatLong three = new LatLong(11.695272733029402, 77.89306640625);
+        LatLong four = new LatLong(14.817370620155254, 77.58544921874999);
+        LatLong five = new LatLong(11.630715737981486, 68.88427734374999);
+        List<LatLong> flyArea = asList(one, two, three, four, five);
+        application.setFlyArea(flyArea);
+        application.setMaxAltitude(300);
+
+        OperatorDrone operatorDrone = new OperatorDrone();
+        operatorDrone.setOperatorId(application.getOperatorId());
+        operatorDrone.setOperatorType(application.getApplicantType());
+        operatorDrone.setUinApplicationId("sdsd");
+        DroneType type = new DroneType();
+        type.setDroneCategoryType(DroneCategoryType.MICRO);
+        operatorDrone.setDroneType(type);
+        when(operatorDroneService.find(application.getDroneId())).thenReturn(operatorDrone);
+
+        doReturn(false).when(service).isFlyAreaIntersects(anyString(), eq(flyArea));
+
+        //when
+        try {
+            service.handleSubmit(application);
+        } catch (ValidationException e) {
+        }
+        assertThat(application.getStatus(), is(ApplicationStatus.SUBMITTED));
+        assertThat(application.getApproverId(), is(userPrincipal.getId()));
+        assertThat(application.getApprovedDate(), notNullValue());
+        assertThat(application.getApproverComments(), nullValue());
+    }
+
+    @Test
+    public void shouldCreateAdcAndFicWhenSubmitted() throws Exception {
+        //given
+
+        FlyDronePermissionApplication application = new FlyDronePermissionApplication();
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs,adcNumberService,ficNumberService));
+        LatLong one = new LatLong(12.979901552822549, 77.59938597679138);
+        LatLong two = new LatLong(12.979263815142966, 77.5983452796936);
+        LatLong three = new LatLong(12.977517869190518, 77.5990104675293);
+        LatLong four = new LatLong(12.97822879477083, 77.60073781013487);
+        LatLong five = new LatLong(12.979864961360581, 77.60029792785645);
+        LatLong six = new LatLong(12.979901552822549, 77.59938597679138);
+        List<LatLong> flyArea = asList(one, two, three, four, five, six);
+        application.setFlyArea(flyArea);
+        application.setMaxAltitude(300);
+        application.setPilotBusinessIdentifier("abcba");
+        application.setStartDateTime(LocalDateTime.of(LocalDate.now(), LocalTime.of(13,0)).plusDays(2));
+        application.setEndDateTime(LocalDateTime.of(LocalDate.now(), LocalTime.of(13,0)).plusDays(2).plusMinutes(30));
+        application.setStatus(ApplicationStatus.SUBMITTED);
+        application.setFlightPurpose("Fun");
+        application.setPayloadDetails("fun");
+
+        OperatorDrone operatorDrone = new OperatorDrone();
+        operatorDrone.setOperatorId(application.getOperatorId());
+        operatorDrone.setOperatorType(application.getApplicantType());
+        operatorDrone.setUinApplicationId("sdsd");
+        DroneType type = new DroneType();
+        type.setDroneCategoryType(DroneCategoryType.MICRO);
+        operatorDrone.setDroneType(type);
+
+        when(operatorDroneService.find(application.getDroneId())).thenReturn(operatorDrone);
+        when(pilotService.findByBusinessIdentifier(application.getPilotBusinessIdentifier())).thenReturn(new Pilot(1l));
+        when(service.get("1")).thenReturn(application);
+        when(adcNumberService.generateNewAdcNumber(any(FlyDronePermissionApplication.class))).thenReturn("RCA0001");
+        when(ficNumberService.generateNewFicNumber(any(FlyDronePermissionApplication.class))).thenReturn("00000RO");
+        when(userProfileService.resolveOperatorBusinessIdentifier(operatorDrone.getOperatorType(), operatorDrone.getOperatorId())).thenReturn("abc");
+
+        doNothing().when(service).validateFlyArea(application);
+        doReturn(false).when(service).isFlyAreaIntersects(anyString(), eq(flyArea));
+
+
+        //when
+        try {
+            service.updateApplication("1",application);
+        } catch (ValidationException e) {
+        }
+        assertThat(application.getStatus(), is(ApplicationStatus.SUBMITTED));
+        assertThat(application.getApproverId(), is(userPrincipal.getId()));
+        assertThat(application.getApprovedDate(), notNullValue());
+        assertThat(application.getApproverComments(), nullValue());
+
+        ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
+        verify(digitalSignService).sign(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue()
+                .replaceAll("flightStartTime=\"....-..-..T..:..:..\" flightEndTime=\"....-..-..T..:..:..\" ",""),
+            is(IOUtils.toString(this.getClass().getResourceAsStream("/expectedPermissionArtefactWithFicAdc"), "UTF-8")
+                .replaceAll("flightStartTime=\"....-..-..T..:..:..\" flightEndTime=\"....-..-..T..:..:..\" ","")));
+        verify(storageService).store(anyString(), anyString(), anyString());
     }
 
     @Test
@@ -531,18 +894,24 @@ public class FlyDronePermissionApplicationServiceImplTest {
         application.setPilotBusinessIdentifier("1234");
         application.setDroneId(1);
         application.setOperatorId(1);
-        application.setStartDateTime(LocalDateTime.of(2018, Calendar.AUGUST, 18, 0, 0));
-        application.setEndDateTime(LocalDateTime.of(2018, Calendar.AUGUST, 18, 1, 0));
+        application.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
+        application.setMaxAltitude(20);
+        application.setStartDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().plusDays(2).getDayOfMonth(), 10, 0));
+        application.setEndDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().plusDays(2).getDayOfMonth(), 10, 45));
         application.setPayloadWeightInKg(12);
         application.setFlightPurpose("test");
         application.setPayloadDetails("test");
-        application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
+        application.setMaxAltitude(50);
+        application.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
 
 
         OperatorDrone operatorDrone = new OperatorDrone();
         operatorDrone.setOperatorId(application.getOperatorId());
         operatorDrone.setOperatorType(application.getApplicantType());
         operatorDrone.setUinApplicationId("sdsd");
+        DroneType type = new DroneType();
+        type.setDroneCategoryType(DroneCategoryType.MICRO);
+        operatorDrone.setDroneType(type);
         when(operatorDroneService.find(application.getDroneId())).thenReturn(operatorDrone);
 
         when(userProfileService.resolveOperatorBusinessIdentifier(application.getApplicantType(), application.getOperatorId())).thenReturn("xyz");
@@ -551,7 +920,10 @@ public class FlyDronePermissionApplicationServiceImplTest {
 
         ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
         verify(digitalSignService).sign(argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue(), is(IOUtils.toString(this.getClass().getResourceAsStream("/expectedPermissionArtefact"), "UTF-8")));
+        assertThat(argumentCaptor.getValue()
+                .replaceAll("flightStartTime=\"....-..-..T..:..:..\" flightEndTime=\"....-..-..T..:..:..\" ",""),
+            is(IOUtils.toString(this.getClass().getResourceAsStream("/expectedPermissionArtefact"), "UTF-8")
+                .replaceAll("flightStartTime=\"....-..-..T..:..:..\" flightEndTime=\"....-..-..T..:..:..\" ","")));
         verify(storageService).store(anyString(), anyString(), anyString());
     }
 

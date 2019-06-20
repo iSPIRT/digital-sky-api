@@ -3,26 +3,25 @@ package com.ispirit.digitalsky.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.document.DroneAcquisitionApplication;
 import com.ispirit.digitalsky.document.ImportDroneApplication;
-
 import com.ispirit.digitalsky.domain.*;
 import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.*;
-
 import com.ispirit.digitalsky.repository.DroneAcquisitionApplicationRepository;
 import com.ispirit.digitalsky.repository.storage.StorageService;
-
-
-import com.ispirit.digitalsky.service.api.*;
-
+import com.ispirit.digitalsky.service.api.DroneAcquisitionApplicationService;
+import com.ispirit.digitalsky.service.api.DroneTypeService;
+import com.ispirit.digitalsky.service.api.OperatorDroneService;
+import com.ispirit.digitalsky.service.api.UserProfileService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 import static com.ispirit.digitalsky.util.FileStoreHelper.resolveFileName;
 import static java.util.Collections.singletonList;
@@ -75,6 +74,11 @@ public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionAp
 
         if (!actualForm.canBeModified()) {
             throw new ApplicationNotEditableException();
+        }
+
+        if (droneAcquisitionApplicationForm.getStatus() == ApplicationStatus.SUBMITTED && (droneAcquisitionApplicationForm.getSecurityClearanceDocName() == null && actualForm.getSecurityClearanceDocName() == null) )
+        {
+            throw new ValidationException(new Errors("All required files not provided"));
         }
 
         Date createdDate = actualForm.getCreatedDate();

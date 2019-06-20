@@ -1,0 +1,17 @@
+<UAPermission>
+    <Permission>
+    <Owner operatorID="abc">
+        <Pilot id="abcba" validTo="NA"/>
+    </Owner>
+    <FlightDetails>
+        <UADetails uinNo="sdsd"/>
+        <FlightPurpose shortDesc="Fun"/>
+        <PayloadDetails payLoadWeightInKg="0" payloadDetails="fun"/>
+        <FlightParameters recurrenceTimeExpression="" recurrenceTimeExpressionType="CRON_QUARTZ" recurringTimeDurationInMinutes="" maxAltitude="300" ficNumber="00000RO" adcNumber="RCA0001">
+            <Coordinates>
+                <Coordinate latitude="12.979901552822549" longitude="77.59938597679138"/><Coordinate latitude="12.979263815142966" longitude="77.5983452796936"/><Coordinate latitude="12.977517869190518" longitude="77.5990104675293"/><Coordinate latitude="12.97822879477083" longitude="77.60073781013487"/><Coordinate latitude="12.979864961360581" longitude="77.60029792785645"/><Coordinate latitude="12.979901552822549" longitude="77.59938597679138"/>
+            </Coordinates>
+        </FlightParameters>
+    </FlightDetails>
+    </Permission>
+</UAPermission>

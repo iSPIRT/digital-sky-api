@@ -27,4 +27,5 @@ public interface OperatorDroneService {
 
     boolean isMappedToDifferentUIN(String deviceUniqueDeviceId, String uinId, long operatorId, ApplicantType applicantType);
 
+    void createUinNumberForDevice(long id);
 }

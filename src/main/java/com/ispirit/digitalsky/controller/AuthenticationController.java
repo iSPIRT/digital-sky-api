@@ -1,28 +1,18 @@
 package com.ispirit.digitalsky.controller;
 
-import com.ispirit.digitalsky.domain.IndividualOperator;
-import com.ispirit.digitalsky.domain.OrganizationOperator;
-import com.ispirit.digitalsky.domain.Pilot;
 import com.ispirit.digitalsky.domain.UserPrincipal;
 import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.dto.TokenRequest;
-import com.ispirit.digitalsky.dto.TokenResponse;
-import com.ispirit.digitalsky.repository.IndividualOperatorRepository;
-import com.ispirit.digitalsky.repository.OrganizationOperatorRepository;
-import com.ispirit.digitalsky.repository.PilotRepository;
 import com.ispirit.digitalsky.service.api.SecurityTokenService;
 import com.ispirit.digitalsky.service.api.UserProfileService;
-import com.ispirit.digitalsky.util.AuthenticationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -74,7 +64,7 @@ public class AuthenticationController {
     }
 
     @RequestMapping(value = "/verifyAdmin",method = RequestMethod.GET)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ATC_ADMIN') or hasRole('AFMLU_ADMIN') or hasRole('VIEWER_ADMIN')")
     public ResponseEntity<?> verifyIfadmin(@Valid @RequestHeader String Authorization){
         return new ResponseEntity<>(null, HttpStatus.OK);
     }

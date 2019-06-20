@@ -1,0 +1,1 @@
+ALTER TABLE ds_operator_drone ADD UIN_NO VARCHAR(10)

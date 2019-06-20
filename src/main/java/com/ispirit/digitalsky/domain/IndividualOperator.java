@@ -28,7 +28,6 @@ public class IndividualOperator extends Person {
     private String status = "DEFAULT";
 
     @Column(name = "BUSINESS_IDENTIFIER")
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private final String businessIdentifier;
 
     private IndividualOperator() {
