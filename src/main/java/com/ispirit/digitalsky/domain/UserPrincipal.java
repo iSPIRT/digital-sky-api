@@ -116,6 +116,18 @@ public class UserPrincipal implements UserDetails {
         }
         return false;
     }
+    public boolean isATCViewerAdmin(){
+        for (GrantedAuthority grantedAuthority : authorityList) {
+            if (grantedAuthority.getAuthority().equals("ROLE_ATC_VIEWER_ADMIN")) return true;
+        }
+        return false;
+    }
+    public boolean isAFMLUViewerAdmin(){
+        for (GrantedAuthority grantedAuthority : authorityList) {
+            if (grantedAuthority.getAuthority().equals("ROLE_AFMLU_VIEWER_ADMIN")) return true;
+        }
+        return false;
+    }
 
     public String getRegion() {
         return region;

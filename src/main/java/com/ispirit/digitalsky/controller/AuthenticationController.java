@@ -64,7 +64,7 @@ public class AuthenticationController {
     }
 
     @RequestMapping(value = "/verifyAdmin",method = RequestMethod.GET)
-    @PreAuthorize("hasRole('ADMIN') or hasRole('ATC_ADMIN') or hasRole('AFMLU_ADMIN') or hasRole('VIEWER_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ATC_ADMIN') or hasRole('AFMLU_ADMIN') or hasRole('VIEWER_ADMIN') or hasRole('ATC_VIEWER_ADMIN') or hasRole('AFMLU_VIEWER_ADMIN')")
     public ResponseEntity<?> verifyIfadmin(@Valid @RequestHeader String Authorization){
         return new ResponseEntity<>(null, HttpStatus.OK);
     }

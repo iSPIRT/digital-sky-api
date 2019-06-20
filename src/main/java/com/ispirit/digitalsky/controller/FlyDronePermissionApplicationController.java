@@ -188,7 +188,7 @@ public class FlyDronePermissionApplicationController {
     }
 
     @RequestMapping(value = "/getAllAtc", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('ATC_ADMIN') or hasRole('ATC_VIEW_ADMIN')")
+    @PreAuthorize("hasRole('ATC_ADMIN') or hasRole('ATC_VIEWER_ADMIN')")
     public ResponseEntity<?> listAllFromRegionForAtcAdmin() {
         Collection<?> applicationForms = service.getAllApplications();
         List<?> submittedApplications = applicationForms.stream().filter(applicationForm -> {
@@ -200,7 +200,7 @@ public class FlyDronePermissionApplicationController {
     }
 
     @RequestMapping(value = "/getAllAfmlu", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('AFMLU_ADMIN') or hasRole('AFMNLU_VIEW_ADMIN')")
+    @PreAuthorize("hasRole('AFMLU_ADMIN') or hasRole('AFMLU_VIEWER_ADMIN')")
     public ResponseEntity<?> listAllFromRegionForAfmluAdmin() {
         Collection<?> applicationForms = service.getAllApplications();
         List<?> submittedApplications = applicationForms.stream().filter(applicationForm -> {
