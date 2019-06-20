@@ -90,7 +90,7 @@ public class ApplicationConfiguration {
     @Value("${DS_CERT_PRIVATE_KEY_PATH:classpath:key.pem}")
     private String digitalSkyPrivateKeyPath;
 
-    @Value("${MANUFACTURER_DIGITAL_CERT_MANUFACTURER_ATTRIBUTE_NAME:cn}")
+    @Value("${MANUFACTURER_DIGITAL_CERT_MANUFACTURER_ATTRIBUTE_NAME:o}")
     private String manufacturerDigitalCertManufacturerAttributeName;
 
     @Value("${MANUFACTURER_DIGITAL_CERT_VALIDATION_ENABLED:true}")
