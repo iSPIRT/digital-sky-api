@@ -40,3 +40,5 @@ flyway:
 
 server:
   port: 9000
+
+self-signed-validity: true

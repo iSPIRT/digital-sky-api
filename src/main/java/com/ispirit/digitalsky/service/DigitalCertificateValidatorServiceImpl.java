@@ -6,7 +6,6 @@ import org.apache.commons.io.IOUtils;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.openssl.PEMParser;
-import org.bouncycastle.openssl.X509TrustedCertificateBlock;
 
 import java.io.*;
 import java.security.*;
@@ -18,8 +17,12 @@ import java.util.regex.Pattern;
 
 public class DigitalCertificateValidatorServiceImpl implements DigitalCertificateValidatorService {
 
-    public DigitalCertificateValidatorServiceImpl() {
+    private boolean selfSignedValidity;
+    private String ccaCertificatePath;
 
+    public DigitalCertificateValidatorServiceImpl(boolean selfSignedValidity, String ccaCertificatePath) {
+        this.selfSignedValidity=selfSignedValidity;
+        this.ccaCertificatePath = ccaCertificatePath;
     }
 
     @Override
@@ -49,6 +52,13 @@ public class DigitalCertificateValidatorServiceImpl implements DigitalCertificat
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
             CertPathValidator validator = CertPathValidator.getInstance("PKIX", "BC");
             Set<TrustAnchor> anchors = new HashSet<>();
+            if (!selfSignedValidity){
+                inputstream = new FileInputStream(ccaCertificatePath);
+                certificateChainString = IOUtils.toString(inputstream, "UTF-8");
+                PEMParser rootCaReader = new PEMParser(new StringReader(certificateChainString));
+                X509CertificateHolder rootCertHolder = (X509CertificateHolder) rootCaReader.readObject();
+                anchors.add(new TrustAnchor(new JcaX509CertificateConverter().setProvider( "BC" ).getCertificate( rootCertHolder ),null));
+            }
             for (X509Certificate certif : certs) {
                 anchors.add(new TrustAnchor(certif, null));
             }
@@ -62,10 +72,10 @@ public class DigitalCertificateValidatorServiceImpl implements DigitalCertificat
                     throw new InvalidDigitalCertificateException();
                 }
                 try {
-                    if (isSelfSigned(trustedCertificate)) {
+                    if (isSelfSigned(trustedCertificate) && selfSignedValidity) {
                         found = true;
                     } else if (!clientCertificate.equals(trustedCertificate)) {
-                        clientCertificate = trustedCertificate;
+                        clientCertificate = trustedCertificate; //todo: figure out why this line exists
                     }
                 } catch (NoSuchProviderException e) {
                     throw new InvalidDigitalCertificateException();
@@ -98,9 +108,7 @@ public class DigitalCertificateValidatorServiceImpl implements DigitalCertificat
         return match;
     }
 
-    private boolean isSelfSigned(X509Certificate cert)
-            throws CertificateException, NoSuchAlgorithmException,
-            NoSuchProviderException {
+    private boolean isSelfSigned(X509Certificate cert) throws CertificateException, NoSuchAlgorithmException, NoSuchProviderException {
         try {
             PublicKey key = cert.getPublicKey();
             cert.verify(key);

@@ -38,3 +38,5 @@ flyway:
   user: digitalsky
   password: digitalsky
   locations: classpath:/db/migration
+
+self-signed-validity: true

@@ -96,6 +96,12 @@ public class ApplicationConfiguration {
     @Value("${MANUFACTURER_DIGITAL_CERT_VALIDATION_ENABLED:true}")
     private boolean manufacturerDigitalCertValidationEnabled;
 
+    @Value("${self-signed-validity:false}")
+    private String selfSignedValidity;
+
+    @Value("${CCA_CERT_PATH:classpath:CCAcertificate.pem}")
+    private String ccaCertificatePath;
+
     private List<FlightInformationRegion> firs = new ArrayList<>();
 
     @Bean
@@ -257,7 +263,7 @@ public class ApplicationConfiguration {
 
     @Bean
     DigitalCertificateValidatorService digitalCertificateValidatorService() {
-        return new DigitalCertificateValidatorServiceImpl();
+        return new DigitalCertificateValidatorServiceImpl(Boolean.valueOf(selfSignedValidity),ccaCertificatePath);
     }
 
     @Bean

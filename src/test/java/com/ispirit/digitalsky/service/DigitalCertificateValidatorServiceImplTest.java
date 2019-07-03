@@ -10,8 +10,6 @@ import java.security.cert.X509Certificate;
 
 import static junit.framework.TestCase.assertTrue;
 import static junit.framework.TestCase.fail;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.mock;
 
 public class DigitalCertificateValidatorServiceImplTest {
 
@@ -21,7 +19,7 @@ public class DigitalCertificateValidatorServiceImplTest {
 
     @Before
     public void setUp() {
-        digitalCertificateValidatorService = new DigitalCertificateValidatorServiceImpl();
+        digitalCertificateValidatorService = new DigitalCertificateValidatorServiceImpl(true,"/src/test/resources/CCAcertificate.pem");
     }
 
     @Test
