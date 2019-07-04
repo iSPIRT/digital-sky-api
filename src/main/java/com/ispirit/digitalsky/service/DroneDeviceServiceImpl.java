@@ -5,10 +5,10 @@ import com.ispirit.digitalsky.exception.*;
 import com.ispirit.digitalsky.repository.DroneDeviceRepository;
 import com.ispirit.digitalsky.repository.IndividualOperatorRepository;
 import com.ispirit.digitalsky.repository.OrganizationOperatorRepository;
+import com.ispirit.digitalsky.service.api.DigitalSignatureVerifierService;
 import com.ispirit.digitalsky.service.api.DroneDeviceService;
 import com.ispirit.digitalsky.service.api.ManufacturerService;
 import com.ispirit.digitalsky.service.api.OperatorDroneService;
-import com.ispirit.digitalsky.service.api.DigitalSignatureVerifierService;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SignatureException;
@@ -23,19 +23,22 @@ public class DroneDeviceServiceImpl implements DroneDeviceService {
     private OperatorDroneService operatorDroneService;
     private DigitalSignatureVerifierService signatureVerifierService;
     private ManufacturerService manufacturerService;
+    private DroneTypeServiceImpl droneTypeService;
 
     public DroneDeviceServiceImpl(DroneDeviceRepository droneDeviceRepository,
                                   DigitalSignatureVerifierService signatureVerifierService,
                                   IndividualOperatorRepository individualOperatorRepository,
                                   OrganizationOperatorRepository organizationOperatorRepository,
                                   OperatorDroneService operatorDroneService,
-                                  ManufacturerService manufacturerService) {
+                                  ManufacturerService manufacturerService,
+                                  DroneTypeServiceImpl droneTypeService) {
         this.droneDeviceRepository = droneDeviceRepository;
         this.signatureVerifierService = signatureVerifierService;
         this.individualOperatorRepository = individualOperatorRepository;
         this.organizationOperatorRepository = organizationOperatorRepository;
         this.operatorDroneService = operatorDroneService;
         this.manufacturerService = manufacturerService;
+        this.droneTypeService = droneTypeService;
     }
 
     @Override
@@ -60,6 +63,7 @@ public class DroneDeviceServiceImpl implements DroneDeviceService {
 
         DroneDevice drone = payload.getDrone();
 
+        if( !droneTypeApproved(drone.getDroneTypeId())) { throw new DroneTypeNotApprovedOrDoesntExist();}
         if( droneExists(drone.getDeviceId()) ) { throw new DroneDeviceAlreadyExistException(); }
         if( drone.getOperatorBusinessIdentifier() == null ) { throw new OperatorBusinessIdentifierMissingException(); }
         if( !operatorExists(drone.getOperatorBusinessIdentifier()) ) { throw new InvalidOperatorBusinessIdentifierException(); }
@@ -111,8 +115,12 @@ public class DroneDeviceServiceImpl implements DroneDeviceService {
 
     private boolean droneExists(String uniqueDeviceCode) {
         DroneDevice drone = droneDeviceRepository.findByDeviceId(uniqueDeviceCode) ;
-        boolean droneExists = (drone != null) ? true : false ;
-        return droneExists;
+        return drone != null;
+    }
+
+    private boolean droneTypeApproved(long id){
+        DroneType droneType = droneTypeService.get(id);
+        return droneType != null;
     }
 
     private boolean operatorExists(String operatorBusinessIdentifier) {

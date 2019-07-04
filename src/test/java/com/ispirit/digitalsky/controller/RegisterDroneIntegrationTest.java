@@ -83,7 +83,7 @@ public class RegisterDroneIntegrationTest {
     public void registerDrone()  {
 
         try {
-            DroneDevice mockDrone = new DroneDevice("BeebopB800","1.0","1A29.0", "From manufacturer ", "some value", "eff217e740534fde89c1bfe62e08f316");
+            DroneDevice mockDrone = new DroneDevice("BeebopB800","1.0","1A29.0", "From manufacturer ", "some value", "eff217e740534fde89c1bfe62e08f316",1);
             String signature = digitalSigner.sign(mockDrone);
             String certificate = digitalSigner.getBase64EncodedCertificate();
             RegisterDroneRequestPayload mockDronePayload = new RegisterDroneRequestPayload(mockDrone, signature, certificate );

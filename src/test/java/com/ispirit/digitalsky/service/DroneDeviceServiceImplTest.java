@@ -36,6 +36,7 @@ public class DroneDeviceServiceImplTest {
     private DigitalSignatureVerifierService signatureVerifierService;
     private ManufacturerService manufacturerService;
     private UserPrincipal userPrincipal;
+    private DroneTypeServiceImpl droneTypeService;
 
     private DroneDeviceServiceImpl droneDeviceService;
 
@@ -48,10 +49,11 @@ public class DroneDeviceServiceImplTest {
         operatorDroneService = mock(OperatorDroneService.class);
         signatureVerifierService = mock(DigitalSignatureVerifierService.class);
         manufacturerService = mock(ManufacturerService.class);
+        droneTypeService = mock(DroneTypeServiceImpl.class);
 
         userPrincipal = SecurityContextHelper.setUserSecurityContext();
 
-        droneDeviceService = new DroneDeviceServiceImpl(droneDeviceRepository, signatureVerifierService, individualOperatorRepository, organizationOperatorRepository, operatorDroneService, manufacturerService);
+        droneDeviceService = new DroneDeviceServiceImpl(droneDeviceRepository, signatureVerifierService, individualOperatorRepository, organizationOperatorRepository, operatorDroneService, manufacturerService, droneTypeService);
     }
 
     @Test
@@ -176,8 +178,9 @@ public class DroneDeviceServiceImplTest {
         when(signatureVerifierService.isValidSignature(any(RegisterDroneRequestPayload.class),anyString(),eq(certificatePath))).thenReturn(true);
         when(droneDeviceRepository.findByDeviceId("beebopeff292929")).thenReturn(new DroneDevice() );
         when(droneDeviceRepository.save(any(DroneDevice.class))).thenReturn(null);
+        when(droneTypeService.get(any(long.class))).thenReturn(new DroneType());
 
-        RegisterDroneRequestPayload payload = new RegisterDroneRequestPayload(new DroneDevice("beebopeff292929","","","","",""),"","");
+        RegisterDroneRequestPayload payload = new RegisterDroneRequestPayload(new DroneDevice("beebopeff292929","","","","","",1),"","");
         try {
             droneDeviceService.register("eff217e740534fde89c1bfe62e08f316", payload);
             fail("should throw DroneDeviceAlreadyExistException");
@@ -198,8 +201,9 @@ public class DroneDeviceServiceImplTest {
         when(signatureVerifierService.isValidSignature(any(RegisterDroneRequestPayload.class),anyString(),eq(certificatePath))).thenReturn(true);
         when(droneDeviceRepository.findByDeviceId("beebopeff292929")).thenReturn(null);
         when(droneDeviceRepository.save(any(DroneDevice.class))).thenReturn(null);
+        when(droneTypeService.get(any(long.class))).thenReturn(new DroneType());
 
-        RegisterDroneRequestPayload payload = new RegisterDroneRequestPayload(new DroneDevice("beebopeff292929","","","","",null),"","");
+        RegisterDroneRequestPayload payload = new RegisterDroneRequestPayload(new DroneDevice("beebopeff292929","","","","",null,1),"","");
         try {
             droneDeviceService.register("eff217e740534fde89c1bfe62e08f316", payload);
             fail("should throw OperatorBusinessIdentifierMissingException");
@@ -222,8 +226,9 @@ public class DroneDeviceServiceImplTest {
         when(droneDeviceRepository.save(any(DroneDevice.class))).thenReturn(null);
         when(organizationOperatorRepository.loadByBusinessIdentifier(eq("2ff217e740534fde89c1bfe62e08f316"))).thenReturn(null);
         when(individualOperatorRepository.loadByBusinessIdentifier(eq("2ff217e740534fde89c1bfe62e08f316"))).thenReturn(null);
+        when(droneTypeService.get(any(long.class))).thenReturn(new DroneType());
 
-        RegisterDroneRequestPayload payload = new RegisterDroneRequestPayload(new DroneDevice("beebopeff292929","","","","","2ff217e740534fde89c1bfe62e08f316"),"","");
+        RegisterDroneRequestPayload payload = new RegisterDroneRequestPayload(new DroneDevice("beebopeff292929","","","","","2ff217e740534fde89c1bfe62e08f316",1),"","");
         try {
             droneDeviceService.register("eff217e740534fde89c1bfe62e08f316", payload);
             fail("should throw InvalidOperatorBusinessIdentifierException");
@@ -246,8 +251,9 @@ public class DroneDeviceServiceImplTest {
         when(droneDeviceRepository.save(any(DroneDevice.class))).thenReturn(null);
         when(organizationOperatorRepository.loadByBusinessIdentifier(eq("2ff217e740534fde89c1bfe62e08f316"))).thenReturn(new OrganizationOperator(1,"","","","","","",null));
         when(individualOperatorRepository.loadByBusinessIdentifier(eq("2ff217e740534fde89c1bfe62e08f316"))).thenReturn(null);
+        when(droneTypeService.get(any(long.class))).thenReturn(new DroneType());
 
-        RegisterDroneRequestPayload payload = new RegisterDroneRequestPayload(new DroneDevice("beebopeff292929","","","","","2ff217e740534fde89c1bfe62e08f316"),"","");
+        RegisterDroneRequestPayload payload = new RegisterDroneRequestPayload(new DroneDevice("beebopeff292929","","","","","2ff217e740534fde89c1bfe62e08f316",1),"","");
 
         droneDeviceService.register("eff217e740534fde89c1bfe62e08f316", payload);
 
@@ -266,7 +272,8 @@ public class DroneDeviceServiceImplTest {
         when(droneDeviceRepository.save(any(DroneDevice.class))).thenReturn(null);
         when(organizationOperatorRepository.loadByBusinessIdentifier(eq("2ff217e740534fde89c1bfe62e08f316"))).thenReturn(new OrganizationOperator(1,"","","","","","",null));
         when(individualOperatorRepository.loadByBusinessIdentifier(eq("2ff217e740534fde89c1bfe62e08f316"))).thenReturn(null);
-        RegisterDroneRequestPayload payload = new RegisterDroneRequestPayload(new DroneDevice("beebopeff292929","","","","","2ff217e740534fde89c1bfe62e08f316"),"","");
+        when(droneTypeService.get(any(long.class))).thenReturn(new DroneType());
+        RegisterDroneRequestPayload payload = new RegisterDroneRequestPayload(new DroneDevice("beebopeff292929","","","","","2ff217e740534fde89c1bfe62e08f316",1),"","");
 
         droneDeviceService.register("eff217e740534fde89c1bfe62e08f316", payload);
 
@@ -402,7 +409,7 @@ public class DroneDeviceServiceImplTest {
         when(droneDeviceRepository.findByDeviceId("beebopeff292929")).thenReturn(null);
         when(droneDeviceRepository.save(any(DroneDevice.class))).thenReturn(null);
 
-        RegisterDroneRequestPayload payload = new RegisterDroneRequestPayload(new DroneDevice("beebopeff292929","","","","",""),"","");
+        RegisterDroneRequestPayload payload = new RegisterDroneRequestPayload(new DroneDevice("beebopeff292929","","","","","",1),"","");
         try {
             droneDeviceService.deregister("eff217e740534fde89c1bfe62e08f316", payload);
             fail("should throw DroneDeviceNotFoundException");
@@ -427,7 +434,7 @@ public class DroneDeviceServiceImplTest {
         when(droneDeviceRepository.findByDeviceId("beebopeff292929")).thenReturn(droneDevice);
         when(droneDeviceRepository.save(any(DroneDevice.class))).thenReturn(null);
 
-        RegisterDroneRequestPayload payload = new RegisterDroneRequestPayload(new DroneDevice("beebopeff292929","","","","",""),"","");
+        RegisterDroneRequestPayload payload = new RegisterDroneRequestPayload(new DroneDevice("beebopeff292929","","","","","",1),"","");
         try {
             droneDeviceService.deregister("eff217e740534fde89c1bfe62e08f316", payload);
             fail("should throw DeviceNotInRegisteredStateException");
@@ -442,7 +449,7 @@ public class DroneDeviceServiceImplTest {
     public void shouldDeRegisterDrone() throws SignatureException {
         Manufacturer manufacturer = new Manufacturer(1,null,null,null,null,null,null, null);
         String certificatePath = "/Users/trustedCertificateChain.pem";
-        DroneDevice droneDevice =new DroneDevice("beebopeff292929","","","","","2ff217e740534fde89c1bfe62e08f316");
+        DroneDevice droneDevice =new DroneDevice("beebopeff292929","","","","","2ff217e740534fde89c1bfe62e08f316",1);
         droneDevice.setRegistrationStatus(DroneDeviceRegistrationStatus.REGISTERED);
 
         when(manufacturerService.loadByBusinessIdentifier(eq("eff217e740534fde89c1bfe62e08f316"))).thenReturn(manufacturer);

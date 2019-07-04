@@ -74,10 +74,10 @@ public class DroneDeviceControllerTest {
 
     @Test
     public void shouldRegisterDrone() throws Exception {
-        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value");
+        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value",1);
         RegisterDroneRequestPayload requestPayload = new RegisterDroneRequestPayload(mockDrone, "", "");
 
-        DroneDevice createdMockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value");
+        DroneDevice createdMockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value",1);
         createdMockDrone.setManufacturerBusinessIdentifier("2ff217e740534fde89c1bfe62e08f317");
 
         when(droneDeviceService.register(eq("2ff217e740534fde89c1bfe62e08f317"),any(RegisterDroneRequestPayload.class))).thenReturn(createdMockDrone);
@@ -101,7 +101,7 @@ public class DroneDeviceControllerTest {
 
     @Test
     public void shouldHandleInvalidDigitalSignatureExceptionBeforeRegisteringDrone() throws Exception {
-        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value");
+        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value",1);
         RegisterDroneRequestPayload requestPayload = new RegisterDroneRequestPayload(mockDrone, "", "");
 
         when(droneDeviceService.register(eq("2ff217e740534fde89c1bfe62e08f317"),any(RegisterDroneRequestPayload.class))).thenThrow(new InvalidDigitalSignatureException());
@@ -127,7 +127,7 @@ public class DroneDeviceControllerTest {
     @Test
     public void shouldHandleOperatorBusinessIdentifierMissingExceptionBeforeRegisteringDrone() throws Exception {
 
-        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value");
+        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value",1);
         RegisterDroneRequestPayload requestPayload = new RegisterDroneRequestPayload(mockDrone, "", "");
 
         when(droneDeviceService.register(eq("2ff217e740534fde89c1bfe62e08f317"),any(RegisterDroneRequestPayload.class))).thenThrow(new OperatorBusinessIdentifierMissingException());
@@ -152,7 +152,7 @@ public class DroneDeviceControllerTest {
     }
     @Test
     public void shouldHandleInvalidOperatorBusinessIdentifierExceptionBeforeRegisteringDrone() throws Exception {
-        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value");
+        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value",1);
         RegisterDroneRequestPayload requestPayload = new RegisterDroneRequestPayload(mockDrone, "", "");
 
         when(droneDeviceService.register(eq("2ff217e740534fde89c1bfe62e08f317"),any(RegisterDroneRequestPayload.class))).thenThrow(new InvalidOperatorBusinessIdentifierException());
@@ -177,7 +177,7 @@ public class DroneDeviceControllerTest {
 
     @Test
     public void shouldHandleDroneDeviceAlreadyExistExceptionBeforeRegisteringDrone() throws Exception {
-        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value");
+        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value",1);
         RegisterDroneRequestPayload requestPayload = new RegisterDroneRequestPayload(mockDrone, "", "");
 
         when(droneDeviceService.register(eq("2ff217e740534fde89c1bfe62e08f317"),any(RegisterDroneRequestPayload.class))).thenThrow(new DroneDeviceAlreadyExistException());
@@ -202,7 +202,7 @@ public class DroneDeviceControllerTest {
     }
     @Test
     public void shouldHandleInvalidManufacturerExceptionBeforeRegisteringDrone() throws Exception {
-        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value");
+        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value",1);
         RegisterDroneRequestPayload requestPayload = new RegisterDroneRequestPayload(mockDrone, "", "");
 
         when(droneDeviceService.register(eq("2ff217e740534fde89c1bfe62e08f317"),any(RegisterDroneRequestPayload.class))).thenThrow(new InvalidManufacturerException());
@@ -227,7 +227,7 @@ public class DroneDeviceControllerTest {
     }
     @Test
     public void shouldHandleManufacturerNotFoundExceptionBeforeRegisteringDrone() throws Exception {
-        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value");
+        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value",1);
         RegisterDroneRequestPayload requestPayload = new RegisterDroneRequestPayload(mockDrone, "", "");
 
         when(droneDeviceService.register(eq("2ff217e740534fde89c1bfe62e08f317"),any(RegisterDroneRequestPayload.class))).thenThrow(new ManufacturerNotFoundException());
@@ -267,10 +267,10 @@ public class DroneDeviceControllerTest {
 
     @Test
     public void shouldDeregisterDrone() throws Exception {
-        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value");
+        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value",1);
         RegisterDroneRequestPayload requestPayload = new RegisterDroneRequestPayload(mockDrone, "", "");
 
-        DroneDevice updatedMockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value");
+        DroneDevice updatedMockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value",1);
         updatedMockDrone.setManufacturerBusinessIdentifier("2ff217e740534fde89c1bfe62e08f317");
 
         when(droneDeviceService.deregister(eq("2ff217e740534fde89c1bfe62e08f317"),any(RegisterDroneRequestPayload.class))).thenReturn(updatedMockDrone);
@@ -296,7 +296,7 @@ public class DroneDeviceControllerTest {
 
     @Test
     public void shouldHandleInvalidDigitalSignatureExceptionBeforeDeRegisteringDrone() throws Exception {
-        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value");
+        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value",1);
         RegisterDroneRequestPayload requestPayload = new RegisterDroneRequestPayload(mockDrone, "", "");
 
         when(droneDeviceService.deregister(eq("2ff217e740534fde89c1bfe62e08f317"),any(RegisterDroneRequestPayload.class))).thenThrow(new InvalidDigitalSignatureException());
@@ -322,7 +322,7 @@ public class DroneDeviceControllerTest {
     @Test
     public void shouldHandleDeviceNotInRegisteredStateExceptionBeforeDeRegisteringDrone() throws Exception {
 
-        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value");
+        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value",1);
         RegisterDroneRequestPayload requestPayload = new RegisterDroneRequestPayload(mockDrone, "", "");
 
         when(droneDeviceService.deregister(eq("2ff217e740534fde89c1bfe62e08f317"),any(RegisterDroneRequestPayload.class))).thenThrow(new DeviceNotInRegisteredStateException());
@@ -349,7 +349,7 @@ public class DroneDeviceControllerTest {
     @Test
     public void shouldHandleInvalidDigitalCertificateExceptionBeforeDeRegisteringDrone() throws Exception {
 
-        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value");
+        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value",1);
         RegisterDroneRequestPayload requestPayload = new RegisterDroneRequestPayload(mockDrone, "", "");
 
         when(droneDeviceService.deregister(eq("2ff217e740534fde89c1bfe62e08f317"),any(RegisterDroneRequestPayload.class))).thenThrow(new InvalidDigitalCertificateException());
@@ -375,7 +375,7 @@ public class DroneDeviceControllerTest {
 
     @Test
     public void shouldHandleDroneDeviceNotFoundExceptionBeforeDeRegisteringDrone() throws Exception {
-        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value");
+        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value",1);
         RegisterDroneRequestPayload requestPayload = new RegisterDroneRequestPayload(mockDrone, "", "");
 
         when(droneDeviceService.deregister(eq("2ff217e740534fde89c1bfe62e08f317"),any(RegisterDroneRequestPayload.class))).thenThrow(new DroneDeviceNotFoundException());
@@ -401,7 +401,7 @@ public class DroneDeviceControllerTest {
     @Test
     public void shouldHandleManufacturerNotFoundExceptionBeforeDeRegisteringDrone() throws Exception {
 
-        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value");
+        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value",1);
         RegisterDroneRequestPayload requestPayload = new RegisterDroneRequestPayload(mockDrone, "", "");
 
         when(droneDeviceService.deregister(eq("2ff217e740534fde89c1bfe62e08f317"),any(RegisterDroneRequestPayload.class))).thenThrow(new ManufacturerNotFoundException());
@@ -427,7 +427,7 @@ public class DroneDeviceControllerTest {
     @Test
     public void shouldHandleInvalidManufacturerExceptionBeforeDeRegisteringDrone() throws Exception {
 
-        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value");
+        DroneDevice mockDrone = new DroneDevice("1.0","Beebop 800.0","1A29.0", "From manufacturer ", "eff217e740534fde89c1bfe62e08f316", "some value",1);
         RegisterDroneRequestPayload requestPayload = new RegisterDroneRequestPayload(mockDrone, "", "");
 
         when(droneDeviceService.deregister(eq("2ff217e740534fde89c1bfe62e08f317"),any(RegisterDroneRequestPayload.class))).thenThrow(new InvalidManufacturerException());

@@ -50,7 +50,7 @@ public class DigitalSignatureVerifierForTest {
 
     public static DroneDevice getValidDroneDevice() {
 
-        DroneDevice droneDevice = new DroneDevice("55556","10","1.0", "test", null, "5fdbbd3e439a4457b5ae59068120f613");
+        DroneDevice droneDevice = new DroneDevice("55556","10","1.0", "test", null, "5fdbbd3e439a4457b5ae59068120f613",1);
         return droneDevice;
     }
 }
