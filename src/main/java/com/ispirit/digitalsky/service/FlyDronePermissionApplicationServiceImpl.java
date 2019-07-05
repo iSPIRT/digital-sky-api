@@ -80,6 +80,9 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
 
     public static final double MAXIMUM_FLIGHT_AREA_SQ_KM=3.14159;
 
+    private long maxEnduranceOfDrone;
+    private String typeOfDrone;
+
     public FlyDronePermissionApplicationServiceImpl(
             FlyDronePermissionApplicationRepository repository,
             StorageService storageService,
@@ -109,9 +112,15 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         application.setApplicantId(userPrincipal.getId());
         application.setApplicant(userPrincipal.getUsername());
         OperatorDrone operatorDrone = operatorDroneService.find(application.getDroneId());
+
+        maxEnduranceOfDrone = (long) operatorDrone.getDroneType().getMaxEndurance();
+        typeOfDrone = operatorDrone.getDroneType().getDroneCategoryType().getValue();
         application.setApplicantType(operatorDrone.getOperatorType());
         application.setOperatorId(operatorDrone.getOperatorId());
         setPilotId(application);
+        application.setMaxEndurance(maxEnduranceOfDrone);
+        application.setDroneType(typeOfDrone);
+        application.setUin(operatorDrone.getUinNo());
         checkMaxHeight(application);
         checkTimeWithinSunriseSunset(application);
         checkWithinAday(application);
