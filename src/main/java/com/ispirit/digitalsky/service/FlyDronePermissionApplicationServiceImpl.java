@@ -40,6 +40,8 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
 
     public static final String PERMISSION_ARTIFACT_XML = "permissionArtifact.xml";
 
+    public static final String FLIGHT_LOG_JSON = "flightLog.json";
+
     private FlyDronePermissionApplicationRepository repository;
 
     private StorageService storageService;
@@ -331,6 +333,17 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         } catch (StorageFileNotFoundException e) {
             generatePermissionArtifact(get(applicationId));
             return storageService.loadAsResource(applicationId, PERMISSION_ARTIFACT_XML);
+        }
+    }
+
+    @Override
+    public void storeFlightLog(FlyDronePermissionApplication application, String content) throws StorageException {
+        try{
+            storageService.loadAsResource(application.getId(), FLIGHT_LOG_JSON);
+            throw new RuntimeException("Flight log already exists.");
+        }
+        catch (StorageFileNotFoundException e) {
+            storageService.store(FLIGHT_LOG_JSON, content, application.getId());
         }
     }
 
