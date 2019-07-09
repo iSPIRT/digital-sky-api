@@ -82,6 +82,9 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
 
     public static final double MAXIMUM_FLIGHT_AREA_SQ_KM=3.14159;
 
+    private long maxEnduranceOfDrone;
+    private String typeOfDrone;
+
     public FlyDronePermissionApplicationServiceImpl(
             FlyDronePermissionApplicationRepository repository,
             StorageService storageService,
@@ -111,9 +114,15 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         application.setApplicantId(userPrincipal.getId());
         application.setApplicant(userPrincipal.getUsername());
         OperatorDrone operatorDrone = operatorDroneService.find(application.getDroneId());
+
+        maxEnduranceOfDrone = (long) operatorDrone.getDroneType().getMaxEndurance();
+        typeOfDrone = operatorDrone.getDroneType().getDroneCategoryType().getValue();
         application.setApplicantType(operatorDrone.getOperatorType());
         application.setOperatorId(operatorDrone.getOperatorId());
         setPilotId(application);
+        application.setMaxEndurance(maxEnduranceOfDrone);
+        application.setDroneType(typeOfDrone);
+        application.setUin(operatorDrone.getUinNo());
         checkMaxHeight(application);
         checkTimeWithinSunriseSunset(application);
         checkWithinAday(application);
@@ -198,16 +207,6 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             actualForm.setSubmittedDate(new Date());
             handleSubmit(actualForm);
             actualForm.setFir(matchingFir.getName());
-            if(droneCategoryRegulationsCheck(actualForm)) {
-                String ficNumber = ficNumberServiceImpl.generateNewFicNumber(actualForm);
-                String adcNumber = adcNumberServiceImpl.generateNewAdcNumber(actualForm);
-                actualForm.setAdcNumber(adcNumber);
-                actualForm.setFicNumber(ficNumber);
-                generatePermissionArtifactWithAdcAndFic(actualForm,ficNumber,adcNumber);
-            }
-            else {
-                generatePermissionArtifact(actualForm);
-            }
             return repository.save(actualForm);
         } else {
             return repository.save(actualForm);
@@ -250,12 +249,16 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             throw new ApplicationNotInSubmittedStatusException();
         }
 
+        String ficNumber = ficNumberServiceImpl.generateNewFicNumber(actualForm);
+        String adcNumber = adcNumberServiceImpl.generateNewAdcNumber(actualForm);
+        actualForm.setFicNumber(ficNumber);
+        actualForm.setAdcNumber(adcNumber);
         actualForm.setApproverId(userPrincipal.getId());
         actualForm.setApprover(userPrincipal.getUsername());
         actualForm.setApprovedDate(new Date());
         actualForm.setApproverComments(approveRequestBody.getComments());
         actualForm.setStatus(approveRequestBody.getStatus());
-
+        generatePermissionArtifactWithAdcAndFic(actualForm,ficNumber,adcNumber);
         FlyDronePermissionApplication savedForm = repository.save(actualForm);
         return savedForm;
     }
@@ -265,6 +268,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
     public FlyDronePermissionApplication approveByAtcApplication(ApproveRequestBody approveRequestBody) throws ApplicationNotFoundException, UnAuthorizedAccessException {
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         FlyDronePermissionApplication actualForm = repository.findById(approveRequestBody.getApplicationFormId());
+        String ficNumber = ficNumberServiceImpl.generateNewFicNumber(actualForm);
         if (actualForm == null) {
             throw new ApplicationNotFoundException();
         }
@@ -272,7 +276,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         if (actualForm.getStatus() != ApplicationStatus.SUBMITTED) {
             throw new ApplicationNotInSubmittedStatusException();
         }
-
+        actualForm.setFicNumber(ficNumber);
         actualForm.setApproverId(userPrincipal.getId());
         actualForm.setApprover(userPrincipal.getUsername());
         actualForm.setApprovedDate(new Date());
@@ -296,12 +300,15 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             throw new ApplicationNotApprovedByAtc();
         }
 
+        String adcNumber = adcNumberServiceImpl.generateNewAdcNumber(actualForm);
+        actualForm.setAdcNumber(adcNumber);
+
         actualForm.setApproverId(userPrincipal.getId());
         actualForm.setApprover(userPrincipal.getUsername());
         actualForm.setApprovedDate(new Date());
         actualForm.setApproverComments(approveRequestBody.getComments());
         actualForm.setStatus(approveRequestBody.getStatus());
-
+        generatePermissionArtifactWithAdcAndFic(actualForm,actualForm.getFicNumber(),adcNumber);
         FlyDronePermissionApplication savedForm = repository.save(actualForm);
         return savedForm;
     }
@@ -367,6 +374,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
                 application.setApprovedDate(new Date());
                 application.setApproverComments("Self approval, within green zone");
                 application.setStatus(ApplicationStatus.APPROVED);
+                generatePermissionArtifact(application);
             }
             else{
                 application.setStatus(ApplicationStatus.SUBMITTED);

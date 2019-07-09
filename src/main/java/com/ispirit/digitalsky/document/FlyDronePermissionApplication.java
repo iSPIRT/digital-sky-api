@@ -98,6 +98,42 @@ public class FlyDronePermissionApplication extends BasicApplication {
     @Field("ficNumber")
     private String ficNumber;
 
+    @Field("maxEndurance")
+    private Long maxEndurance;
+
+    @Field("droneType")
+    private String droneType;
+
+    @Field("uin")
+    private String uin;
+
+
+
+
+    public String getUin() {
+        return uin;
+    }
+
+    public Long getMaxEndurance() {
+        return maxEndurance;
+    }
+
+    public void setUin(String uin) {
+        this.uin = uin;
+    }
+
+    public void setMaxEndurance(Long maxEndurance) {
+        this.maxEndurance = maxEndurance;
+    }
+
+    public void setDroneType(String droneType) {
+
+        this.droneType = droneType;
+    }
+
+    public String getDroneType() {
+        return droneType;
+    }
 
     public FlyDronePermissionApplication() {
         setCreatedDate(new Date());
