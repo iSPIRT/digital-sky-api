@@ -30,5 +30,4 @@ public interface FlyDronePermissionApplicationService {
 
     Resource getPermissionArtifact(String applicationId) throws StorageFileNotFoundException;
 
-    void storeFlightLog(FlyDronePermissionApplication application, String content) throws StorageException;
 }

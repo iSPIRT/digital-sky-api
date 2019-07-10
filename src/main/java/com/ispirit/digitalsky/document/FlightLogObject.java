@@ -2,6 +2,10 @@ package com.ispirit.digitalsky.document;
 
 public class FlightLogObject {
 
+  public String getSignature() {
+    return signature;
+  }
+
   private String signature;
 
   private FlightLog flightLog;

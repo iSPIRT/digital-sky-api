@@ -310,6 +310,11 @@ public class ApplicationConfiguration {
     }
 
     @Bean
+    FlightLogServiceImpl flightLogService(FlightLogRepository flightLogRepository, StorageService storageService){
+        return new FlightLogServiceImpl(flightLogRepository,storageService);
+    }
+
+    @Bean
     RestTemplate restTemplate(){
         int timeout = 25000;
         RequestConfig config = RequestConfig.custom()

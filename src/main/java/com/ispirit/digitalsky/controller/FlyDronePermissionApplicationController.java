@@ -9,6 +9,7 @@ import com.ispirit.digitalsky.document.FlyDronePermissionApplication;
 import com.ispirit.digitalsky.domain.*;
 import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.*;
+import com.ispirit.digitalsky.service.api.FlightLogService;
 import com.ispirit.digitalsky.service.api.FlyDronePermissionApplicationService;
 import com.ispirit.digitalsky.service.api.OperatorDroneService;
 import com.ispirit.digitalsky.service.api.UserProfileService;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,14 +43,16 @@ public class FlyDronePermissionApplicationController {
     private UserProfileService userProfileService;
     private CustomValidator validator;
     private ObjectMapper objectMapper;
+    private FlightLogService flightLogService;
 
     @Autowired
-    public FlyDronePermissionApplicationController(FlyDronePermissionApplicationService service, OperatorDroneService operatorDroneService, UserProfileService userProfileService, CustomValidator validator, ObjectMapper objectMapper) {
+    public FlyDronePermissionApplicationController(FlyDronePermissionApplicationService service, OperatorDroneService operatorDroneService, UserProfileService userProfileService, CustomValidator validator, ObjectMapper objectMapper, FlightLogService flightLogService) {
         this.service = service;
         this.operatorDroneService = operatorDroneService;
         this.userProfileService = userProfileService;
         this.validator = validator;
         this.objectMapper = objectMapper;
+        this.flightLogService = flightLogService;
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -195,14 +199,17 @@ public class FlyDronePermissionApplicationController {
             if (!application.getStatus().equals(ApplicationStatus.APPROVED) && !application.getStatus().equals(ApplicationStatus.APPROVEDBYAFMLU)) {
                 return new ResponseEntity<>(new Errors("Application Not Approved Yet"), HttpStatus.BAD_REQUEST);
             }
+            if(LocalDateTime.now().isBefore(application.getEndDateTime()))
+                return new ResponseEntity<>(new Errors("Flight time is still not complete and log cannot be submitted"),HttpStatus.BAD_REQUEST);
 
             String content = new String(flightLogDocument.getBytes(),"UTF-8");
 
             FlightLogObject flightLogObject = objectMapper.readValue(content, FlightLogObject.class);
 
-            String previousLogHash = flightLogObject.getPreviousFlightLogHash(); // check this with previous flight
+            FlightLogEntry flightLogEntry = new FlightLogEntry(application.getId(),application.getUin(),flightLogObject.getSignature());
 
-            service.storeFlightLog(application,content);
+            if(flightLogService.testAgainstPreviousHash(flightLogEntry))
+                flightLogService.storeFlightLog(application,content,flightLogEntry);
 
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
