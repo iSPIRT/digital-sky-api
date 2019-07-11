@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.TestContext;
 import com.ispirit.digitalsky.document.FlyDronePermissionApplication;
 import com.ispirit.digitalsky.domain.*;
+import com.ispirit.digitalsky.service.api.FlightLogService;
 import com.ispirit.digitalsky.service.api.FlyDronePermissionApplicationService;
 import com.ispirit.digitalsky.service.api.OperatorDroneService;
 import com.ispirit.digitalsky.service.api.UserProfileService;
@@ -56,6 +57,10 @@ public class FlyDronePermissionApplicationControllerTest {
 
     @MockBean
     private FlyDronePermissionApplicationService service;
+
+    @MockBean
+    private FlightLogService flightLogService;
+
     private UserPrincipal userPrincipal;
 
     @Before

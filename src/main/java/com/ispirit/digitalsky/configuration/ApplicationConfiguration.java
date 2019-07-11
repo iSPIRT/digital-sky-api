@@ -49,7 +49,7 @@ public class ApplicationConfiguration {
     @Value("${DEFAULT_FROM_EMAIL_ID:no-reply@dgca.gov.in}")
     private String defaultFromEmailId;
 
-    @Value("${SEND_GRID_API_KEY:default}")
+    @Value("${SEND_GRID_API_KEY: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}")
     private String sendGridApiKey;
 
     @Value("${RESET_PASSWORD_PATH:http://localhost:3000/resetPassword}")
@@ -82,7 +82,7 @@ public class ApplicationConfiguration {
     @Value("${RE_CAPTCHA_VERIFY_URL:https://www.google.com/recaptcha/api/siteverify}")
     private String reCaptchaVerifyUrl;
 
-    @Value("${RE_CAPTCHA_SITE_SECRET:secret}")
+    @Value("${RE_CAPTCHA_SITE_SECRET:6Lc0KX4UAAAAABYdTWqv1nSg192cqFlW8ipqV-nm}")
     private String reCaptchaSiteSecret;
 
     @Value("${DS_CERT_PATH:classpath:cert.pem}")
