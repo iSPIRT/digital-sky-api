@@ -52,7 +52,6 @@ public class FlyDronePermissionApplicationServiceImplTest {
     private AdcNumberServiceImpl adcNumberService;
     private FicNumberServiceImpl ficNumberService;
     private List<FlightInformationRegion> firs = new ArrayList<>();
-    private FlightLogService flightLogService;
 
     @Before
     public void setUp() throws Exception {
@@ -66,7 +65,6 @@ public class FlyDronePermissionApplicationServiceImplTest {
         freemarkerConfiguration = freemarkerConfiguration();
         adcNumberService = mock(AdcNumberServiceImpl.class);
         ficNumberService = mock(FicNumberServiceImpl.class);
-        flightLogService = mock(FlightLogServiceImpl.class);
         File file = new File("chennaiFir.json");
         BufferedReader reader = new BufferedReader(new FileReader(file));
         firs.add(0, new FlightInformationRegion("Chennai", reader.readLine(), 'O'));
@@ -87,8 +85,6 @@ public class FlyDronePermissionApplicationServiceImplTest {
     public void shouldCreateApplication() throws Exception {
         //given
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
-        OperatorDrone drone = mock(OperatorDrone.class);
-        DroneType droneType = mock(DroneType.class);
         application.setPilotBusinessIdentifier("1");
         application.setDroneId(1);
         application.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
@@ -96,11 +92,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
         application.setStartDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 10, 0).plusDays(2));
         application.setEndDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 10, 45).plusDays(2));
         doNothing().when(service).validateFlyArea(application);
-        when(operatorDroneService.find(application.getDroneId())).thenReturn(drone);
-        when(drone.getDroneType()).thenReturn(droneType);
-        when(droneType.getMaxEndurance()).thenReturn(20);
-        when(drone.getDroneType()).thenReturn(droneType);
-        when(droneType.getDroneCategoryType()).thenReturn(DroneCategoryType.MICRO);
+        when(operatorDroneService.find(application.getDroneId())).thenReturn(new OperatorDrone());
         when(pilotService.findByBusinessIdentifier("1")).thenReturn(new Pilot(1L));
         //when
         service.createApplication(application);
@@ -341,30 +333,14 @@ public class FlyDronePermissionApplicationServiceImplTest {
         approveRequestBody.setApplicationFormId("1");
         approveRequestBody.setStatus(ApplicationStatus.APPROVED);
         approveRequestBody.setComments("comments");
-        OperatorDrone drone = new OperatorDrone();
-        drone.setUinApplicationId("uin");
-
 
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
-        application.setStatus(ApplicationStatus.SUBMITTED);
-        application.setPilotBusinessIdentifier("2");
-        application.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
-        application.setStartDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 10, 0).plusDays(2));
-        application.setEndDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 10, 45).plusDays(2));
-        application.setPayloadWeightInKg(2.5);
-        application.setPayloadDetails("food");
-        application.setDroneId(1);
-        application.setFlightPurpose("parcel");
         application.setId("1");
         application.setPilotBusinessIdentifier("1");
         application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
         application.setApplicantId(1);
         application.setStatus(ApplicationStatus.SUBMITTED);
         when(repository.findById("1")).thenReturn(application);
-        when(ficNumberService.generateNewFicNumber(any(FlyDronePermissionApplication.class))).thenReturn(new FicNumber("C",1,"abc",LocalDateTime.now()).getFicNumber());
-        when(adcNumberService.generateNewAdcNumber(any(FlyDronePermissionApplication.class))).thenReturn(new AdcNumber("RMA0002",LocalDateTime.now()).getAdcNumber());
-        when(operatorDroneService.find(anyLong())).thenReturn(drone);
-        when(userProfileService.resolveOperatorBusinessIdentifier(any(ApplicantType.class),any(Long.class))).thenReturn("ey");
 
         //when
         service.approveApplication(approveRequestBody);
@@ -415,31 +391,14 @@ public class FlyDronePermissionApplicationServiceImplTest {
         approveRequestBody.setApplicationFormId("1");
         approveRequestBody.setStatus(ApplicationStatus.APPROVEDBYAFMLU);
         approveRequestBody.setComments("comments");
-        OperatorDrone drone = new OperatorDrone();
-        drone.setUinApplicationId("uin");
-
 
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
-        application.setStatus(ApplicationStatus.SUBMITTED);
-        application.setPilotBusinessIdentifier("2");
-        application.setFlyArea(asList(new LatLong(0.0001, 0.0001), new LatLong(0.0002, 0.0002),new LatLong(0.0002,0.0001),new LatLong(0.0001,0.0001)));
-        application.setStartDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 10, 0).plusDays(2));
-        application.setEndDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 10, 45).plusDays(2));
-        application.setPayloadWeightInKg(2.5);
-        application.setPayloadDetails("food");
-        application.setDroneId(1);
-        application.setFlightPurpose("parcel");
         application.setId("1");
         application.setPilotBusinessIdentifier("1");
         application.setFlyArea(asList(new LatLong(1, 1), new LatLong(2, 2)));
         application.setApplicantId(1);
-        application.setFicNumber(new FicNumber("C",1,"abc",LocalDateTime.now()).getFicNumber());
         application.setStatus(ApplicationStatus.APPROVEDBYATC);
         when(repository.findById("1")).thenReturn(application);
-        when(ficNumberService.generateNewFicNumber(any(FlyDronePermissionApplication.class))).thenReturn(new FicNumber("C",1,"abc",LocalDateTime.now()).getFicNumber());
-        when(adcNumberService.generateNewAdcNumber(any(FlyDronePermissionApplication.class))).thenReturn(new AdcNumber("RMA0002",LocalDateTime.now()).getAdcNumber());
-        when(operatorDroneService.find(anyLong())).thenReturn(drone);
-        when(userProfileService.resolveOperatorBusinessIdentifier(any(ApplicantType.class),any(Long.class))).thenReturn("ey");
 
         //when
         service.approveByAfmluApplication(approveRequestBody);
@@ -777,17 +736,6 @@ public class FlyDronePermissionApplicationServiceImplTest {
         LatLong five = new LatLong(11.630715737981486, 68.88427734374999);
         List<LatLong> flyArea = asList(one, two, three, four, five);
         application.setFlyArea(flyArea);
-        application.setPilotBusinessIdentifier("2");
-        application.setStartDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 10, 0).plusDays(2));
-        application.setEndDateTime(LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth(), LocalDateTime.now().getDayOfMonth(), 10, 45).plusDays(2));
-        application.setPayloadWeightInKg(2.5);
-        application.setPayloadDetails("food");
-        application.setDroneId(1);
-        application.setOperatorId(1L);
-        application.setFlightPurpose("parcel");
-        application.setId("1");
-        application.setApplicantType(ApplicantType.INDIVIDUAL);
-        application.setApplicantId(1);
 
         OperatorDrone operatorDrone = new OperatorDrone();
         operatorDrone.setOperatorId(application.getOperatorId());
@@ -797,7 +745,6 @@ public class FlyDronePermissionApplicationServiceImplTest {
         type.setDroneCategoryType(DroneCategoryType.MICRO);
         operatorDrone.setDroneType(type);
         when(operatorDroneService.find(application.getDroneId())).thenReturn(operatorDrone);
-        when(userProfileService.resolveOperatorBusinessIdentifier(operatorDrone.getOperatorType(), operatorDrone.getOperatorId())).thenReturn("abc");
 
         doReturn(false).when(service).isFlyAreaIntersects(anyString(), eq(flyArea));
 
