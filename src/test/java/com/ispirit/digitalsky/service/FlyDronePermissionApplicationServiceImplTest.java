@@ -850,66 +850,6 @@ public class FlyDronePermissionApplicationServiceImplTest {
     }
 
     @Test
-    public void shouldCreateAdcAndFicWhenSubmitted() throws Exception {
-        //given
-
-        FlyDronePermissionApplication application = new FlyDronePermissionApplication();
-        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs,adcNumberService,ficNumberService));
-        LatLong one = new LatLong(12.979901552822549, 77.59938597679138);
-        LatLong two = new LatLong(12.979263815142966, 77.5983452796936);
-        LatLong three = new LatLong(12.977517869190518, 77.5990104675293);
-        LatLong four = new LatLong(12.97822879477083, 77.60073781013487);
-        LatLong five = new LatLong(12.979864961360581, 77.60029792785645);
-        LatLong six = new LatLong(12.979901552822549, 77.59938597679138);
-        List<LatLong> flyArea = asList(one, two, three, four, five, six);
-        application.setFlyArea(flyArea);
-        application.setMaxAltitude(300);
-        application.setPilotBusinessIdentifier("abcba");
-        application.setStartDateTime(LocalDateTime.of(LocalDate.now(), LocalTime.of(13,0)).plusDays(2));
-        application.setEndDateTime(LocalDateTime.of(LocalDate.now(), LocalTime.of(13,0)).plusDays(2).plusMinutes(30));
-        application.setStatus(ApplicationStatus.SUBMITTED);
-        application.setFlightPurpose("Fun");
-        application.setPayloadDetails("fun");
-
-        OperatorDrone operatorDrone = new OperatorDrone();
-        operatorDrone.setOperatorId(application.getOperatorId());
-        operatorDrone.setOperatorType(application.getApplicantType());
-        operatorDrone.setUinApplicationId("sdsd");
-        DroneType type = new DroneType();
-        type.setDroneCategoryType(DroneCategoryType.MICRO);
-        operatorDrone.setDroneType(type);
-
-        when(operatorDroneService.find(application.getDroneId())).thenReturn(operatorDrone);
-        when(pilotService.findByBusinessIdentifier(application.getPilotBusinessIdentifier())).thenReturn(new Pilot(1l));
-        when(service.get("1")).thenReturn(application);
-        when(adcNumberService.generateNewAdcNumber(any(FlyDronePermissionApplication.class))).thenReturn("RCA0001");
-        when(ficNumberService.generateNewFicNumber(any(FlyDronePermissionApplication.class))).thenReturn("00000RO");
-        when(userProfileService.resolveOperatorBusinessIdentifier(operatorDrone.getOperatorType(), operatorDrone.getOperatorId())).thenReturn("abc");
-
-        doNothing().when(service).validateFlyArea(application);
-        doReturn(false).when(service).isFlyAreaIntersects(anyString(), eq(flyArea));
-
-
-        //when
-        try {
-            service.updateApplication("1",application);
-        } catch (ValidationException e) {
-        }
-        assertThat(application.getStatus(), is(ApplicationStatus.SUBMITTED));
-        assertThat(application.getApproverId(), is(userPrincipal.getId()));
-        assertThat(application.getApprovedDate(), notNullValue());
-        assertThat(application.getApproverComments(), nullValue());
-
-        ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
-        verify(digitalSignService).sign(argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue()
-                .replaceAll("flightStartTime=\"....-..-..T..:..:..\" flightEndTime=\"....-..-..T..:..:..\" ",""),
-            is(IOUtils.toString(this.getClass().getResourceAsStream("/expectedPermissionArtefactWithFicAdc"), "UTF-8")
-                .replaceAll("flightStartTime=\"....-..-..T..:..:..\" flightEndTime=\"....-..-..T..:..:..\" ","")));
-        verify(storageService).store(anyString(), anyString(), anyString());
-    }
-
-    @Test
     public void shouldFindFlyAreaIntersectWithGivenZones() throws Exception {
 
         //given
