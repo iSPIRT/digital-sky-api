@@ -3,6 +3,7 @@ package com.ispirit.digitalsky.service;
 import com.ispirit.digitalsky.SecurityContextHelper;
 import com.ispirit.digitalsky.document.FlyDronePermissionApplication;
 import com.ispirit.digitalsky.document.LatLong;
+import com.ispirit.digitalsky.document.UAOPApplication;
 import com.ispirit.digitalsky.domain.*;
 import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.*;
@@ -51,6 +52,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
     private Configuration freemarkerConfiguration;
     private AdcNumberServiceImpl adcNumberService;
     private FicNumberServiceImpl ficNumberService;
+    private UAOPApplicationServiceImpl uaopApplicationService;
     private List<FlightInformationRegion> firs = new ArrayList<>();
     private FlightLogService flightLogService;
 
@@ -67,6 +69,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
         adcNumberService = mock(AdcNumberServiceImpl.class);
         ficNumberService = mock(FicNumberServiceImpl.class);
         flightLogService = mock(FlightLogServiceImpl.class);
+        uaopApplicationService = mock(UAOPApplicationServiceImpl.class);
         File file = new File("chennaiFir.json");
         BufferedReader reader = new BufferedReader(new FileReader(file));
         firs.add(0, new FlightInformationRegion("Chennai", reader.readLine(), 'O'));
@@ -79,7 +82,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
 //        file = new File("kolkataFir.json");
 //        reader = new BufferedReader(new FileReader(file));
 //        firs.add(3, new FlightInformationRegion("Kolkata", reader.readLine(), 'E')); todo: this is ignored as the kolkata fir geojson is hard to make it into a polygon
-        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs,adcNumberService,ficNumberService));
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs,adcNumberService,ficNumberService,uaopApplicationService));
         userPrincipal = SecurityContextHelper.setUserSecurityContext();
     }
 
@@ -143,7 +146,6 @@ public class FlyDronePermissionApplicationServiceImplTest {
         verify(repository).insert(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue().getSubmittedDate(), notNullValue());
         verify(service).handleSubmit(application);
-        verify(service).generatePermissionArtifact(any());
     }
 
     @Test
@@ -688,7 +690,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
     @Test
     public void shouldValidateIfFlyAreaWithinGreenZones() throws Exception {
         //given
-        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs,adcNumberService,ficNumberService));
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs,adcNumberService,ficNumberService,uaopApplicationService));
         LatLong one = new LatLong(11.630715737981486, 68.88427734374999);
         LatLong two = new LatLong(7.18810087117902, 68.70849609375);
         LatLong three = new LatLong(11.695272733029402, 77.89306640625);
@@ -714,7 +716,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
     @Test
     public void shouldValidateIfFlyAreaIntersectWithRedZones() throws Exception {
         //given
-        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs,adcNumberService,ficNumberService));
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs,adcNumberService,ficNumberService,uaopApplicationService));
         LatLong one = new LatLong(11.630715737981486, 68.88427734374999);
         LatLong two = new LatLong(7.18810087117902, 68.70849609375);
         LatLong three = new LatLong(11.695272733029402, 77.89306640625);
@@ -741,7 +743,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
     @Test
     public void handleSubmitShouldCheckIfFlyAreaIntersectWithAmberZones() throws Exception {
         //given
-        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs,adcNumberService,ficNumberService));
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs,adcNumberService,ficNumberService,uaopApplicationService));
         LatLong one = new LatLong(11.630715737981486, 68.88427734374999);
         LatLong two = new LatLong(7.18810087117902, 68.70849609375);
         LatLong three = new LatLong(11.695272733029402, 77.89306640625);
@@ -750,6 +752,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
         List<LatLong> flyArea = asList(one, two, three, four, five);
 
         doReturn(true).when(service).isFlyAreaIntersects(anyString(), eq(flyArea));
+        doReturn(false).when(service).droneCategoryRegulationsCheck(any(FlyDronePermissionApplication.class));
 
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
         application.setFlyArea(flyArea);
@@ -769,7 +772,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
     public void shouldApproveApplicationAfterSubmit() throws Exception {
         //given
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
-        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs,adcNumberService,ficNumberService));
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs,adcNumberService,ficNumberService,uaopApplicationService));
         LatLong one = new LatLong(11.630715737981486, 68.88427734374999);
         LatLong two = new LatLong(7.18810087117902, 68.70849609375);
         LatLong three = new LatLong(11.695272733029402, 77.89306640625);
@@ -817,7 +820,7 @@ public class FlyDronePermissionApplicationServiceImplTest {
     public void shouldWithholdApprovalForApplicationAfterSubmit() throws Exception {
         //given
         FlyDronePermissionApplication application = new FlyDronePermissionApplication();
-        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs,adcNumberService,ficNumberService));
+        service = spy(new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration,firs,adcNumberService,ficNumberService,uaopApplicationService));
         LatLong one = new LatLong(11.630715737981486, 68.88427734374999);
         LatLong two = new LatLong(7.18810087117902, 68.70849609375);
         LatLong three = new LatLong(11.695272733029402, 77.89306640625);
@@ -835,8 +838,13 @@ public class FlyDronePermissionApplicationServiceImplTest {
         type.setDroneCategoryType(DroneCategoryType.MICRO);
         operatorDrone.setDroneType(type);
         when(operatorDroneService.find(application.getDroneId())).thenReturn(operatorDrone);
+        UAOPApplication testUaop = new UAOPApplication();
+        testUaop.setStatus(ApplicationStatus.APPROVED);
+        Collection<UAOPApplication> uaopApplications = new ArrayList<>();
+        uaopApplications.add(testUaop);
 
         doReturn(false).when(service).isFlyAreaIntersects(anyString(), eq(flyArea));
+        doReturn(uaopApplications).when(uaopApplicationService).getApplicationsOfApplicant(anyLong());
 
         //when
         try {

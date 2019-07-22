@@ -3,6 +3,7 @@ package com.ispirit.digitalsky.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.document.FlyDronePermissionApplication;
 import com.ispirit.digitalsky.document.LatLong;
+import com.ispirit.digitalsky.document.UAOPApplication;
 import com.ispirit.digitalsky.domain.*;
 import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.*;
@@ -62,6 +63,8 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
 
     private FicNumberServiceImpl ficNumberServiceImpl;
 
+    private UAOPApplicationService uaopApplicationService;
+
     public static final int SUNRISE_HOUR = 5;
 
     public static final int SUNRISE_SUNSET_MINUTE = 30;
@@ -91,7 +94,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             DigitalSignService digitalSignService,
             OperatorDroneService operatorDroneService,
             UserProfileService userProfileService,
-            PilotService pilotService, Configuration freemarkerConfiguration,List<FlightInformationRegion> firs, AdcNumberServiceImpl adcNumberServiceImpl, FicNumberServiceImpl ficNumberServiceImpl) {
+            PilotService pilotService, Configuration freemarkerConfiguration,List<FlightInformationRegion> firs, AdcNumberServiceImpl adcNumberServiceImpl, FicNumberServiceImpl ficNumberServiceImpl, UAOPApplicationService uaopApplicationService) {
         this.repository = repository;
         this.storageService = storageService;
         this.airspaceCategoryService = airspaceCategoryService;
@@ -103,6 +106,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         this.firs=firs;
         this.adcNumberServiceImpl = adcNumberServiceImpl;
         this.ficNumberServiceImpl = ficNumberServiceImpl;
+        this.uaopApplicationService = uaopApplicationService;
     }
 
     @Override
@@ -136,16 +140,6 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             handleSubmit(application);
             application.setFir(matchingFir.getName());
             FlyDronePermissionApplication document = repository.insert(application);
-            if(droneCategoryRegulationsCheck(application)) {
-                String ficNumber = ficNumberServiceImpl.generateNewFicNumber(application);
-                String adcNumber = adcNumberServiceImpl.generateNewAdcNumber(application);
-                application.setAdcNumber(adcNumber);
-                application.setFicNumber(ficNumber);
-                generatePermissionArtifactWithAdcAndFic(application,ficNumber,adcNumber);
-            }
-            else {
-                generatePermissionArtifact(document);
-            }
             return document;
         } else {
             return repository.insert(application);
@@ -366,8 +360,15 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
                 generatePermissionArtifact(application);
             }
             else{
-                application.setStatus(ApplicationStatus.SUBMITTED);
                 UserPrincipal userPrincipal = UserPrincipal.securityContext();
+                if(droneCategoryRegulationsCheck(application)) {
+                    Collection<UAOPApplication> uaopApplicationCollection = uaopApplicationService.getApplicationsOfApplicant(userPrincipal.getId());
+                    for(UAOPApplication app: uaopApplicationCollection){
+                        if (!app.getStatus().equals(ApplicationStatus.APPROVED))
+                            throw new RuntimeException("You need to have a UAOP approved account to fly with these conditions");
+                    }
+                }
+                application.setStatus(ApplicationStatus.SUBMITTED);
                 application.setApproverId(userPrincipal.getId());
                 application.setApprover(userPrincipal.getUsername());
                 application.setApprovedDate(new Date());
