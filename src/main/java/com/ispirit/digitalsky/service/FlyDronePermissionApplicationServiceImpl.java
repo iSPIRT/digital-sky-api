@@ -112,6 +112,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         application.setApplicantId(userPrincipal.getId());
         application.setApplicant(userPrincipal.getUsername());
+        application.setApplicantEmail(userPrincipal.getEmail());
         OperatorDrone operatorDrone = operatorDroneService.find(application.getDroneId());
 
         maxEnduranceOfDrone = (long) operatorDrone.getDroneType().getMaxEndurance();
