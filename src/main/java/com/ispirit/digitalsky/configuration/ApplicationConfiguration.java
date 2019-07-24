@@ -300,8 +300,8 @@ public class ApplicationConfiguration {
     }
 
     @Bean(FLY_DRONE_SERVICE)
-    FlyDronePermissionApplicationService flyDronePermissionApplicationService(FlyDronePermissionApplicationRepository repository, StorageService storageService, AirspaceCategoryService airspaceCategoryService, freemarker.template.Configuration freemarkerConfiguration, DigitalSignService digitalSignService, OperatorDroneService operatorDroneService, UserProfileService userProfileService, PilotService pilotService, AdcNumberRepository adcNumberRepository, FicNumberRepository ficNumberRepository){
-        return new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration, this.firs, adcNumberService(adcNumberRepository), ficNumberService(ficNumberRepository) );
+    FlyDronePermissionApplicationService flyDronePermissionApplicationService(FlyDronePermissionApplicationRepository repository, StorageService storageService, AirspaceCategoryService airspaceCategoryService, freemarker.template.Configuration freemarkerConfiguration, DigitalSignService digitalSignService, OperatorDroneService operatorDroneService, UserProfileService userProfileService, PilotService pilotService, AdcNumberRepository adcNumberRepository, FicNumberRepository ficNumberRepository, UAOPApplicationRepository uaopApplicationRepository){
+        return new FlyDronePermissionApplicationServiceImpl(repository, storageService, airspaceCategoryService, digitalSignService, operatorDroneService, userProfileService, pilotService, freemarkerConfiguration, this.firs, adcNumberService(adcNumberRepository), ficNumberService(ficNumberRepository), uaopApplicationService(storageService, uaopApplicationRepository) );
     }
 
     @Bean
