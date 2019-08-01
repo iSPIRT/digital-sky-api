@@ -3,6 +3,7 @@ package com.ispirit.digitalsky.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ispirit.digitalsky.document.FlyDronePermissionApplication;
 import com.ispirit.digitalsky.document.LatLong;
+import com.ispirit.digitalsky.document.UAOPApplication;
 import com.ispirit.digitalsky.domain.*;
 import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.*;
@@ -62,6 +63,8 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
 
     private FicNumberServiceImpl ficNumberServiceImpl;
 
+    private UAOPApplicationService uaopApplicationService;
+
     public static final int SUNRISE_HOUR = 5;
 
     public static final int SUNRISE_SUNSET_MINUTE = 30;
@@ -80,6 +83,10 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
 
     public static final double MAXIMUM_FLIGHT_AREA_SQ_KM=3.14159;
 
+    private long maxEnduranceOfDrone;
+
+    private String typeOfDrone;
+
     public FlyDronePermissionApplicationServiceImpl(
             FlyDronePermissionApplicationRepository repository,
             StorageService storageService,
@@ -87,7 +94,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             DigitalSignService digitalSignService,
             OperatorDroneService operatorDroneService,
             UserProfileService userProfileService,
-            PilotService pilotService, Configuration freemarkerConfiguration,List<FlightInformationRegion> firs, AdcNumberServiceImpl adcNumberServiceImpl, FicNumberServiceImpl ficNumberServiceImpl) {
+            PilotService pilotService, Configuration freemarkerConfiguration,List<FlightInformationRegion> firs, AdcNumberServiceImpl adcNumberServiceImpl, FicNumberServiceImpl ficNumberServiceImpl, UAOPApplicationService uaopApplicationService) {
         this.repository = repository;
         this.storageService = storageService;
         this.airspaceCategoryService = airspaceCategoryService;
@@ -99,6 +106,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         this.firs=firs;
         this.adcNumberServiceImpl = adcNumberServiceImpl;
         this.ficNumberServiceImpl = ficNumberServiceImpl;
+        this.uaopApplicationService = uaopApplicationService;
     }
 
     @Override
@@ -108,10 +116,17 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         application.setApplicantId(userPrincipal.getId());
         application.setApplicant(userPrincipal.getUsername());
+        application.setApplicantEmail(userPrincipal.getEmail());
         OperatorDrone operatorDrone = operatorDroneService.find(application.getDroneId());
+
+        maxEnduranceOfDrone = (long) operatorDrone.getDroneType().getMaxEndurance();
+        typeOfDrone = operatorDrone.getDroneType().getDroneCategoryType().getValue();
         application.setApplicantType(operatorDrone.getOperatorType());
         application.setOperatorId(operatorDrone.getOperatorId());
         setPilotId(application);
+        application.setMaxEndurance(maxEnduranceOfDrone);
+        application.setDroneType(typeOfDrone);
+        application.setUin(operatorDrone.getUinNo());
         checkMaxHeight(application);
         checkTimeWithinSunriseSunset(application);
         checkWithinAday(application);
@@ -125,16 +140,6 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             handleSubmit(application);
             application.setFir(matchingFir.getName());
             FlyDronePermissionApplication document = repository.insert(application);
-            if(droneCategoryRegulationsCheck(application)) {
-                String ficNumber = ficNumberServiceImpl.generateNewFicNumber(application);
-                String adcNumber = adcNumberServiceImpl.generateNewAdcNumber(application);
-                application.setAdcNumber(adcNumber);
-                application.setFicNumber(ficNumber);
-                generatePermissionArtifactWithAdcAndFic(application,ficNumber,adcNumber);
-            }
-            else {
-                generatePermissionArtifact(document);
-            }
             return document;
         } else {
             return repository.insert(application);
@@ -196,16 +201,6 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             actualForm.setSubmittedDate(new Date());
             handleSubmit(actualForm);
             actualForm.setFir(matchingFir.getName());
-            if(droneCategoryRegulationsCheck(actualForm)) {
-                String ficNumber = ficNumberServiceImpl.generateNewFicNumber(actualForm);
-                String adcNumber = adcNumberServiceImpl.generateNewAdcNumber(actualForm);
-                actualForm.setAdcNumber(adcNumber);
-                actualForm.setFicNumber(ficNumber);
-                generatePermissionArtifactWithAdcAndFic(actualForm,ficNumber,adcNumber);
-            }
-            else {
-                generatePermissionArtifact(actualForm);
-            }
             return repository.save(actualForm);
         } else {
             return repository.save(actualForm);
@@ -248,12 +243,16 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             throw new ApplicationNotInSubmittedStatusException();
         }
 
+        String ficNumber = ficNumberServiceImpl.generateNewFicNumber(actualForm);
+        String adcNumber = adcNumberServiceImpl.generateNewAdcNumber(actualForm);
+        actualForm.setFicNumber(ficNumber);
+        actualForm.setAdcNumber(adcNumber);
         actualForm.setApproverId(userPrincipal.getId());
         actualForm.setApprover(userPrincipal.getUsername());
         actualForm.setApprovedDate(new Date());
         actualForm.setApproverComments(approveRequestBody.getComments());
         actualForm.setStatus(approveRequestBody.getStatus());
-
+        generatePermissionArtifactWithAdcAndFic(actualForm,ficNumber,adcNumber);
         FlyDronePermissionApplication savedForm = repository.save(actualForm);
         return savedForm;
     }
@@ -263,6 +262,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
     public FlyDronePermissionApplication approveByAtcApplication(ApproveRequestBody approveRequestBody) throws ApplicationNotFoundException, UnAuthorizedAccessException {
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         FlyDronePermissionApplication actualForm = repository.findById(approveRequestBody.getApplicationFormId());
+        String ficNumber = ficNumberServiceImpl.generateNewFicNumber(actualForm);
         if (actualForm == null) {
             throw new ApplicationNotFoundException();
         }
@@ -270,7 +270,7 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
         if (actualForm.getStatus() != ApplicationStatus.SUBMITTED) {
             throw new ApplicationNotInSubmittedStatusException();
         }
-
+        actualForm.setFicNumber(ficNumber);
         actualForm.setApproverId(userPrincipal.getId());
         actualForm.setApprover(userPrincipal.getUsername());
         actualForm.setApprovedDate(new Date());
@@ -294,12 +294,15 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
             throw new ApplicationNotApprovedByAtc();
         }
 
+        String adcNumber = adcNumberServiceImpl.generateNewAdcNumber(actualForm);
+        actualForm.setAdcNumber(adcNumber);
+
         actualForm.setApproverId(userPrincipal.getId());
         actualForm.setApprover(userPrincipal.getUsername());
         actualForm.setApprovedDate(new Date());
         actualForm.setApproverComments(approveRequestBody.getComments());
         actualForm.setStatus(approveRequestBody.getStatus());
-
+        generatePermissionArtifactWithAdcAndFic(actualForm,actualForm.getFicNumber(),adcNumber);
         FlyDronePermissionApplication savedForm = repository.save(actualForm);
         return savedForm;
     }
@@ -354,10 +357,18 @@ public class FlyDronePermissionApplicationServiceImpl implements FlyDronePermiss
                 application.setApprovedDate(new Date());
                 application.setApproverComments("Self approval, within green zone");
                 application.setStatus(ApplicationStatus.APPROVED);
+                generatePermissionArtifact(application);
             }
             else{
-                application.setStatus(ApplicationStatus.SUBMITTED);
                 UserPrincipal userPrincipal = UserPrincipal.securityContext();
+                if(droneCategoryRegulationsCheck(application)) {
+                    Collection<UAOPApplication> uaopApplicationCollection = uaopApplicationService.getApplicationsOfApplicant(userPrincipal.getId());
+                    for(UAOPApplication app: uaopApplicationCollection){
+                        if (!app.getStatus().equals(ApplicationStatus.APPROVED))
+                            throw new RuntimeException("You need to have a UAOP approved account to fly with these conditions");
+                    }
+                }
+                application.setStatus(ApplicationStatus.SUBMITTED);
                 application.setApproverId(userPrincipal.getId());
                 application.setApprover(userPrincipal.getUsername());
                 application.setApprovedDate(new Date());

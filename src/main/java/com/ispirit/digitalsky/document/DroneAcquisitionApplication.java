@@ -52,6 +52,12 @@ public abstract class DroneAcquisitionApplication extends BasicApplication {
     @Field("serialNo")
     protected String serialNo;
 
+    @Field("serialNoStart")
+    protected String serialNoStart;
+
+    @Field("serialNoEnd")
+    protected String serialNoEnd;
+
     @Field("dateOfManufacture")
     @JsonSerialize(using = CustomLocalDateSerializer.class)
     @JsonDeserialize(using = CustomLocalDateDeSerializer.class)
@@ -93,6 +99,8 @@ public abstract class DroneAcquisitionApplication extends BasicApplication {
     @Transient
     protected MultipartFile securityClearanceDoc;
 
+    private ApplicantCategory applicantCategory;
+
     public DroneAcquisitionApplication() { setCreatedDate(new Date());}
 
     public ApplicantCategory getApplicantCategory() {
@@ -100,8 +108,6 @@ public abstract class DroneAcquisitionApplication extends BasicApplication {
     }
 
     public void setApplicantCategory(ApplicantCategory applicantCategory) { this.applicantCategory = applicantCategory; }
-
-    private ApplicantCategory applicantCategory;
 
     public String getManufacturer() {
         return manufacturer;
@@ -248,4 +254,21 @@ public abstract class DroneAcquisitionApplication extends BasicApplication {
     public String getManufacturerNationality() { return manufacturerNationality; }
 
     public void setManufacturerNationality(String manufacturerNationality) { this.manufacturerNationality = manufacturerNationality; }
+
+    public void setSerialNoStart(String serialNoStart) {
+        this.serialNoStart = serialNoStart;
+    }
+
+    public void setSerialNoEnd(String serialNoEnd) {
+        this.serialNoEnd = serialNoEnd;
+    }
+
+    public String getSerialNoStart() {
+        return serialNoStart;
+    }
+
+    public String getSerialNoEnd() {
+        return serialNoEnd;
+    }
+    
 }

@@ -6,6 +6,7 @@ import com.ispirit.digitalsky.repository.DroneDeviceRepository;
 import com.ispirit.digitalsky.repository.IndividualOperatorRepository;
 import com.ispirit.digitalsky.repository.OrganizationOperatorRepository;
 import com.ispirit.digitalsky.service.DroneDeviceServiceImpl;
+import com.ispirit.digitalsky.service.DroneTypeServiceImpl;
 import com.ispirit.digitalsky.service.api.DigitalSignatureVerifierService;
 import com.ispirit.digitalsky.service.api.DroneDeviceService;
 import com.ispirit.digitalsky.service.api.ManufacturerService;
@@ -39,10 +40,11 @@ public class SpecialContext {
   DroneDeviceService droneDeviceService(DroneDeviceRepository droneRepository, DigitalSignatureVerifierService signatureVerifierService,
                                         OrganizationOperatorRepository organizationOperatorRepository,
                                         OperatorDroneService operatorDroneService,
-                                        ManufacturerService manufacturerService) {
+                                        ManufacturerService manufacturerService,
+                                        DroneTypeServiceImpl droneTypeService) {
     IndividualOperatorRepository individualOperatorRepository = mock(IndividualOperatorRepository.class);
     when(individualOperatorRepository.loadByBusinessIdentifier(any(String.class))).thenReturn(any(IndividualOperator.class));
-    return new DroneDeviceServiceImpl(droneRepository, signatureVerifierService,individualOperatorRepository, organizationOperatorRepository, operatorDroneService, manufacturerService );
+    return new DroneDeviceServiceImpl(droneRepository, signatureVerifierService,individualOperatorRepository, organizationOperatorRepository, operatorDroneService, manufacturerService, droneTypeService);
   }
 
   @Bean

@@ -31,7 +31,7 @@ public class FicNumberServiceImpl implements FicNumberService {
     try {
       latestEntryForDate.incrementNum();
     } catch (RuntimeException e) {
-      throw new RuntimeException("Issue with increment in ADC", e);
+      throw new RuntimeException("Issue with increment in FIC", e);
     }
     return ficNumberRepository.save(latestEntryForDate).getFicNumber();
 

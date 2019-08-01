@@ -20,7 +20,7 @@ public class DroneDevice implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @JsonIgnore
+    @NotNull
     @Column(name = "DRONE_TYPE_ID")
     private long droneTypeId;
 
@@ -79,13 +79,14 @@ public class DroneDevice implements Serializable {
 
     }
 
-    public DroneDevice(String deviceId, String deviceModelId, String version, String txn, String idHash, String operatorBusinessIdentifier ) {
+    public DroneDevice(String deviceId, String deviceModelId, String version, String txn, String idHash, String operatorBusinessIdentifier, long droneTypeId ) {
         this.deviceId = deviceId;
         this.deviceModelId = deviceModelId;
         this.version = version;
         this.txn = txn;
         this.idHash = idHash;
         this.operatorBusinessIdentifier = operatorBusinessIdentifier;
+        this.droneTypeId = droneTypeId;
     }
 
     public DroneDevice(String deviceId, String deviceModelId, String version, String txn, String idHash ) {

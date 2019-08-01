@@ -38,6 +38,7 @@ public class UAOPApplicationServiceImpl implements UAOPApplicationService {
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         uaopApplication.setApplicantId(userPrincipal.getId());
         uaopApplication.setApplicant(userPrincipal.getUsername());
+        uaopApplication.setApplicantEmail(userPrincipal.getEmail());
         if (uaopApplication.getStatus() == ApplicationStatus.SUBMITTED) {
             uaopApplication.setSubmittedDate(new Date());
         }

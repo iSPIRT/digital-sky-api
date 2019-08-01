@@ -79,7 +79,7 @@ public class AirspaceCategoryServiceImpl implements AirspaceCategoryService {
             result.add(category);
         }
 
-        result.sort((o1, o2) -> o2.getModifiedDate().compareTo(o1.getModifiedDate()));
+        result.sort((o1, o2) -> o2.getModifiedDate().compareTo(o1.getModifiedDate()));//todo: this cannot be null
         return result;
     }
 

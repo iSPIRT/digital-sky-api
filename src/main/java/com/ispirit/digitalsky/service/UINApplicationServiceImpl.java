@@ -50,6 +50,7 @@ public class UINApplicationServiceImpl implements UINApplicationService {
             uinApplication.setApplicantId(userPrincipal.getId());
             setOperatorDetails(userPrincipal, uinApplication);
             uinApplication.setApplicant(userPrincipal.getUsername());
+            uinApplication.setApplicantEmail(userPrincipal.getEmail());
             UINApplication document = uinApplicationRepository.insert(uinApplication);
             storageService.store(uinApplication.getAllDocs(), document.getId());
             operatorDroneService.updateUINApplicationId(uinApplication.getOperatorDroneId(), uinApplication.getId(), OperatorDroneStatus.UIN_DRAFT);

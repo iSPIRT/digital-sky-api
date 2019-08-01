@@ -1,13 +1,15 @@
 package com.ispirit.digitalsky.controller;
 
 import com.cronutils.model.Cron;
-import com.cronutils.model.definition.CronDefinition;
 import com.cronutils.model.definition.CronDefinitionBuilder;
 import com.cronutils.parser.CronParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ispirit.digitalsky.document.FlightLogObject;
 import com.ispirit.digitalsky.document.FlyDronePermissionApplication;
 import com.ispirit.digitalsky.domain.*;
 import com.ispirit.digitalsky.dto.Errors;
 import com.ispirit.digitalsky.exception.*;
+import com.ispirit.digitalsky.service.api.FlightLogService;
 import com.ispirit.digitalsky.service.api.FlyDronePermissionApplicationService;
 import com.ispirit.digitalsky.service.api.OperatorDroneService;
 import com.ispirit.digitalsky.service.api.UserProfileService;
@@ -17,10 +19,10 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,13 +42,17 @@ public class FlyDronePermissionApplicationController {
     private OperatorDroneService operatorDroneService;
     private UserProfileService userProfileService;
     private CustomValidator validator;
+    private ObjectMapper objectMapper;
+    private FlightLogService flightLogService;
 
     @Autowired
-    public FlyDronePermissionApplicationController(FlyDronePermissionApplicationService service, OperatorDroneService operatorDroneService, UserProfileService userProfileService, CustomValidator validator) {
+    public FlyDronePermissionApplicationController(FlyDronePermissionApplicationService service, OperatorDroneService operatorDroneService, UserProfileService userProfileService, CustomValidator validator, ObjectMapper objectMapper, FlightLogService flightLogService) {
         this.service = service;
         this.operatorDroneService = operatorDroneService;
         this.userProfileService = userProfileService;
         this.validator = validator;
+        this.objectMapper = objectMapper;
+        this.flightLogService = flightLogService;
     }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -158,6 +164,9 @@ public class FlyDronePermissionApplicationController {
         try {
             FlyDronePermissionApplication application = service.get(applicationId);
 
+            if(application==null)
+                return new ResponseEntity<>(new Errors(new ApplicationNotFoundException().getMessage()),HttpStatus.BAD_REQUEST);
+
             UserPrincipal userPrincipal = UserPrincipal.securityContext();
             if (!userPrincipal.isAdmin() && userPrincipal.getId() != application.getApplicantId()) {
                 return new ResponseEntity<>(new Errors("UnAuthorized Access"), HttpStatus.UNAUTHORIZED);
@@ -169,6 +178,40 @@ public class FlyDronePermissionApplicationController {
 
             return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
                     "attachment; filename=" + resourceFile.getFilename()).contentLength(resourceFile.contentLength()).cacheControl(CacheControl.noCache()).body(resourceFile);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @RequestMapping(value = "/{applicationId}/document/flightLog", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> postFlightLog(@PathVariable String applicationId,@RequestParam(value = "flightLogDocument") MultipartFile flightLogDocument)
+    {
+        try {
+            FlyDronePermissionApplication application = service.get(applicationId);
+
+            if (application == null)
+                return new ResponseEntity<>(new Errors(new ApplicationNotFoundException().getMessage()), HttpStatus.BAD_REQUEST);
+
+            UserPrincipal userPrincipal = UserPrincipal.securityContext();
+            if (!userPrincipal.isAdmin() && userPrincipal.getId() != application.getApplicantId()) {
+                return new ResponseEntity<>(new Errors("UnAuthorized Access"), HttpStatus.UNAUTHORIZED);
+            }
+            if (!application.getStatus().equals(ApplicationStatus.APPROVED) && !application.getStatus().equals(ApplicationStatus.APPROVEDBYAFMLU)) {
+                return new ResponseEntity<>(new Errors("Application Not Approved Yet"), HttpStatus.BAD_REQUEST);
+            }
+            if(LocalDateTime.now().isBefore(application.getEndDateTime()))
+                return new ResponseEntity<>(new Errors("Flight time is still not complete and log cannot be submitted"),HttpStatus.BAD_REQUEST);
+
+            String content = new String(flightLogDocument.getBytes(),"UTF-8");
+
+            FlightLogObject flightLogObject = objectMapper.readValue(content, FlightLogObject.class);
+
+            FlightLogEntry flightLogEntry = new FlightLogEntry(application.getId(),application.getUin(),flightLogObject.getSignature());
+
+            if(flightLogService.testAgainstPreviousHash(flightLogEntry))
+                flightLogService.storeFlightLog(application,content,flightLogEntry);
+
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(new Errors(e.getMessage()), HttpStatus.NOT_FOUND);
         }

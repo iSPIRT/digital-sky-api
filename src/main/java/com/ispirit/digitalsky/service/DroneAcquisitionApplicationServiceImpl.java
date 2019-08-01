@@ -52,6 +52,7 @@ public class DroneAcquisitionApplicationServiceImpl<T extends DroneAcquisitionAp
     public T createDroneAcquisitionApplication(T droneAcquisitionApplicationForm) {
         UserPrincipal userPrincipal = UserPrincipal.securityContext();
         droneAcquisitionApplicationForm.setApplicantId(userPrincipal.getId());
+        droneAcquisitionApplicationForm.setApplicantEmail(userPrincipal.getEmail());
         droneAcquisitionApplicationForm.setCreatedDate(new Date());
 
         T insertedForm = droneAcquisitionFormRepository.insert(droneAcquisitionApplicationForm);
