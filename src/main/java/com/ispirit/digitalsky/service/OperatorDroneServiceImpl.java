@@ -8,9 +8,11 @@ import com.ispirit.digitalsky.repository.OperatorDroneRepository;
 import com.ispirit.digitalsky.service.api.OperatorDroneService;
 import com.ispirit.digitalsky.service.api.UserProfileService;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 
@@ -75,6 +77,7 @@ public class OperatorDroneServiceImpl implements OperatorDroneService {
 
         if(operatorDroneStatus == OperatorDroneStatus.UIN_APPROVED) {
             drone.setRegisteredDate(LocalDate.now());
+            drone.setApprovalTimestamp(new Timestamp(new Date().getTime()));
         }
         return operatorDroneRepository.save(drone);
     }
@@ -123,7 +126,7 @@ public class OperatorDroneServiceImpl implements OperatorDroneService {
     @Override
     public void createUinNumberForDevice(long id){
         OperatorDrone drone = operatorDroneRepository.findOne(id);
-        long operatorDroneid =operatorDroneRepository.findLatestUIN();
+        long operatorDroneid =operatorDroneRepository.findLatestUIN().get(0);
         OperatorDrone lastdrone = operatorDroneRepository.findOne(operatorDroneid);
         if(lastdrone==null || lastdrone.getUinNo()==null) {
             drone.setUinNo("U"+String.format("%07d", 1));

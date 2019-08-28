@@ -7,6 +7,7 @@ import com.ispirit.digitalsky.util.CustomLocalDateSerializer;
 import com.ispirit.digitalsky.util.LocalDateAttributeConverter;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 
 @Entity
@@ -52,6 +53,9 @@ public class OperatorDrone {
 
     @Column(name = "UIN_NO")
     private String uinNo;
+
+    @Column(name ="APPROVAL_TIME_STAMP")
+    private Timestamp approvalTimestamp;
 
     public OperatorDrone() {
 
@@ -138,5 +142,9 @@ public class OperatorDrone {
 
     public void setUinNo(String uinNo) {
         this.uinNo = uinNo;
+    }
+
+    public void setApprovalTimestamp(Timestamp approvalTimestamp) {
+        this.approvalTimestamp = approvalTimestamp;
     }
 }
