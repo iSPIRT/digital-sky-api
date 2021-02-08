@@ -54,7 +54,7 @@ public class DigitalSignServiceImpl implements DigitalSignService {
 
         privateKeyString = privateKeyString.replaceAll("\\n", "").replace("-----BEGIN PRIVATE KEY-----", "").replace("-----END PRIVATE KEY-----", "");
 
-        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyString));
+        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(Base64.getMimeDecoder().decode(privateKeyString));
 
         KeyFactory kf = KeyFactory.getInstance("RSA");
 
