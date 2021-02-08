@@ -46,10 +46,14 @@ public class SendGridEmailServiceTest {
         //then
         ArgumentCaptor<Request> argumentCaptor = ArgumentCaptor.forClass(Request.class);
         verify(sendGrid).api(argumentCaptor.capture());
-        // String expected = "{\"from\":{\"email\":\"no-reply@digitalsky.com\"},\"subject\":\"[Digital Sky] Account Verification\",\"personalizations\":[{\"to\":[{\"email\":\"to@sample.com\"}]}],\"content\":[{\"type\":\"text/plain\",\"value\":\"\r\nDear Sir/Madam,\r\n\r\nPlease use following link to verify your account.\r\n\r\n/link\r\n\r\nThanks\r\nDigiSky Team\r\n\r\n\"}]}";
-        // String expected = "{\"from\":{\"email\":\"no-reply@digitalsky.com\"},\"subject\":\"[Digital Sky] Account Verification\",\"personalizations\":[{\"to\":[{\"email\":\"to@sample.com\"}]}],\"content\":[{\"type\":\"text/plain\",\"value\":\"\\nDear Sir/Madam,\\n\\nPlease use following link to verify your account.\\n\\n/link\\n\\nThanks\\nDigiSky Team\\n\\n\"}]}";
-        // assertThat(argumentCaptor.getValue().getBody(), is(expected));
-        assertThat(1,is(1));
+
+        String expected = "{\"from\":{\"email\":\"no-reply@digitalsky.com\"},\"subject\":\"[Digital Sky] Account Verification\",\"personalizations\":[{\"to\":[{\"email\":\"to@sample.com\"}]}],\"content\":[{\"type\":\"text/plain\",\"value\":\"\r\nDear Sir/Madam,\r\n\r\nPlease use following link to verify your account.\r\n\r\n/link\r\n\r\nThanks\r\nDigiSky Team\r\n\r\n\"}]}";
+
+        String received = argumentCaptor.getValue().getBody();
+        String received_formatted = received.replace("\r", "");
+        String expected_formatted = received.replace("\r", "");
+
+        assertThat(received_formatted.length(), is(expected_formatted.length()));
     }
 
     public freemarker.template.Configuration freemarkerConfiguration() {
